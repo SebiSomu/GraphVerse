@@ -15,15 +15,17 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_graph(nullptr)
     , m_timer(new QTimer(this))
+    , m_displayTimer(new QTimer(this))
     , m_stepIdx(0)
     , m_animDone(false)
     , m_hasCurrent(false)
     , m_currentAlgo(AlgoType::None)
+    , m_elapsedMs(0)
 {
     ui->setupUi(this);
     setWindowTitle("MST Visualizer - Kruskal / Prim / Boruvka");
     resize(COLS * SPACING + offsetX() * 2,
-           ROWS * SPACING + offsetY() + 60);
+           ROWS * SPACING + offsetY() + 90);
 
     QPushButton* btnK = new QPushButton("Kruskal", this);
     QPushButton* btnP = new QPushButton("Prim",    this);
@@ -48,6 +50,10 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel* lbl = new QLabel("Green = added to MST   Red = rejected   White = final MST", this);
     lbl->setStyleSheet("color:#aaaaaa;font-size:11px;");
 
+    m_clockLabel = new QLabel("0.000 s", this);
+    m_clockLabel->setStyleSheet("color:#00dc50; font-size:18px; font-weight:bold; min-width:110px;");
+    m_clockLabel->setAlignment(Qt::AlignCenter);
+
     QWidget*     toolbar = new QWidget(this);
     QHBoxLayout* hbox    = new QHBoxLayout(toolbar);
     hbox->addWidget(btnK);
@@ -55,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     hbox->addWidget(btnB);
     hbox->addSpacing(16);
     hbox->addWidget(btnR);
+    hbox->addStretch();
+    hbox->addWidget(m_clockLabel);
     hbox->addStretch();
     hbox->addWidget(lbl);
     hbox->setContentsMargins(8, 6, 8, 4);
@@ -64,7 +72,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(btnP, &QPushButton::clicked, this, &MainWindow::onPrimClicked);
     connect(btnB, &QPushButton::clicked, this, &MainWindow::onBoruvkaClicked);
     connect(btnR, &QPushButton::clicked, this, &MainWindow::onResetClicked);
-    connect(m_timer, &QTimer::timeout,   this, &MainWindow::onAnimationTick);
+    connect(m_timer,        &QTimer::timeout, this, &MainWindow::onAnimationTick);
+    connect(m_displayTimer, &QTimer::timeout, this, [this]{
+        if(m_currentAlgo == AlgoType::None) return;
+        qint64 ms = m_animDone ? m_elapsedMs
+                               : (m_elapsed.isValid() ? m_elapsed.elapsed() : 0);
+        m_clockLabel->setText(QString("%1.%2 s")
+                                  .arg(ms / 1000)
+                                  .arg(ms % 1000, 3, 10, QChar('0')));
+        m_clockLabel->setStyleSheet(
+            m_animDone
+                ? "color:white; font-size:18px; font-weight:bold; min-width:110px;"
+                : "color:#00dc50; font-size:18px; font-weight:bold; min-width:110px;");
+    });
+    m_displayTimer->start(50);
 
     srand(static_cast<unsigned>(time(nullptr)));
     buildGraph();
@@ -85,6 +106,8 @@ void MainWindow::buildGraph()
     m_stepIdx     = 0;
     m_animDone    = false;
     m_currentAlgo = AlgoType::None;
+    m_clockLabel->setText("0.000 s");
+    m_clockLabel->setStyleSheet("color:#00dc50; font-size:18px; font-weight:bold; min-width:110px;");
 
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
     std::uniform_int_distribution<int> costDist(1, 99);
@@ -96,12 +119,12 @@ void MainWindow::buildGraph()
             m_graph->addNode(QPoint(ox + c * SPACING, oy + r * SPACING));
 
     auto& nodes = m_graph->getNodes();
+
     auto idx = [&](int r, int c){ return r * COLS + c; };
 
     for(int r = 0; r < ROWS; r++)
         for(int c = 0; c < COLS - 1; c++)
             m_graph->addEdge(nodes[idx(r,c)], nodes[idx(r,c+1)], costDist(rng));
-
     for(int r = 0; r < ROWS - 1; r++)
         for(int c = 0; c < COLS; c++)
             m_graph->addEdge(nodes[idx(r,c)], nodes[idx(r+1,c)], costDist(rng));
@@ -116,14 +139,15 @@ void MainWindow::startAnimation(AlgoType algo)
     m_accepted.clear();
     m_rejected.clear();
     m_hasCurrent = false;
-    m_stepIdx    = 0;
-    m_animDone   = false;
+    m_stepIdx = 0;
+    m_animDone = false;
 
     if(algo == AlgoType::Kruskal) m_steps = m_graph->kruskal();
     else if(algo == AlgoType::Prim)    m_steps = m_graph->prim();
     else                               m_steps = m_graph->boruvka();
 
-    m_timer->start(60); // ms per step
+    m_timer->start(5); // fire every 5ms
+    m_elapsed.start();
 }
 
 void MainWindow::onAnimationTick()
@@ -131,17 +155,18 @@ void MainWindow::onAnimationTick()
     if(m_stepIdx >= (int)m_steps.size()) {
         m_timer->stop();
         m_hasCurrent = false;
-        m_animDone   = true;
+        m_animDone = true;
+        m_elapsedMs = m_elapsed.elapsed();
         update();
         return;
     }
 
     MSTStep step = m_steps[m_stepIdx++];
-    m_current    = step;
+    m_current = step;
     m_hasCurrent = true;
 
     if(step.accepted) m_accepted.push_back(step);
-    else              m_rejected.push_back(step);
+    else m_rejected.push_back(step);
 
     update();
 }

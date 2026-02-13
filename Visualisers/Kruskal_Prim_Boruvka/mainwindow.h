@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QPaintEvent>
 #include <QTimer>
+#include <QElapsedTimer>
+#include <QLabel>
 #include <vector>
 #include "undirectedgraph.h"
 
@@ -39,21 +41,26 @@ private:
 
     UndirectedGraph* m_graph;
 
-    QTimer*               m_timer;
-    std::vector<MSTStep>  m_steps;
-    int                   m_stepIdx;
-    bool                  m_animDone;
+    QTimer* m_timer;
+    QTimer* m_displayTimer;
+    QLabel* m_clockLabel;
+    std::vector<MSTStep> m_steps;
+    int m_stepIdx;
+    bool m_animDone;
 
-    std::vector<MSTStep>  m_accepted;
-    std::vector<MSTStep>  m_rejected;
-    MSTStep               m_current;
-    bool                  m_hasCurrent;
+    std::vector<MSTStep> m_accepted;
+    std::vector<MSTStep> m_rejected;
+    MSTStep m_current;
+    bool m_hasCurrent;
 
     enum class AlgoType { None, Kruskal, Prim, Boruvka };
     AlgoType m_currentAlgo;
 
     void buildGraph();
     void startAnimation(AlgoType algo);
+
+    QElapsedTimer m_elapsed;   // measures real wall-clock time
+    qint64 m_elapsedMs;
 
     int offsetX() const { return 30; }
     int offsetY() const { return 62; }
