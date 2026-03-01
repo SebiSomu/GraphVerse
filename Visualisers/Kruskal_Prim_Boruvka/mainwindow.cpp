@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include <QPainter>
 #include <QPushButton>
 #include <QLabel>
@@ -15,12 +14,10 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_graph(nullptr)
     , m_timer(new QTimer(this))
-    , m_displayTimer(new QTimer(this))
     , m_stepIdx(0)
     , m_animDone(false)
     , m_hasCurrent(false)
     , m_currentAlgo(AlgoType::None)
-    , m_elapsedMs(0)
 {
     ui->setupUi(this);
     setWindowTitle("MST Visualizer - Kruskal / Prim / Boruvka");
@@ -50,10 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel* lbl = new QLabel("Green = added to MST   Red = rejected   White = final MST", this);
     lbl->setStyleSheet("color:#aaaaaa;font-size:11px;");
 
-    m_clockLabel = new QLabel("0.000 s", this);
-    m_clockLabel->setStyleSheet("color:#00dc50; font-size:18px; font-weight:bold; min-width:110px;");
-    m_clockLabel->setAlignment(Qt::AlignCenter);
-
     QWidget*     toolbar = new QWidget(this);
     QHBoxLayout* hbox    = new QHBoxLayout(toolbar);
     hbox->addWidget(btnK);
@@ -61,8 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
     hbox->addWidget(btnB);
     hbox->addSpacing(16);
     hbox->addWidget(btnR);
-    hbox->addStretch();
-    hbox->addWidget(m_clockLabel);
     hbox->addStretch();
     hbox->addWidget(lbl);
     hbox->setContentsMargins(8, 6, 8, 4);
@@ -72,26 +63,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(btnP, &QPushButton::clicked, this, &MainWindow::onPrimClicked);
     connect(btnB, &QPushButton::clicked, this, &MainWindow::onBoruvkaClicked);
     connect(btnR, &QPushButton::clicked, this, &MainWindow::onResetClicked);
-    connect(m_timer,        &QTimer::timeout, this, &MainWindow::onAnimationTick);
-    connect(m_displayTimer, &QTimer::timeout, this, [this]{
-        if(m_currentAlgo == AlgoType::None) return;
-        qint64 ms = m_animDone ? m_elapsedMs
-                               : (m_elapsed.isValid() ? m_elapsed.elapsed() : 0);
-        m_clockLabel->setText(QString("%1.%2 s")
-                                  .arg(ms / 1000)
-                                  .arg(ms % 1000, 3, 10, QChar('0')));
-        m_clockLabel->setStyleSheet(
-            m_animDone
-                ? "color:white; font-size:18px; font-weight:bold; min-width:110px;"
-                : "color:#00dc50; font-size:18px; font-weight:bold; min-width:110px;");
-    });
-    m_displayTimer->start(50);
+    connect(m_timer, &QTimer::timeout, this, &MainWindow::onAnimationTick);
 
     srand(static_cast<unsigned>(time(nullptr)));
     buildGraph();
 }
 
-MainWindow::~MainWindow() { delete m_graph; delete ui; }
+MainWindow::~MainWindow() {
+    delete m_graph;
+    delete ui;
+}
 
 void MainWindow::buildGraph()
 {
@@ -106,8 +87,6 @@ void MainWindow::buildGraph()
     m_stepIdx     = 0;
     m_animDone    = false;
     m_currentAlgo = AlgoType::None;
-    m_clockLabel->setText("0.000 s");
-    m_clockLabel->setStyleSheet("color:#00dc50; font-size:18px; font-weight:bold; min-width:110px;");
 
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
     std::uniform_int_distribution<int> costDist(1, 99);
@@ -119,7 +98,6 @@ void MainWindow::buildGraph()
             m_graph->addNode(QPoint(ox + c * SPACING, oy + r * SPACING));
 
     auto& nodes = m_graph->getNodes();
-
     auto idx = [&](int r, int c){ return r * COLS + c; };
 
     for(int r = 0; r < ROWS; r++)
@@ -146,8 +124,7 @@ void MainWindow::startAnimation(AlgoType algo)
     else if(algo == AlgoType::Prim)    m_steps = m_graph->prim();
     else                               m_steps = m_graph->boruvka();
 
-    m_timer->start(5); // fire every 5ms
-    m_elapsed.start();
+    m_timer->start(5); // tick every 5ms
 }
 
 void MainWindow::onAnimationTick()
@@ -156,7 +133,6 @@ void MainWindow::onAnimationTick()
         m_timer->stop();
         m_hasCurrent = false;
         m_animDone = true;
-        m_elapsedMs = m_elapsed.elapsed();
         update();
         return;
     }
@@ -211,23 +187,28 @@ void MainWindow::paintEvent(QPaintEvent*)
         }
     };
 
+    // Draw all edges in gray
     for(const auto& ed : m_graph->getEdges()) {
         MSTStep s{ed.getFirst().getIndex(), ed.getSecond().getIndex(), ed.getCost(), false};
         drawEdge(s, QColor(60, 60, 60), 1, false);
     }
 
+    // Draw rejected edges
     for(const auto& s : m_rejected)
         drawEdge(s, QColor(160, 30, 30), 1, false);
 
+    // Draw accepted MST edges
     QColor mstCol = m_animDone ? Qt::white : QColor(0, 220, 80);
     for(const auto& s : m_accepted)
         drawEdge(s, mstCol, m_animDone ? 2 : 2, true);
 
+    // Draw current edge being considered
     if(m_hasCurrent && !m_animDone) {
         QColor cur = m_current.accepted ? QColor(0, 255, 100) : QColor(255, 60, 60);
         drawEdge(m_current, cur, 3, true);
     }
 
+    // Draw nodes
     for(const auto& n : m_graph->getNodes()) {
         QRect r(n.getX() - R, n.getY() - R, R*2, R*2);
 
@@ -253,6 +234,7 @@ void MainWindow::paintEvent(QPaintEvent*)
         p.drawText(r, Qt::AlignCenter, QString::number(n.getIndex()));
     }
 
+    // Status text at bottom
     if(m_currentAlgo != AlgoType::None) {
         QString algoName;
         QColor  algoCol;

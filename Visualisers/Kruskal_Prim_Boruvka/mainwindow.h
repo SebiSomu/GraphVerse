@@ -1,10 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 #include <QPaintEvent>
 #include <QTimer>
-#include <QElapsedTimer>
 #include <QLabel>
 #include <vector>
 #include "undirectedgraph.h"
@@ -16,11 +14,9 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
     void paintEvent(QPaintEvent* e) override;
 
 private slots:
@@ -40,10 +36,8 @@ private:
     static const int NODE_R  = 10;
 
     UndirectedGraph* m_graph;
+    QTimer* m_timer;  // for animation only
 
-    QTimer* m_timer;
-    QTimer* m_displayTimer;
-    QLabel* m_clockLabel;
     std::vector<MSTStep> m_steps;
     int m_stepIdx;
     bool m_animDone;
@@ -58,9 +52,6 @@ private:
 
     void buildGraph();
     void startAnimation(AlgoType algo);
-
-    QElapsedTimer m_elapsed;   // measures real wall-clock time
-    qint64 m_elapsedMs;
 
     int offsetX() const { return 30; }
     int offsetY() const { return 62; }

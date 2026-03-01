@@ -18,9 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_startIdx(-1)
     , m_endIdx(-1)
     , m_timer(new QTimer(this))
-    , m_displayTimer(new QTimer(this))
-    , m_clockLabel(nullptr)
-    , m_elapsedMs(0)
     , m_stepIdx(0)
     , m_animDone(false)
     , m_currentNode(-1)
@@ -59,10 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel* lbl = new QLabel("Click node = Start   Shift+Click = End", this);
     lbl->setStyleSheet("color:#aaaaaa;font-size:11px;");
 
-    m_clockLabel = new QLabel("0.000 s", this);
-    m_clockLabel->setStyleSheet("color:#00dc50;font-size:18px;font-weight:bold;min-width:100px;");
-    m_clockLabel->setAlignment(Qt::AlignCenter);
-
     QWidget* toolbar = new QWidget(this);
     QHBoxLayout* hbox    = new QHBoxLayout(toolbar);
     hbox->addWidget(btnD);
@@ -72,7 +65,6 @@ MainWindow::MainWindow(QWidget *parent)
     hbox->addSpacing(10);
     hbox->addWidget(btnR);
     hbox->addStretch();
-    hbox->addWidget(m_clockLabel);
     hbox->addStretch();
     hbox->addWidget(lbl);
     hbox->setContentsMargins(8, 6, 8, 4);
@@ -84,19 +76,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(btnFW, &QPushButton::clicked, this, &MainWindow::onFloydWarshallClicked);
     connect(btnR, &QPushButton::clicked, this, &MainWindow::onResetClicked);
     connect(m_timer, &QTimer::timeout, this, &MainWindow::onAnimationTick);
-    connect(m_displayTimer, &QTimer::timeout, this, [this]{
-        if(m_currentAlgo == AlgoType::None) return;
-        qint64 ms = m_animDone ? m_elapsedMs
-                               : (m_elapsed.isValid() ? m_elapsed.elapsed() : 0);
-        m_clockLabel->setText(QString("%1.%2 s")
-                                  .arg(ms / 1000)
-                                  .arg(ms % 1000, 3, 10, QChar('0')));
-        m_clockLabel->setStyleSheet(
-            m_animDone
-                ? "color:white;font-size:18px;font-weight:bold;min-width:100px;"
-                : "color:#00dc50;font-size:18px;font-weight:bold;min-width:100px;");
-    });
-    m_displayTimer->start(50);
 
     srand(static_cast<unsigned>(time(nullptr)));
     buildGraph();
@@ -136,8 +115,6 @@ void MainWindow::buildGraph()
             m_graph->addEdge(nodes[idx(r+1,c)], nodes[idx(r,c)],   costDist(rng));
         }
 
-    m_clockLabel->setText("0.000 s");
-    m_clockLabel->setStyleSheet("color:#00dc50;font-size:18px;font-weight:bold;min-width:100px;");
     update();
 }
 
@@ -152,7 +129,6 @@ void MainWindow::resetAnimation()
     m_hasCurrent = false;
     m_currentNode = -1;
     m_currentAlgo = AlgoType::None;
-    m_elapsedMs = 0;
 }
 
 int MainWindow::nodeAt(QPoint pos) const
@@ -200,7 +176,6 @@ void MainWindow::startAnimation(AlgoType algo)
         m_steps = m_graph->floydWarshall(m_startIdx, m_endIdx, path);
 
     m_finalPath = path;
-    m_elapsed.start();
     m_timer->start(8);
 }
 
@@ -213,7 +188,6 @@ void MainWindow::onAnimationTick()
             m_timer->stop();
             m_animDone    = true;
             m_hasCurrent  = false;
-            m_elapsedMs   = m_elapsed.elapsed();
             update();
             return;
         }

@@ -5,7 +5,6 @@
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QTimer>
-#include <QElapsedTimer>
 #include <QLabel>
 #include <vector>
 #include <unordered_map>
@@ -48,10 +47,6 @@ private:
     int m_endIdx;
 
     QTimer* m_timer;
-    QTimer* m_displayTimer;
-    QLabel* m_clockLabel;
-    QElapsedTimer m_elapsed;
-    qint64 m_elapsedMs;
 
     std::vector<PathStep> m_steps;
     int m_stepIdx;
