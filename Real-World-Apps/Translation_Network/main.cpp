@@ -6,7 +6,6 @@
 #include <ctime>
 
 void buildNetwork(TranslationNetwork& net) {
-    // Format: {lang1, lang2, cost}
     std::vector<std::tuple<std::string, std::string, int>> connections = {
         // Romance family (1-3)
         {"Spanish", "French", 2}, {"Spanish", "Portuguese", 1}, {"Spanish", "Italian", 2},

@@ -1,0 +1,129 @@
+#pragma once
+
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QWidget>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QScrollArea>
+#include <QtWidgets/QStackedWidget>
+#include <QtWidgets/QGraphicsDropShadowEffect>
+#include <QtCore/QPropertyAnimation>
+#include <QtCore/QEasingCurve>
+#include <QtCore/QParallelAnimationGroup>
+#include <QtGui/QFont>
+#include <QtGui/QPainter>
+#include <QtGui/QLinearGradient>
+#include <QtGui/QPainterPath>
+#include <QtGui/QEnterEvent>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QMouseEvent>
+
+class AnimatedButton : public QPushButton
+{
+    Q_OBJECT
+    Q_PROPERTY(float glowOpacity READ glowOpacity WRITE setGlowOpacity)
+
+public:
+    explicit AnimatedButton(const QString& text, QWidget* parent = nullptr);
+    float glowOpacity() const { return m_glowOpacity; }
+    void setGlowOpacity(float v);
+    void setGlowColor(const QColor& c) { m_glowColor = c; update(); }
+
+protected:
+    void enterEvent(QEnterEvent* e) override;
+    void leaveEvent(QEvent* e) override;
+    void paintEvent(QPaintEvent* e) override;
+
+private:
+    float m_glowOpacity = 0.0f;
+    QColor m_glowColor;
+};
+
+// Big clickable card for navigation
+class BigCategoryButton : public QFrame
+{
+    Q_OBJECT
+
+public:
+    explicit BigCategoryButton(const QString& title, const QString& subtitle,
+                               const QString& iconText, const QColor& accentColor,
+                               QWidget* parent = nullptr);
+
+signals:
+    void clicked();
+
+protected:
+    void paintEvent(QPaintEvent* e) override;
+    void enterEvent(QEnterEvent* e) override;
+    void leaveEvent(QEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
+
+private:
+    QString m_title;
+    QString m_subtitle;
+    QString m_iconText;
+    QColor  m_accentColor;
+    bool    m_hovered  = false;
+};
+
+class GraphCanvas : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit GraphCanvas(QWidget* parent = nullptr);
+protected:
+    void paintEvent(QPaintEvent* e) override;
+    void timerEvent(QTimerEvent* e) override;
+private:
+    struct Node { float x, y, vx, vy; };
+    QVector<Node> m_nodes;
+    QVector<QPair<int,int>> m_edges;
+    float m_time = 0.0f;
+    int m_timer = 0;
+};
+
+// Hero widget that keeps canvas stretched
+class HeroWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit HeroWidget(QWidget* parent = nullptr) : QWidget(parent) {}
+    void setCanvas(GraphCanvas* c) { m_canvas = c; }
+protected:
+    void resizeEvent(QResizeEvent* e) override {
+        QWidget::resizeEvent(e);
+        if (m_canvas) m_canvas->resize(size());
+    }
+private:
+    GraphCanvas* m_canvas = nullptr;
+};
+
+class GraphVersePlatform : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit GraphVersePlatform(QWidget* parent = nullptr);
+    ~GraphVersePlatform();
+
+private:
+    void setupUi();
+    void applyGlobalStyle();
+    
+    // UI Builders
+    QWidget* buildHeader();
+    QWidget* buildFooter();
+    HeroWidget* buildHeroSection();
+    
+    // Page Builders
+    QWidget* buildHomeView();
+    QWidget* buildVisualisersView();
+    QWidget* buildAppsView();
+
+    // Components
+    QStackedWidget* m_stack  = nullptr;
+    GraphCanvas*    m_canvas = nullptr;
+};

@@ -4,10 +4,10 @@
 #include <functional>
 #include <unordered_map>
 
-// Represents one animation step for MST visualization
+// One animation step for MST visualization
 struct MSTStep {
-    int fromIndex;   // edge start node
-    int toIndex;     // edge end node
+    int fromIndex;
+    int toIndex;
     int cost;
     bool accepted;   // true = added to MST (green), false = rejected (red)
 };

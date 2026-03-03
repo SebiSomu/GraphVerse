@@ -15,7 +15,6 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-// Maze cell
 struct Cell {
     bool walls[4] = {true, true, true, true}; // N E S W
 };
@@ -45,7 +44,6 @@ private:
 
     std::vector<std::vector<Cell>> m_maze;
 
-    // DirectedGraph holds the maze — BFS/DFS are called on it
     DirectedGraph* m_graph;
 
     QTimer* m_timer;

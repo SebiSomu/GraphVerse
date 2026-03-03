@@ -187,28 +187,23 @@ void MainWindow::paintEvent(QPaintEvent*)
         }
     };
 
-    // Draw all edges in gray
     for(const auto& ed : m_graph->getEdges()) {
         MSTStep s{ed.getFirst().getIndex(), ed.getSecond().getIndex(), ed.getCost(), false};
         drawEdge(s, QColor(60, 60, 60), 1, false);
     }
 
-    // Draw rejected edges
     for(const auto& s : m_rejected)
         drawEdge(s, QColor(160, 30, 30), 1, false);
 
-    // Draw accepted MST edges
     QColor mstCol = m_animDone ? Qt::white : QColor(0, 220, 80);
     for(const auto& s : m_accepted)
         drawEdge(s, mstCol, m_animDone ? 2 : 2, true);
 
-    // Draw current edge being considered
     if(m_hasCurrent && !m_animDone) {
         QColor cur = m_current.accepted ? QColor(0, 255, 100) : QColor(255, 60, 60);
         drawEdge(m_current, cur, 3, true);
     }
 
-    // Draw nodes
     for(const auto& n : m_graph->getNodes()) {
         QRect r(n.getX() - R, n.getY() - R, R*2, R*2);
 
@@ -234,7 +229,6 @@ void MainWindow::paintEvent(QPaintEvent*)
         p.drawText(r, Qt::AlignCenter, QString::number(n.getIndex()));
     }
 
-    // Status text at bottom
     if(m_currentAlgo != AlgoType::None) {
         QString algoName;
         QColor  algoCol;

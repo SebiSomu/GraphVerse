@@ -37,11 +37,10 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Maze - BFS vs DFS");
     resize(COLS * CELL + 20, ROWS * CELL + 140);
 
-    // ── Buttons ──────────────────────────────────────────────────────────────
-    QPushButton* btnBfs   = new QPushButton("BFS",   this);
-    QPushButton* btnDfs   = new QPushButton("DFS",   this);
+    QPushButton* btnBfs = new QPushButton("BFS",   this);
+    QPushButton* btnDfs = new QPushButton("DFS",   this);
     QPushButton* btnReset = new QPushButton("Reset", this);
-    QLabel*      lblInfo  = new QLabel("Start: top-left  |  Exit: bottom-right", this);
+    QLabel* lblInfo = new QLabel("Start: top-left  |  Exit: bottom-right", this);
 
     for(auto* btn : {btnBfs, btnDfs, btnReset}) {
         btn->setFixedHeight(36);
@@ -72,10 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
     hbox->setContentsMargins(8, 8, 8, 4);
     toolbar->setGeometry(0, 0, width(), 52);
 
-    connect(btnBfs,   &QPushButton::clicked, this, &MainWindow::onBfsClicked);
-    connect(btnDfs,   &QPushButton::clicked, this, &MainWindow::onDfsClicked);
+    connect(btnBfs, &QPushButton::clicked, this, &MainWindow::onBfsClicked);
+    connect(btnDfs, &QPushButton::clicked, this, &MainWindow::onDfsClicked);
     connect(btnReset, &QPushButton::clicked, this, &MainWindow::onResetClicked);
-    connect(m_timer,  &QTimer::timeout,      this, &MainWindow::onAnimationTick);
+    connect(m_timer, &QTimer::timeout, this, &MainWindow::onAnimationTick);
 
     srand(static_cast<unsigned>(time(nullptr)));
     generateMaze();
@@ -96,10 +95,10 @@ void MainWindow::generateMaze()
     m_visitOrder.clear();
     m_finalPath.clear();
     m_pathHighlight.clear();
-    m_animStep    = 0;
-    m_animDone    = false;
+    m_animStep = 0;
+    m_animDone = false;
     m_showingPath = false;
-    m_pathStep    = 0;
+    m_pathStep = 0;
     m_currentAlgo = AlgoType::None;
 
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
@@ -123,9 +122,9 @@ void MainWindow::generateMaze()
             stk.pop();
         } else {
             std::uniform_int_distribution<int> dist(0, (int)neighbors.size() - 1);
-            int d  = neighbors[dist(rng)];
+            int d = neighbors[dist(rng)];
             int nr = r + DR[d], nc = c + DC[d];
-            m_maze[r][c].walls[d]        = false;
+            m_maze[r][c].walls[d] = false;
             m_maze[nr][nc].walls[OPP[d]] = false;
             visited[nr][nc] = true;
             stk.push({nr, nc});
@@ -169,7 +168,7 @@ static void reconstructPath(int endIdx, int cols,
 std::vector<std::pair<int,int>> MainWindow::runBFS(std::vector<std::pair<int,int>>& outPath)
 {
     const int startIdx = cellToIndex(0,      0,      COLS);
-    const int endIdx   = cellToIndex(ROWS-1, COLS-1, COLS);
+    const int endIdx = cellToIndex(ROWS-1, COLS-1, COLS);
 
     std::unordered_map<int,int> parent;
     parent[startIdx] = -1;
@@ -191,7 +190,7 @@ std::vector<std::pair<int,int>> MainWindow::runBFS(std::vector<std::pair<int,int
 std::vector<std::pair<int,int>> MainWindow::runDFS(std::vector<std::pair<int,int>>& outPath)
 {
     const int startIdx = cellToIndex(0,      0,      COLS);
-    const int endIdx   = cellToIndex(ROWS-1, COLS-1, COLS);
+    const int endIdx = cellToIndex(ROWS-1, COLS-1, COLS);
 
     std::unordered_map<int,int> parent;
     parent[startIdx] = -1;
@@ -216,10 +215,10 @@ void MainWindow::startAnimation(AlgoType algo)
     m_currentAlgo = algo;
     m_visited.assign(ROWS, std::vector<bool>(COLS, false));
     m_pathHighlight.clear();
-    m_animStep    = 0;
-    m_animDone    = false;
+    m_animStep = 0;
+    m_animDone = false;
     m_showingPath = false;
-    m_pathStep    = 0;
+    m_pathStep = 0;
 
     if(algo == AlgoType::BFS)
         m_visitOrder = runBFS(m_finalPath);
@@ -238,7 +237,7 @@ void MainWindow::onAnimationTick()
             update();
         } else {
             m_showingPath = true;
-            m_pathStep    = 0;
+            m_pathStep = 0;
             m_timer->setInterval(40);
         }
     } else {

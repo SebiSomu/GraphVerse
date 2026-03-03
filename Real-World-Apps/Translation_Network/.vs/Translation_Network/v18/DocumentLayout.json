@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:TranslationNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:TranslationNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:TranslationNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:TranslationNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\WeightedGraph.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -27,16 +27,16 @@
       "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:Graph.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:Graph.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Edge.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:Edge.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Node.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:Node.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Edge.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:Edge.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|solutionrelative:Graph.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B30280BA-674B-4A85-A779-9021DDC71127}|Translation_Network.vcxproj|C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Edge.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -54,7 +54,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -74,34 +74,7 @@
               "RelativeToolTip": "Node.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-02-24T20:49:14.21Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Graph.h",
-              "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.h",
-              "RelativeDocumentMoniker": "Graph.h",
-              "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.h",
-              "RelativeToolTip": "Graph.h",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAAAkAAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-02-24T20:49:14.173Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Graph.cpp",
-              "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.cpp",
-              "RelativeDocumentMoniker": "Graph.cpp",
-              "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.cpp",
-              "RelativeToolTip": "Graph.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-02-24T20:49:14.175Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T20:49:14.21Z"
             },
             {
               "$type": "Document",
@@ -111,36 +84,34 @@
               "RelativeDocumentMoniker": "WeightedGraph.cpp",
               "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\WeightedGraph.cpp",
               "RelativeToolTip": "WeightedGraph.cpp",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAAC8AAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAABMAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-02-24T20:49:14.177Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T20:49:14.177Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "TranslationNetwork.h",
               "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.h",
               "RelativeDocumentMoniker": "TranslationNetwork.h",
               "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.h",
               "RelativeToolTip": "TranslationNetwork.h",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABEAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-02-24T20:49:14.179Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "TranslationNetwork.cpp",
               "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.cpp",
               "RelativeDocumentMoniker": "TranslationNetwork.cpp",
               "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\TranslationNetwork.cpp",
               "RelativeToolTip": "TranslationNetwork.cpp",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAgwE8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAADYAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-02-24T20:49:14.181Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T20:49:14.181Z"
             },
             {
               "$type": "Document",
@@ -150,10 +121,9 @@
               "RelativeDocumentMoniker": "WeightedGraph.h",
               "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\WeightedGraph.h",
               "RelativeToolTip": "WeightedGraph.h",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABQAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-02-24T20:49:14.37Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T20:49:14.37Z"
             },
             {
               "$type": "Document",
@@ -163,14 +133,13 @@
               "RelativeDocumentMoniker": "main.cpp",
               "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\main.cpp",
               "RelativeToolTip": "main.cpp",
-              "ViewState": "AgIAAHIAAAAAAAAAAAAAABUAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-02-24T20:49:14.183Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T20:49:14.183Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 6,
               "Title": "Edge.h",
               "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Edge.h",
               "RelativeDocumentMoniker": "Edge.h",
@@ -178,8 +147,31 @@
               "RelativeToolTip": "Edge.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-02-24T20:49:14.134Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T20:49:14.134Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Graph.h",
+              "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.h",
+              "RelativeDocumentMoniker": "Graph.h",
+              "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.h",
+              "RelativeToolTip": "Graph.h",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAAkAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-02-24T20:49:14.173Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Graph.cpp",
+              "DocumentMoniker": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.cpp",
+              "RelativeDocumentMoniker": "Graph.cpp",
+              "ToolTip": "C:\\Users\\sebig\\OneDrive\\Desktop\\GraphVerse\\Real-World-Apps\\Translation_Network\\Graph.cpp",
+              "RelativeToolTip": "Graph.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-02-24T20:49:14.175Z"
             },
             {
               "$type": "Document",

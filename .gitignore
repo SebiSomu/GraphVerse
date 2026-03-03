@@ -1,0 +1,59 @@
+# === Visual Studio ===
+.vs/
+[Bb]in/
+[Oo]bj/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Dd]ebug/
+**/[Rr]elease/
+**/x64/
+**/x86/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.opensdf
+*.sdf
+*.ipch
+*.cache
+*.vc.db
+*.opensdf
+
+# Build Artifacts
+*.obj
+*.lib
+*.pdb
+*.exp
+*.ilk
+*.exe
+*.dll
+*.iobj
+*.ipdb
+*.log
+*.tlog
+*.lastbuildstate
+
+# === Qt / Qt Creator ===
+*.pro.user
+*.pro.user.*
+.qtcreator/
+build/
+build-*/
+*build-*/
+GeneratedFiles/
+ui_*.h
+qrc_*.cpp
+moc_*.cpp
+*.qrc.depends
+moc_predefs.h
+
+# === Windows ===
+Thumbs.db
+desktop.ini
+*.lnk
+
+# === Misc ===
+*.bak
+*.tmp
+*.patch
+*.diff
