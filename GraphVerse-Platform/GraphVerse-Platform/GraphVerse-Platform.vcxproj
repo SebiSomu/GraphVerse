@@ -92,11 +92,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Node.cpp" />
+    <ClCompile Include="edge.cpp" />
+    <ClCompile Include="graph.cpp" />
+    <ClCompile Include="directedgraph.cpp" />
+    <ClCompile Include="undirectedgraph.cpp" />
+    <ClCompile Include="flownetwork.cpp" />
+    <ClCompile Include="vis_maze.cpp" />
+    <ClCompile Include="vis_components.cpp" />
+    <ClCompile Include="vis_mst.cpp" />
+    <ClCompile Include="vis_shortest.cpp" />
+    <ClCompile Include="vis_flow.cpp" />
     <QtRcc Include="GraphVersePlatform.qrc" />
     <QtUic Include="GraphVersePlatform.ui" />
     <QtMoc Include="GraphVersePlatform.h" />
+    <QtMoc Include="vis_maze.h" />
+    <QtMoc Include="vis_components.h" />
+    <QtMoc Include="vis_mst.h" />
+    <QtMoc Include="vis_shortest.h" />
+    <QtMoc Include="vis_flow.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="edge.h" />
+    <ClInclude Include="graph.h" />
+    <ClInclude Include="directedgraph.h" />
+    <ClInclude Include="undirectedgraph.h" />
+    <ClInclude Include="flownetwork.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

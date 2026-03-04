@@ -536,7 +536,6 @@ QWidget* GraphVersePlatform::buildVisualisersView()
     vlay->setContentsMargins(0, 0, 0, 0);
     vlay->setSpacing(0);
 
-    // Provide the m_stack pointer explicitly via capture for the static helper
     vlay->addWidget(buildPageHeader("Algorithm Visualisers", "⚡", Palette::ACCENT_VIS, m_stack));
 
     auto* listArea = new QWidget;
@@ -544,22 +543,25 @@ QWidget* GraphVersePlatform::buildVisualisersView()
     llay->setContentsMargins(48, 16, 48, 60);
     llay->setSpacing(18);
 
-    const QStringList algos = {
-        "🌀 Maze Explorer — BFS & DFS",
-        "🌲 Spanning Trees — Kruskal · Prim · Borůvka",
-        "🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall",
-        "🌊 Flow Networks — Ford-Fulkerson & Negative Cycles"
+    struct AlgoEntry { QString label; int stackIndex; };
+    const std::vector<AlgoEntry> algos = {
+        {"🌀 Maze Explorer — BFS & DFS", 4},
+        {"🔗 Connected & Strongly Connected Components", 5},
+        {"🌲 Spanning Trees — Kruskal · Prim · Borůvka", 6},
+        {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall", 7},
+        {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles", 8}
     };
 
-    for(const auto& str : algos) {
-        auto* btn = new AnimatedButton(str);
+    for(const auto& entry : algos) {
+        auto* btn = new AnimatedButton(entry.label);
         btn->setGlowColor(Palette::ACCENT_VIS);
         btn->setMinimumHeight(64);
         btn->setMaximumHeight(64);
         btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
         llay->addWidget(btn);
-        connect(btn, &QPushButton::clicked, this, [this, str](){
-            navigateToPlaceholder(str, 1);
+        int targetIdx = entry.stackIndex;
+        connect(btn, &QPushButton::clicked, this, [this, targetIdx](){
+            m_stack->setCurrentIndex(targetIdx);
         });
     }
     llay->addStretch();
@@ -703,12 +705,46 @@ void GraphVersePlatform::setupUi()
     rootLayout->addWidget(buildHeader());
 
     m_stack = new QStackedWidget;
-    // VERY IMPORTANT: Initialize all views and add them to the stack
     m_stack->addWidget(buildHomeView());          // Index 0
     m_stack->addWidget(buildVisualisersView());   // Index 1
     m_stack->addWidget(buildAppsView());          // Index 2
     m_stack->addWidget(buildPlaceholderView());   // Index 3
-    
+
+    // ─── Visualiser pages with Back navigation ───
+    auto addVisPage = [&](QWidget* vis, int stackIdx) {
+        auto* wrapper = new QWidget;
+        auto* wlay = new QVBoxLayout(wrapper);
+        wlay->setContentsMargins(0, 0, 0, 0);
+        wlay->setSpacing(0);
+        auto* backBtn = new AnimatedButton("← Back to Visualisers");
+        backBtn->setGlowColor(QColor(140, 148, 190));
+        backBtn->setMinimumHeight(40);
+        backBtn->setMaximumHeight(40);
+        backBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        backBtn->setMinimumWidth(200);
+        auto* topBar = new QWidget;
+        auto* tbLay = new QHBoxLayout(topBar);
+        tbLay->setContentsMargins(16, 8, 16, 0);
+        tbLay->addWidget(backBtn);
+        tbLay->addStretch();
+        wlay->addWidget(topBar);
+        wlay->addWidget(vis, 1);
+        QObject::connect(backBtn, &QPushButton::clicked, m_stack, [this](){ m_stack->setCurrentIndex(1); });
+        return wrapper;
+    };
+
+    m_visMaze       = new VisMaze();
+    m_visComponents = new VisComponents();
+    m_visMST        = new VisMST();
+    m_visShortest   = new VisShortest();
+    m_visFlow       = new VisFlow();
+
+    m_stack->addWidget(addVisPage(m_visMaze,       4));  // Index 4
+    m_stack->addWidget(addVisPage(m_visComponents, 5));  // Index 5
+    m_stack->addWidget(addVisPage(m_visMST,        6));  // Index 6
+    m_stack->addWidget(addVisPage(m_visShortest,   7));  // Index 7
+    m_stack->addWidget(addVisPage(m_visFlow,       8));  // Index 8
+
     m_stack->setCurrentIndex(0);
 
     rootLayout->addWidget(m_stack, 1);

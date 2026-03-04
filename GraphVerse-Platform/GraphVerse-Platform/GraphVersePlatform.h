@@ -1,6 +1,11 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include "vis_maze.h"
+#include "vis_components.h"
+#include "vis_mst.h"
+#include "vis_shortest.h"
+#include "vis_flow.h"
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -135,4 +140,11 @@ private:
     QWidget*      m_placeholderPage = nullptr;
     QLabel*       m_placeholderTitleLabel = nullptr;
     AnimatedButton* m_placeholderBackBtn = nullptr;
+
+    // Visualiser Widgets
+    VisMaze*        m_visMaze       = nullptr;
+    VisComponents*  m_visComponents = nullptr;
+    VisMST*         m_visMST        = nullptr;
+    VisShortest*    m_visShortest   = nullptr;
+    VisFlow*        m_visFlow       = nullptr;
 };
