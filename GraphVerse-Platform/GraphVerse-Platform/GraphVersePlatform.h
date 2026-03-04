@@ -113,6 +113,9 @@ private:
     void setupUi();
     void applyGlobalStyle();
     
+    // Navigation
+    void navigateToPlaceholder(const QString& title, int returnIndex);
+    
     // UI Builders
     QWidget* buildHeader();
     QWidget* buildFooter();
@@ -122,8 +125,14 @@ private:
     QWidget* buildHomeView();
     QWidget* buildVisualisersView();
     QWidget* buildAppsView();
+    QWidget* buildPlaceholderView();
 
     // Components
     QStackedWidget* m_stack  = nullptr;
     GraphCanvas*    m_canvas = nullptr;
+
+    // Placeholder Page Components
+    QWidget*      m_placeholderPage = nullptr;
+    QLabel*       m_placeholderTitleLabel = nullptr;
+    AnimatedButton* m_placeholderBackBtn = nullptr;
 };

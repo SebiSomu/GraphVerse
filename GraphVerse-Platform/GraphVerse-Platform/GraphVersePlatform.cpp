@@ -558,6 +558,9 @@ QWidget* GraphVersePlatform::buildVisualisersView()
         btn->setMaximumHeight(64);
         btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
         llay->addWidget(btn);
+        connect(btn, &QPushButton::clicked, this, [this, str](){
+            navigateToPlaceholder(str, 1);
+        });
     }
     llay->addStretch();
 
@@ -598,6 +601,9 @@ QWidget* GraphVersePlatform::buildAppsView()
         btn->setMaximumHeight(64);
         btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
         llay->addWidget(btn);
+        connect(btn, &QPushButton::clicked, this, [this, str](){
+            navigateToPlaceholder(str, 2);
+        });
     }
     llay->addStretch();
 
@@ -607,6 +613,75 @@ QWidget* GraphVersePlatform::buildAppsView()
     vlay->addWidget(scroll);
 
     return page;
+}
+
+// ─────────────────────────────────────────────────────────────
+// PAGE 3: PLACEHOLDER / DUMMY VIEW
+// ─────────────────────────────────────────────────────────────
+QWidget* GraphVersePlatform::buildPlaceholderView()
+{
+    m_placeholderPage = new QWidget;
+    auto* vlay = new QVBoxLayout(m_placeholderPage);
+    vlay->setContentsMargins(0, 0, 0, 0);
+    vlay->setSpacing(0);
+
+    // Header area
+    auto* header = new QWidget;
+    auto* hlay = new QVBoxLayout(header);
+    hlay->setContentsMargins(48, 36, 48, 16);
+    hlay->setSpacing(16);
+
+    m_placeholderBackBtn = new AnimatedButton("← Back to List");
+    m_placeholderBackBtn->setGlowColor(QColor(140, 148, 190));
+    m_placeholderBackBtn->setMinimumHeight(44);
+    m_placeholderBackBtn->setMaximumHeight(44);
+    m_placeholderBackBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_placeholderBackBtn->setMinimumWidth(200);
+    hlay->addWidget(m_placeholderBackBtn);
+    
+    hlay->addSpacing(12);
+
+    m_placeholderTitleLabel = new QLabel("Feature Name");
+    m_placeholderTitleLabel->setStyleSheet("font: 700 28px 'Segoe UI'; color: #EBEDFF;");
+    hlay->addWidget(m_placeholderTitleLabel);
+
+    auto* sep = new QFrame;
+    sep->setFrameShape(QFrame::HLine);
+    sep->setStyleSheet("background: rgba(99,102,241,0.3); border:none;");
+    sep->setFixedHeight(2);
+    hlay->addWidget(sep);
+
+    vlay->addWidget(header);
+
+    // Empty content area with placeholder message
+    auto* contentArea = new QWidget;
+    auto* clay = new QVBoxLayout(contentArea);
+    clay->setContentsMargins(48, 20, 48, 60);
+    
+    auto* placeholderMsg = new QLabel("This module is currently being calibrated.\nCheck back soon for the full visual experience!");
+    placeholderMsg->setStyleSheet("font: 400 14px 'Segoe UI'; color: #8C94BE;");
+    placeholderMsg->setAlignment(Qt::AlignCenter);
+    clay->addStretch();
+    clay->addWidget(placeholderMsg);
+    clay->addStretch();
+
+    vlay->addWidget(contentArea, 1);
+
+    return m_placeholderPage;
+}
+
+void GraphVersePlatform::navigateToPlaceholder(const QString& title, int returnIndex)
+{
+    if (m_placeholderTitleLabel) {
+        m_placeholderTitleLabel->setText(title);
+    }
+    if (m_placeholderBackBtn) {
+        disconnect(m_placeholderBackBtn, &QPushButton::clicked, nullptr, nullptr);
+        connect(m_placeholderBackBtn, &QPushButton::clicked, this, [this, returnIndex](){
+            m_stack->setCurrentIndex(returnIndex);
+        });
+    }
+    m_stack->setCurrentIndex(3);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -632,6 +707,7 @@ void GraphVersePlatform::setupUi()
     m_stack->addWidget(buildHomeView());          // Index 0
     m_stack->addWidget(buildVisualisersView());   // Index 1
     m_stack->addWidget(buildAppsView());          // Index 2
+    m_stack->addWidget(buildPlaceholderView());   // Index 3
     
     m_stack->setCurrentIndex(0);
 
