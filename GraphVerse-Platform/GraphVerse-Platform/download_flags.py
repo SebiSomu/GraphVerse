@@ -4,7 +4,7 @@ import time
 
 FLAG_MAPPING = {
     "Spanish": "es", "French": "fr", "Portuguese": "pt", "Italian": "it", "Romanian": "ro",
-    "Catalan": "es", "Galician": "es-ga", "Occitan": "fr", "English": "gb", "German": "de",
+    "Catalan": "es-ct", "Galician": "es-ga", "Occitan": "fr", "English": "gb", "German": "de",
     "Dutch": "nl", "Swedish": "se", "Danish": "dk", "Norwegian": "no", "Afrikaans": "za",
     "Russian": "ru", "Ukrainian": "ua", "Polish": "pl", "Czech": "cz", "Bulgarian": "bg",
     "Serbian": "rs", "Belarusian": "by", "Slovak": "sk", "Croatian": "hr", "Slovenian": "si",
@@ -17,7 +17,16 @@ FLAG_MAPPING = {
     "Zulu": "za", "Igbo": "ng", "Fula": "sn", "Shona": "zw", "Indonesian": "id",
     "Malay": "my", "Tagalog": "ph", "Javanese": "id", "Vietnamese": "vn", "Thai": "th",
     "Turkish": "tr", "Azerbaijani": "az", "Uzbek": "uz", "Kazakh": "kz", "Greek": "gr",
-    "Armenian": "am", "Georgian": "ge", "Albanian": "al", "Basque": "es-pv"
+    "Armenian": "am", "Georgian": "ge", "Albanian": "al", "Basque": "es-pv",
+    "Icelandic": "is", "Faroese": "fo", "Greenlandic": "gl", "Inuktitut": "ca",
+    "Wolof": "sn", "Bambara": "ml", "Lingala": "cd", "Welsh": "gb-wls", "Irish": "ie",
+    "Scottish Gaelic": "gb-sct", "Breton": "fr", "Luxembourgish": "lu", "Romani": "ro",
+    "Sanskrit": "in", "Latin": "va", "Esperanto": "eu", "Klingon": "us",
+    "Maori": "nz", "Hawaiian": "us-hi", "Samoan": "ws", "Fijian": "fj",
+    "Quechua": "pe", "Aymara": "bo", "Guarani": "py", "Nahuatl": "mx", "Maya": "mx",
+    "Gujarati": "in", "Bhojpuri": "in", "Maithili": "in", "Bodo": "in", "Dogri": "in", "Konkani": "in",
+    "Balinese": "id", "Dhivehi": "mv", "Ganda": "ug", "Latvian": "lv", "Lithuanian": "lt",
+    "Bosnian": "ba", "Macedonian": "mk", "Montenegrin": "me", "Maltese": "mt"
 }
 
 os.makedirs("flags", exist_ok=True)
@@ -29,11 +38,11 @@ for lang, code in FLAG_MAPPING.items():
     try:
         url = f"https://flagcdn.com/h40/{code}.png"
         path = f"flags/{lang}.png"
-        if not os.path.exists(path):
+        if not os.path.exists(path) or lang == "Latin": # Re-download Latin
             req = urllib.request.Request(url, headers={'User-Agent': user_agent})
             with urllib.request.urlopen(req) as response, open(path, 'wb') as out_file:
                 out_file.write(response.read())
-            time.sleep(0.05) # Be gentle to the API
+            time.sleep(0.05)
         success_count += 1
     except Exception as e:
         print(f"Failed {lang}: {e}")

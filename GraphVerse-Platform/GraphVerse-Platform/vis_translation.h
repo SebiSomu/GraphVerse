@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <vector>
 
-
 struct TranslationEdge {
   std::string u, v;
   int cost;

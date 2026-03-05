@@ -1,0 +1,887 @@
+[
+    {
+        "lang1": "Spanish",
+        "lang2": "French",
+        "cost": 2
+    },
+    {
+        "lang1": "Spanish",
+        "lang2": "Portuguese",
+        "cost": 1
+    },
+    {
+        "lang1": "Spanish",
+        "lang2": "Italian",
+        "cost": 2
+    },
+    {
+        "lang1": "Spanish",
+        "lang2": "Romanian",
+        "cost": 3
+    },
+    {
+        "lang1": "Spanish",
+        "lang2": "Catalan",
+        "cost": 1
+    },
+    {
+        "lang1": "Spanish",
+        "lang2": "Galician",
+        "cost": 1
+    },
+    {
+        "lang1": "French",
+        "lang2": "Portuguese",
+        "cost": 3
+    },
+    {
+        "lang1": "French",
+        "lang2": "Italian",
+        "cost": 2
+    },
+    {
+        "lang1": "French",
+        "lang2": "Romanian",
+        "cost": 3
+    },
+    {
+        "lang1": "French",
+        "lang2": "Catalan",
+        "cost": 2
+    },
+    {
+        "lang1": "French",
+        "lang2": "Occitan",
+        "cost": 1
+    },
+    {
+        "lang1": "Portuguese",
+        "lang2": "Italian",
+        "cost": 2
+    },
+    {
+        "lang1": "Portuguese",
+        "lang2": "Romanian",
+        "cost": 3
+    },
+    {
+        "lang1": "Portuguese",
+        "lang2": "Catalan",
+        "cost": 2
+    },
+    {
+        "lang1": "Italian",
+        "lang2": "Romanian",
+        "cost": 2
+    },
+    {
+        "lang1": "Italian",
+        "lang2": "Catalan",
+        "cost": 2
+    },
+    {
+        "lang1": "Italian",
+        "lang2": "Occitan",
+        "cost": 2
+    },
+    {
+        "lang1": "Catalan",
+        "lang2": "Galician",
+        "cost": 2
+    },
+    {
+        "lang1": "English",
+        "lang2": "German",
+        "cost": 4
+    },
+    {
+        "lang1": "English",
+        "lang2": "Dutch",
+        "cost": 2
+    },
+    {
+        "lang1": "English",
+        "lang2": "Swedish",
+        "cost": 3
+    },
+    {
+        "lang1": "English",
+        "lang2": "Danish",
+        "cost": 3
+    },
+    {
+        "lang1": "English",
+        "lang2": "Norwegian",
+        "cost": 2
+    },
+    {
+        "lang1": "English",
+        "lang2": "Afrikaans",
+        "cost": 2
+    },
+    {
+        "lang1": "German",
+        "lang2": "Dutch",
+        "cost": 2
+    },
+    {
+        "lang1": "German",
+        "lang2": "Swedish",
+        "cost": 4
+    },
+    {
+        "lang1": "German",
+        "lang2": "Danish",
+        "cost": 4
+    },
+    {
+        "lang1": "German",
+        "lang2": "Norwegian",
+        "cost": 4
+    },
+    {
+        "lang1": "Swedish",
+        "lang2": "Danish",
+        "cost": 2
+    },
+    {
+        "lang1": "Swedish",
+        "lang2": "Norwegian",
+        "cost": 1
+    },
+    {
+        "lang1": "Norwegian",
+        "lang2": "Danish",
+        "cost": 1
+    },
+    {
+        "lang1": "Danish",
+        "lang2": "Afrikaans",
+        "cost": 4
+    },
+    {
+        "lang1": "Dutch",
+        "lang2": "Afrikaans",
+        "cost": 1
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Ukrainian",
+        "cost": 2
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Polish",
+        "cost": 4
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Czech",
+        "cost": 4
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Bulgarian",
+        "cost": 3
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Serbian",
+        "cost": 3
+    },
+    {
+        "lang1": "Ukrainian",
+        "lang2": "Polish",
+        "cost": 3
+    },
+    {
+        "lang1": "Ukrainian",
+        "lang2": "Bulgarian",
+        "cost": 3
+    },
+    {
+        "lang1": "Ukrainian",
+        "lang2": "Belarusian",
+        "cost": 1
+    },
+    {
+        "lang1": "Polish",
+        "lang2": "Czech",
+        "cost": 2
+    },
+    {
+        "lang1": "Polish",
+        "lang2": "Slovak",
+        "cost": 2
+    },
+    {
+        "lang1": "Polish",
+        "lang2": "Croatian",
+        "cost": 4
+    },
+    {
+        "lang1": "Czech",
+        "lang2": "Slovak",
+        "cost": 1
+    },
+    {
+        "lang1": "Czech",
+        "lang2": "Serbian",
+        "cost": 4
+    },
+    {
+        "lang1": "Bulgarian",
+        "lang2": "Serbian",
+        "cost": 2
+    },
+    {
+        "lang1": "Serbian",
+        "lang2": "Croatian",
+        "cost": 1
+    },
+    {
+        "lang1": "Serbian",
+        "lang2": "Slovenian",
+        "cost": 2
+    },
+    {
+        "lang1": "Croatian",
+        "lang2": "Slovenian",
+        "cost": 2
+    },
+    {
+        "lang1": "Belarusian",
+        "lang2": "Polish",
+        "cost": 3
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Cantonese",
+        "cost": 5
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Wu",
+        "cost": 5
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Burmese",
+        "cost": 7
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Tibetan",
+        "cost": 6
+    },
+    {
+        "lang1": "Cantonese",
+        "lang2": "Wu",
+        "cost": 5
+    },
+    {
+        "lang1": "Hindi",
+        "lang2": "Urdu",
+        "cost": 1
+    },
+    {
+        "lang1": "Hindi",
+        "lang2": "Bengali",
+        "cost": 3
+    },
+    {
+        "lang1": "Hindi",
+        "lang2": "Punjabi",
+        "cost": 2
+    },
+    {
+        "lang1": "Hindi",
+        "lang2": "Marathi",
+        "cost": 3
+    },
+    {
+        "lang1": "Urdu",
+        "lang2": "Punjabi",
+        "cost": 2
+    },
+    {
+        "lang1": "Urdu",
+        "lang2": "Persian",
+        "cost": 4
+    },
+    {
+        "lang1": "Bengali",
+        "lang2": "Punjabi",
+        "cost": 4
+    },
+    {
+        "lang1": "Finnish",
+        "lang2": "Estonian",
+        "cost": 2
+    },
+    {
+        "lang1": "Finnish",
+        "lang2": "Hungarian",
+        "cost": 7
+    },
+    {
+        "lang1": "Estonian",
+        "lang2": "Hungarian",
+        "cost": 7
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Hebrew",
+        "cost": 4
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Amharic",
+        "cost": 5
+    },
+    {
+        "lang1": "Hebrew",
+        "lang2": "Amharic",
+        "cost": 5
+    },
+    {
+        "lang1": "Japanese",
+        "lang2": "Korean",
+        "cost": 6
+    },
+    {
+        "lang1": "Swahili",
+        "lang2": "Hausa",
+        "cost": 8
+    },
+    {
+        "lang1": "Swahili",
+        "lang2": "Yoruba",
+        "cost": 8
+    },
+    {
+        "lang1": "Swahili",
+        "lang2": "Zulu",
+        "cost": 5
+    },
+    {
+        "lang1": "Swahili",
+        "lang2": "Igbo",
+        "cost": 8
+    },
+    {
+        "lang1": "Hausa",
+        "lang2": "Yoruba",
+        "cost": 7
+    },
+    {
+        "lang1": "Hausa",
+        "lang2": "Fula",
+        "cost": 7
+    },
+    {
+        "lang1": "Yoruba",
+        "lang2": "Igbo",
+        "cost": 5
+    },
+    {
+        "lang1": "Zulu",
+        "lang2": "Shona",
+        "cost": 4
+    },
+    {
+        "lang1": "Indonesian",
+        "lang2": "Malay",
+        "cost": 1
+    },
+    {
+        "lang1": "Indonesian",
+        "lang2": "Tagalog",
+        "cost": 4
+    },
+    {
+        "lang1": "Malay",
+        "lang2": "Tagalog",
+        "cost": 4
+    },
+    {
+        "lang1": "Vietnamese",
+        "lang2": "Thai",
+        "cost": 7
+    },
+    {
+        "lang1": "Turkish",
+        "lang2": "Azerbaijani",
+        "cost": 1
+    },
+    {
+        "lang1": "Turkish",
+        "lang2": "Uzbek",
+        "cost": 3
+    },
+    {
+        "lang1": "Turkish",
+        "lang2": "Kazakh",
+        "cost": 4
+    },
+    {
+        "lang1": "Azerbaijani",
+        "lang2": "Uzbek",
+        "cost": 3
+    },
+    {
+        "lang1": "Uzbek",
+        "lang2": "Kazakh",
+        "cost": 2
+    },
+    {
+        "lang1": "Greek",
+        "lang2": "Armenian",
+        "cost": 8
+    },
+    {
+        "lang1": "Greek",
+        "lang2": "Georgian",
+        "cost": 9
+    },
+    {
+        "lang1": "Greek",
+        "lang2": "Albanian",
+        "cost": 8
+    },
+    {
+        "lang1": "Armenian",
+        "lang2": "Georgian",
+        "cost": 7
+    },
+    {
+        "lang1": "Georgian",
+        "lang2": "Albanian",
+        "cost": 9
+    },
+    {
+        "lang1": "Basque",
+        "lang2": "Spanish",
+        "cost": 9
+    },
+    {
+        "lang1": "English",
+        "lang2": "Spanish",
+        "cost": 5
+    },
+    {
+        "lang1": "English",
+        "lang2": "French",
+        "cost": 4
+    },
+    {
+        "lang1": "English",
+        "lang2": "Portuguese",
+        "cost": 5
+    },
+    {
+        "lang1": "English",
+        "lang2": "Italian",
+        "cost": 5
+    },
+    {
+        "lang1": "English",
+        "lang2": "Romanian",
+        "cost": 6
+    },
+    {
+        "lang1": "English",
+        "lang2": "Russian",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Ukrainian",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Polish",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Czech",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Bulgarian",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Serbian",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Arabic",
+        "cost": 10
+    },
+    {
+        "lang1": "English",
+        "lang2": "Hebrew",
+        "cost": 9
+    },
+    {
+        "lang1": "English",
+        "lang2": "Hindi",
+        "cost": 7
+    },
+    {
+        "lang1": "English",
+        "lang2": "Bengali",
+        "cost": 7
+    },
+    {
+        "lang1": "English",
+        "lang2": "Mandarin",
+        "cost": 10
+    },
+    {
+        "lang1": "English",
+        "lang2": "Japanese",
+        "cost": 10
+    },
+    {
+        "lang1": "English",
+        "lang2": "Korean",
+        "cost": 10
+    },
+    {
+        "lang1": "English",
+        "lang2": "Turkish",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Swahili",
+        "cost": 6
+    },
+    {
+        "lang1": "English",
+        "lang2": "Indonesian",
+        "cost": 6
+    },
+    {
+        "lang1": "English",
+        "lang2": "Vietnamese",
+        "cost": 9
+    },
+    {
+        "lang1": "English",
+        "lang2": "Thai",
+        "cost": 9
+    },
+    {
+        "lang1": "English",
+        "lang2": "Finnish",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Hungarian",
+        "cost": 8
+    },
+    {
+        "lang1": "English",
+        "lang2": "Basque",
+        "cost": 10
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Japanese",
+        "cost": 7
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Korean",
+        "cost": 8
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Hindi",
+        "cost": 10
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Bengali",
+        "cost": 10
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Russian",
+        "cost": 10
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Vietnamese",
+        "cost": 6
+    },
+    {
+        "lang1": "Mandarin",
+        "lang2": "Thai",
+        "cost": 7
+    },
+    {
+        "lang1": "French",
+        "lang2": "Swahili",
+        "cost": 8
+    },
+    {
+        "lang1": "French",
+        "lang2": "Hausa",
+        "cost": 8
+    },
+    {
+        "lang1": "French",
+        "lang2": "Yoruba",
+        "cost": 9
+    },
+    {
+        "lang1": "French",
+        "lang2": "Fula",
+        "cost": 8
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Turkish",
+        "cost": 6
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Persian",
+        "cost": 6
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Urdu",
+        "cost": 6
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Swahili",
+        "cost": 7
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Hausa",
+        "cost": 6
+    },
+    {
+        "lang1": "Arabic",
+        "lang2": "Yoruba",
+        "cost": 9
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Finnish",
+        "cost": 8
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Estonian",
+        "cost": 8
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Hungarian",
+        "cost": 9
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Turkish",
+        "cost": 7
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Azerbaijani",
+        "cost": 7
+    },
+    {
+        "lang1": "Russian",
+        "lang2": "Kazakh",
+        "cost": 6
+    },
+    {
+        "lang1": "Icelandic",
+        "lang2": "Norwegian",
+        "cost": 1
+    },
+    {
+        "lang1": "Faroese",
+        "lang2": "Icelandic",
+        "cost": 1
+    },
+    {
+        "lang1": "Greenlandic",
+        "lang2": "Danish",
+        "cost": 9
+    },
+    {
+        "lang1": "Inuktitut",
+        "lang2": "Greenlandic",
+        "cost": 4
+    },
+    {
+        "lang1": "Wolof",
+        "lang2": "French",
+        "cost": 8
+    },
+    {
+        "lang1": "Lingala",
+        "lang2": "French",
+        "cost": 6
+    },
+    {
+        "lang1": "Welsh",
+        "lang2": "English",
+        "cost": 6
+    },
+    {
+        "lang1": "Irish",
+        "lang2": "English",
+        "cost": 7
+    },
+    {
+        "lang1": "Scottish Gaelic",
+        "lang2": "Irish",
+        "cost": 2
+    },
+    {
+        "lang1": "Luxembourgish",
+        "lang2": "German",
+        "cost": 1
+    },
+    {
+        "lang1": "Romani",
+        "lang2": "Hindi",
+        "cost": 6
+    },
+    {
+        "lang1": "Sanskrit",
+        "lang2": "Hindi",
+        "cost": 4
+    },
+    {
+        "lang1": "Latin",
+        "lang2": "Italian",
+        "cost": 4
+    },
+    {
+        "lang1": "Esperanto",
+        "lang2": "English",
+        "cost": 2
+    },
+    {
+        "lang1": "Klingon",
+        "lang2": "English",
+        "cost": 10
+    },
+    {
+        "lang1": "Maori",
+        "lang2": "English",
+        "cost": 9
+    },
+    {
+        "lang1": "Hawaiian",
+        "lang2": "English",
+        "cost": 9
+    },
+    {
+        "lang1": "Samoan",
+        "lang2": "English",
+        "cost": 7
+    },
+    {
+        "lang1": "Fijian",
+        "lang2": "English",
+        "cost": 8
+    },
+    {
+        "lang1": "Quechua",
+        "lang2": "Spanish",
+        "cost": 7
+    },
+    {
+        "lang1": "Aymara",
+        "lang2": "Spanish",
+        "cost": 8
+    },
+    {
+        "lang1": "Guarani",
+        "lang2": "Spanish",
+        "cost": 6
+    },
+    {
+        "lang1": "Nahuatl",
+        "lang2": "Spanish",
+        "cost": 8
+    },
+    {
+        "lang1": "Maya",
+        "lang2": "Spanish",
+        "cost": 9
+    },
+    {
+        "lang1": "Gujarati",
+        "lang2": "Hindi",
+        "cost": 2
+    },
+    {
+        "lang1": "Dogri",
+        "lang2": "English",
+        "cost": 10
+    },
+    {
+        "lang1": "Dhivehi",
+        "lang2": "English",
+        "cost": 10
+    },
+    {
+        "lang1": "Ganda",
+        "lang2": "English",
+        "cost": 10
+    },
+    {
+        "lang1": "Tigrinya",
+        "lang2": "English",
+        "cost": 10
+    },
+    {
+        "lang1": "Latvian",
+        "lang2": "Lithuanian",
+        "cost": 3
+    },
+    {
+        "lang1": "Latvian",
+        "lang2": "English",
+        "cost": 6
+    },
+    {
+        "lang1": "Bosnian",
+        "lang2": "Serbian",
+        "cost": 1
+    },
+    {
+        "lang1": "Macedonian",
+        "lang2": "Bulgarian",
+        "cost": 2
+    },
+    {
+        "lang1": "Montenegrin",
+        "lang2": "Serbian",
+        "cost": 1
+    },
+    {
+        "lang1": "Maltese",
+        "lang2": "English",
+        "cost": 4
+    }
+]
