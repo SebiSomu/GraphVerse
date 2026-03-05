@@ -33,7 +33,7 @@ private:
 class NetworkWidget : public QWidget {
     Q_OBJECT
 public:
-    enum InteractionMode { Mode_AddNode, Mode_AddEdge, Mode_SetSource, Mode_SetSink, Mode_View };
+    enum class InteractionMode { Mode_AddNode, Mode_AddEdge, Mode_SetSource, Mode_SetSink, Mode_View };
     explicit NetworkWidget(QWidget* parent = nullptr);
     void setNetwork(FlowNetwork* network);
     void setMode(InteractionMode mode);

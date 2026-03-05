@@ -32,7 +32,19 @@
     <QtMoc Include="GraphVersePlatform.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="vis_friends.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="vis_translation.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <ClCompile Include="GraphVersePlatform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vis_friends.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vis_translation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

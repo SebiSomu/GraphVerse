@@ -103,6 +103,8 @@
     <ClCompile Include="vis_mst.cpp" />
     <ClCompile Include="vis_shortest.cpp" />
     <ClCompile Include="vis_flow.cpp" />
+    <ClCompile Include="vis_friends.cpp" />
+    <ClCompile Include="vis_translation.cpp" />
     <QtRcc Include="GraphVersePlatform.qrc" />
     <QtUic Include="GraphVersePlatform.ui" />
     <QtMoc Include="GraphVersePlatform.h" />
@@ -111,6 +113,8 @@
     <QtMoc Include="vis_mst.h" />
     <QtMoc Include="vis_shortest.h" />
     <QtMoc Include="vis_flow.h" />
+    <QtMoc Include="vis_friends.h" />
+    <QtMoc Include="vis_translation.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

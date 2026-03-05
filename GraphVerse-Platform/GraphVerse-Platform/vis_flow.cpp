@@ -31,7 +31,7 @@ void VisFlow::setupUI() {
     m_modeGroup->addButton(rbAddNode,0); m_modeGroup->addButton(rbAddEdge,1);
     m_modeGroup->addButton(rbSetSource,2); m_modeGroup->addButton(rbSetSink,3);
     m_modeGroup->addButton(rbView,4);
-    rbAddNode->setChecked(true); m_networkWidget->setMode(NetworkWidget::Mode_AddNode);
+    rbAddNode->setChecked(true); m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_AddNode);
     controls->addWidget(rbAddNode); controls->addWidget(rbAddEdge);
     controls->addWidget(rbSetSource); controls->addWidget(rbSetSink); controls->addWidget(rbView);
     connect(m_modeGroup, QOverload<int>::of(&QButtonGroup::idClicked), this, &VisFlow::onModeChanged);
@@ -57,11 +57,11 @@ void VisFlow::setupUI() {
 }
 
 void VisFlow::onModeChanged(int id) {
-    if      (id==0) m_networkWidget->setMode(NetworkWidget::Mode_AddNode);
-    else if (id==1) m_networkWidget->setMode(NetworkWidget::Mode_AddEdge);
-    else if (id==2) m_networkWidget->setMode(NetworkWidget::Mode_SetSource);
-    else if (id==3) m_networkWidget->setMode(NetworkWidget::Mode_SetSink);
-    else if (id==4) m_networkWidget->setMode(NetworkWidget::Mode_View);
+    if      (id==0) m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_AddNode);
+    else if (id==1) m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_AddEdge);
+    else if (id==2) m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_SetSource);
+    else if (id==3) m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_SetSink);
+    else if (id==4) m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_View);
 }
 
 void VisFlow::onStartAlgorithm() {
@@ -70,7 +70,7 @@ void VisFlow::onStartAlgorithm() {
     m_network->initializeAlgorithm(); m_networkWidget->setIterationIndex(0);
     m_statusLabel->setText("Algorithm initialized. Press 'Next Step'.");
     m_btnNextStep->setEnabled(true);
-    m_modeGroup->button(4)->setChecked(true); m_networkWidget->setMode(NetworkWidget::Mode_View);
+    m_modeGroup->button(4)->setChecked(true); m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_View);
 }
 
 void VisFlow::onNextStep() {
@@ -94,7 +94,7 @@ void VisFlow::onEliminateNegCycles() {
     else {
         const auto& it = m_network->getIterations();
         m_networkWidget->setIterationIndex(it.size()-1);
-        m_networkWidget->setMode(NetworkWidget::Mode_View); m_modeGroup->button(4)->setChecked(true);
+        m_networkWidget->setMode(NetworkWidget::InteractionMode::Mode_View); m_modeGroup->button(4)->setChecked(true);
         m_statusLabel->setText(QString("Eliminated %1 negative cycle(s).").arg(cycles));
     }
     m_networkWidget->update();
@@ -113,7 +113,7 @@ void VisFlow::onClear() {
 // ── NetworkWidget ──
 
 NetworkWidget::NetworkWidget(QWidget* parent)
-    : QWidget(parent), m_network(nullptr), m_mode(Mode_View),
+    : QWidget(parent), m_network(nullptr), m_mode(InteractionMode::Mode_View),
       m_iterationIndex(-1), m_showFinalResult(false), m_firstNode(-1), m_isDragging(false)
 {
     setMinimumSize(800,600); setStyleSheet("background-color:#2d2d2d;"); setMouseTracking(true);
@@ -133,15 +133,15 @@ int NetworkWidget::getNodeAt(const QPoint& pos) {
 
 void NetworkWidget::mousePressEvent(QMouseEvent* event) {
     if (!m_network) return;
-    if (m_mode==Mode_AddNode) { if(event->button()==Qt::LeftButton) { m_network->addNode(event->pos()); update(); } }
-    else if (m_mode==Mode_AddEdge) {
+    if (m_mode== InteractionMode::Mode_AddNode) { if(event->button()==Qt::LeftButton) { m_network->addNode(event->pos()); update(); } }
+    else if (m_mode== InteractionMode::Mode_AddEdge) {
         if(event->button()==Qt::LeftButton) {
             int node=getNodeAt(event->pos());
             if(node!=-1) { m_firstNode=node; m_isDragging=true; m_tempMousePos=event->pos(); }
         }
-    } else if (m_mode==Mode_SetSource) {
+    } else if (m_mode== InteractionMode::Mode_SetSource) {
         int node=getNodeAt(event->pos()); if(node!=-1) { m_network->setSource(node); update(); }
-    } else if (m_mode==Mode_SetSink) {
+    } else if (m_mode== InteractionMode::Mode_SetSink) {
         int node=getNodeAt(event->pos()); if(node!=-1) { m_network->setSink(node); update(); }
     }
 }
@@ -149,7 +149,7 @@ void NetworkWidget::mousePressEvent(QMouseEvent* event) {
 void NetworkWidget::mouseMoveEvent(QMouseEvent* e) { if(m_isDragging) { m_tempMousePos=e->pos(); update(); } }
 
 void NetworkWidget::mouseReleaseEvent(QMouseEvent* event) {
-    if (m_mode==Mode_AddEdge && m_isDragging) {
+    if (m_mode== InteractionMode::Mode_AddEdge && m_isDragging) {
         int targetNode=getNodeAt(event->pos());
         if (targetNode!=-1 && m_firstNode!=-1 && targetNode!=m_firstNode) {
             if (m_network->getCapacity(m_firstNode,targetNode)>0) {
