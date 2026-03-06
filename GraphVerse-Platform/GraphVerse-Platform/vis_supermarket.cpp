@@ -17,7 +17,8 @@ VisSupermarket::VisSupermarket(QWidget *parent)
     : QWidget(parent), m_graph(nullptr), m_nodeNames(), m_startIdx(-1),
       m_endIdx(-1), m_finalPath(), m_pathCost(0),
       m_statusLabel(new QLabel(this)), m_nameInput(new QLineEdit(this)),
-      m_mode(InteractionMode::Normal) {
+      m_mode(InteractionMode::Normal), m_draggedNodeIdx(-1),
+      m_isDragging(false) {
   setupUi();
   buildHipermarketLayout();
 }
@@ -127,6 +128,15 @@ void VisSupermarket::buildHipermarketLayout() {
     m_nodeNames[idx] = s.name;
   }
 
+  updateGraphEdges();
+  update();
+}
+
+void VisSupermarket::updateGraphEdges() {
+  if (!m_graph)
+    return;
+
+  m_graph->getEdges().clear();
   const std::vector<Node> &nodes = m_graph->getNodes();
   for (size_t i = 0; i < nodes.size(); ++i) {
     for (size_t j = i + 1; j < nodes.size(); ++j) {
@@ -141,22 +151,15 @@ void VisSupermarket::buildHipermarketLayout() {
       }
     }
   }
-  update();
 }
 
 int VisSupermarket::nodeAt(QPoint pos) const {
   if (!m_graph || m_graph->getNodes().empty())
     return -1;
 
-  const std::vector<Node> &nodes = m_graph->getNodes();
-  int minX = nodes[0].getX(), maxX = nodes[0].getX();
-  int minY = nodes[0].getY(), maxY = nodes[0].getY();
-  for (const Node &n : nodes) {
-    minX = std::min(minX, n.getX());
-    maxX = std::max(maxX, n.getX());
-    minY = std::min(minY, n.getY());
-    maxY = std::max(maxY, n.getY());
-  }
+  // Use fixed bounds for store floor to keep it stable
+  int minX = 50, maxX = 1000;
+  int minY = 50, maxY = 650;
 
   double padX = 80, padY = 60, bottomPad = 120;
   double viewW = width();
@@ -171,7 +174,7 @@ int VisSupermarket::nodeAt(QPoint pos) const {
   QPointF p = (QPointF(pos) - QPointF(offsetX, offsetY)) / scale +
               QPointF(minX - padX, minY - padY);
 
-  for (const Node &n : nodes) {
+  for (const Node &n : m_graph->getNodes()) {
     double dx = p.x() - n.getX();
     double dy = p.y() - n.getY();
     if (std::sqrt(dx * dx + dy * dy) <= (NODE_R) + 5)
@@ -199,17 +202,9 @@ void VisSupermarket::mousePressEvent(QMouseEvent *e) {
   if (!m_graph)
     return;
 
-  const std::vector<Node> &nodes = m_graph->getNodes();
-  int minX = nodes.empty() ? 0 : nodes[0].getX(),
-      maxX = nodes.empty() ? 1000 : nodes[0].getX();
-  int minY = nodes.empty() ? 0 : nodes[0].getY(),
-      maxY = nodes.empty() ? 700 : nodes[0].getY();
-  for (const Node &n : nodes) {
-    minX = std::min(minX, n.getX());
-    maxX = std::max(maxX, n.getX());
-    minY = std::min(minY, n.getY());
-    maxY = std::max(maxY, n.getY());
-  }
+  // Static store bounds
+  int minX = 50, maxX = 1000;
+  int minY = 50, maxY = 650;
 
   double padX = 80, padY = 60, bottomPad = 120;
   double viewW = width();
@@ -230,18 +225,7 @@ void VisSupermarket::mousePressEvent(QMouseEvent *e) {
     int idx = m_graph->getNodes().back().getIndex();
     m_nodeNames[idx] = name;
 
-    // Auto-connect to neighbors
-    const std::vector<Node> &allNodes = m_graph->getNodes();
-    Node &newNode = const_cast<Node &>(allNodes.back());
-    for (size_t i = 0; i < allNodes.size() - 1; ++i) {
-      int dx = newNode.getX() - allNodes[i].getX();
-      int dy = newNode.getY() - allNodes[i].getY();
-      int dist = static_cast<int>(std::sqrt(dx * dx + dy * dy));
-      if (dist < 250) {
-        m_graph->addEdge(newNode, const_cast<Node &>(allNodes[i]), dist);
-        m_graph->addEdge(const_cast<Node &>(allNodes[i]), newNode, dist);
-      }
-    }
+    updateGraphEdges();
     m_nameInput->clear();
     m_mode = InteractionMode::Normal;
     updateStatus("✅ Added section: " + name);
@@ -308,25 +292,78 @@ void VisSupermarket::mousePressEvent(QMouseEvent *e) {
   if (hit == -1)
     return;
 
-  if (e->modifiers() & Qt::ShiftModifier) {
-    m_endIdx = hit;
-  } else {
-    m_startIdx = hit;
-    if (m_startIdx == m_endIdx)
-      m_endIdx = -1;
+  m_draggedNodeIdx = hit;
+  m_isDragging = false;
+}
+
+void VisSupermarket::mouseMoveEvent(QMouseEvent *e) {
+  if (m_draggedNodeIdx == -1 || m_mode != InteractionMode::Normal || !m_graph)
+    return;
+
+  m_isDragging = true;
+  QPoint rawPos = e->pos();
+
+  // Static Store Bounds
+  int minX = 50, maxX = 1000;
+  int minY = 50, maxY = 650;
+
+  double padX = 80, padY = 60, bottomPad = 120;
+  double viewW = width();
+  double viewH = height() - 100;
+  double graphW = (maxX - minX) + padX * 2;
+  double graphH = (maxY - minY) + padY + bottomPad;
+  double scale = std::min(viewW / graphW, viewH / graphH);
+  double offsetX = (viewW - graphW * scale) / 2.0;
+  double offsetY = 100 + (viewH - graphH * scale) / 2.0;
+  QPointF graphPos = (QPointF(rawPos) - QPointF(offsetX, offsetY)) / scale +
+                     QPointF(minX - padX, minY - padY);
+
+  // Clamp node to store walls
+  int finalX = std::clamp((int)graphPos.x(), minX, maxX);
+  int finalY = std::clamp((int)graphPos.y(), minY, maxY);
+
+  for (Node &n : m_graph->getNodes()) {
+    if (n.getIndex() == m_draggedNodeIdx) {
+      n.setCoord(QPoint(finalX, finalY));
+      break;
+    }
   }
 
-  m_finalPath.clear();
-  m_pathCost = 0;
-
+  updateGraphEdges();
   if (m_startIdx != -1 && m_endIdx != -1) {
     onFindPathClicked();
-  } else {
-    QString startName = (m_startIdx != -1) ? m_nodeNames[m_startIdx] : "...";
-    QString endName = (m_endIdx != -1) ? m_nodeNames[m_endIdx] : "...";
-    updateStatus(QString("Route: %1 → %2").arg(startName, endName));
   }
   update();
+}
+
+void VisSupermarket::mouseReleaseEvent(QMouseEvent *e) {
+  if (m_draggedNodeIdx == -1 || m_mode != InteractionMode::Normal)
+    return;
+
+  if (!m_isDragging) {
+    if (e->modifiers() & Qt::ShiftModifier) {
+      m_endIdx = m_draggedNodeIdx;
+    } else {
+      m_startIdx = m_draggedNodeIdx;
+      if (m_startIdx == m_endIdx)
+        m_endIdx = -1;
+    }
+
+    m_finalPath.clear();
+    m_pathCost = 0;
+
+    if (m_startIdx != -1 && m_endIdx != -1) {
+      onFindPathClicked();
+    } else {
+      QString startName = (m_startIdx != -1) ? m_nodeNames[m_startIdx] : "...";
+      QString endName = (m_endIdx != -1) ? m_nodeNames[m_endIdx] : "...";
+      updateStatus(QString("Route: %1 → %2").arg(startName, endName));
+    }
+    update();
+  }
+
+  m_draggedNodeIdx = -1;
+  m_isDragging = false;
 }
 
 void VisSupermarket::onFindPathClicked() {
@@ -369,17 +406,10 @@ void VisSupermarket::paintEvent(QPaintEvent *) {
   if (!m_graph || m_graph->getNodes().empty())
     return;
 
-  const std::vector<Node> &nodes = m_graph->getNodes();
-  int minX = nodes[0].getX(), maxX = nodes[0].getX();
-  int minY = nodes[0].getY(), maxY = nodes[0].getY();
-  for (const Node &n : nodes) {
-    minX = std::min(minX, n.getX());
-    maxX = std::max(maxX, n.getX());
-    minY = std::min(minY, n.getY());
-    maxY = std::max(maxY, n.getY());
-  }
+  // Use fixed bounds to keep the "Store" area stable
+  int minX = 50, maxX = 1000;
+  int minY = 50, maxY = 650;
 
-  // Dynamic scaling based on absolute node bounds
   double padX = 80, padY = 60, bottomPad = 120;
   double viewW = width();
   double viewH = height() - 100;
@@ -395,11 +425,32 @@ void VisSupermarket::paintEvent(QPaintEvent *) {
   p.scale(scale, scale);
   p.translate(-(minX - padX), -(minY - padY));
 
-  p.setPen(QPen(QColor(25, 30, 50), 1));
-  for (int x = -1000; x < 2000; x += 50)
-    p.drawLine(x, -1000, x, 2000);
-  for (int y = -1000; y < 2000; y += 50)
-    p.drawLine(-1000, y, 2000, y);
+  // --- DRAW STORE FLOOR / PERIMETER ---
+  QRectF storeRect(minX - padX, minY - padY, graphW, graphH);
+
+  // Floor background
+  p.setBrush(QColor(15, 20, 35));
+  p.setPen(QPen(QColor(99, 102, 241, 100), 2, Qt::SolidLine, Qt::RoundCap,
+                Qt::RoundJoin));
+  p.drawRoundedRect(storeRect, 15, 15);
+
+  // Blue "Blueprint" border
+  p.setBrush(Qt::NoBrush);
+  p.setPen(QPen(QColor(99, 102, 241, 200), 3));
+  p.drawRoundedRect(storeRect, 15, 15);
+
+  // Subtle labels for bounds
+  p.setPen(QColor(99, 102, 241, 150));
+  p.setFont(QFont("Segoe UI", 10, QFont::Bold));
+  p.drawText(storeRect.adjusted(20, 10, 0, 0), Qt::AlignTop | Qt::AlignLeft,
+             "SUPERMARKET FLOOR PLAN");
+
+  // Grid limited to floor
+  p.setPen(QPen(QColor(30, 40, 70), 1));
+  for (int x = (int)storeRect.left(); x < storeRect.right(); x += 50)
+    p.drawLine(x, (int)storeRect.top(), x, (int)storeRect.bottom());
+  for (int y = (int)storeRect.top(); y < storeRect.bottom(); y += 50)
+    p.drawLine((int)storeRect.left(), y, (int)storeRect.right(), y);
 
   p.setPen(QPen(QColor(45, 55, 100, 150), 2));
   for (const Edge &e : m_graph->getEdges()) {

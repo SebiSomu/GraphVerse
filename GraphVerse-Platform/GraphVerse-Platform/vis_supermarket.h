@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <vector>
 
-
 class DirectedGraph;
 class QPainter;
 class QMouseEvent;
@@ -25,6 +24,8 @@ public:
 protected:
   void paintEvent(QPaintEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
 
 private slots:
   void onResetClicked();
@@ -39,6 +40,7 @@ private:
   void buildHipermarketLayout();
   int nodeAt(QPoint pos) const;
   void updateStatus(const QString &text);
+  void updateGraphEdges();
 
   DirectedGraph *m_graph;
   std::unordered_map<int, QString> m_nodeNames;
@@ -51,6 +53,9 @@ private:
   QLabel *m_statusLabel;
   QLineEdit *m_nameInput;
   InteractionMode m_mode;
+
+  int m_draggedNodeIdx;
+  bool m_isDragging;
 
   const int NODE_R = 25;
 };
