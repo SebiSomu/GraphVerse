@@ -224,7 +224,12 @@ void VisTranslation::onBuildTreeClicked() {
 
   std::string root = qroot.toStdString();
 
-  // Clear previous results
+  // 1. Loading state on button
+  m_buildBtn->setText("Building... ⏳");
+  m_buildBtn->setEnabled(false);
+  QCoreApplication::processEvents();
+
+  // 2. Clear previous results
   QLayoutItem *child;
   while ((child = m_resultsLayout->takeAt(0)) != nullptr) {
     if (child->widget())
@@ -232,36 +237,21 @@ void VisTranslation::onBuildTreeClicked() {
     delete child;
   }
 
-  // Show Loading message
-  auto *loadingLbl = new QLabel("Building Translation Tree... Please wait.");
-  loadingLbl->setStyleSheet(
-      "font: 600 16px 'Segoe UI'; color: #14B8A6; padding: 20px;");
-  m_resultsLayout->addWidget(loadingLbl);
-  m_resultsLayout->addStretch();
-
-  // Refresh UI to show the label immediately
-  QCoreApplication::processEvents();
-
   if (std::find(m_allLanguages.begin(), m_allLanguages.end(), root) ==
       m_allLanguages.end()) {
-    // Cleanup loading if error
-    m_resultsLayout->removeWidget(loadingLbl);
-    loadingLbl->deleteLater();
-
     auto *err = new QLabel(QString("Language '%1' not found in the network. "
                                    "Try 'Spanish', 'French', etc.")
                                .arg(qroot));
     err->setStyleSheet("color: #F87171; font-size: 14px;");
     m_resultsLayout->addWidget(err);
     m_resultsLayout->addStretch();
+
+    m_buildBtn->setText("Build Translation Tree");
+    m_buildBtn->setEnabled(true);
     return;
   }
 
   auto mst = kruskalMST();
-
-  // Cleanup loading before building the tree results
-  m_resultsLayout->removeWidget(loadingLbl);
-  loadingLbl->deleteLater();
 
   // Build Adjacency List from MST
   std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> adj;
@@ -278,17 +268,14 @@ void VisTranslation::onBuildTreeClicked() {
                          "margin-bottom: 16px; margin-top: 10px;");
   m_resultsLayout->addWidget(statLbl);
 
-  // BFS to render Tree Hierarchy
+  // DFS to render Tree Hierarchy
   std::unordered_set<std::string> visited;
-
-  std::vector<std::tuple<std::string, int, int>>
-      stackList; // lang, depth, costToParent
+  std::vector<std::tuple<std::string, int, int>> stackList;
   auto dfs = [&](auto &self, const std::string &curr, int depth,
                  int costPr) -> void {
     visited.insert(curr);
     stackList.push_back({curr, depth, costPr});
 
-    // Sort children for deterministic beautiful layout
     auto children = adj[curr];
     std::sort(children.begin(), children.end(),
               [](const auto &a, const auto &b) {
@@ -306,7 +293,7 @@ void VisTranslation::onBuildTreeClicked() {
 
   dfs(dfs, root, 0, 0);
 
-  // Build the visual lines
+  // Build the visual lines (normal loop, no processEvents inside)
   for (const auto &[lang, depth, cost] : stackList) {
     auto *item =
         new TranslationNodeItem(QString::fromStdString(lang), cost, depth);
@@ -314,4 +301,8 @@ void VisTranslation::onBuildTreeClicked() {
   }
 
   m_resultsLayout->addStretch();
+
+  // Reset button state
+  m_buildBtn->setText("Build Translation Tree");
+  m_buildBtn->setEnabled(true);
 }
