@@ -6,6 +6,7 @@
 #include "vis_maze.h"
 #include "vis_mst.h"
 #include "vis_shortest.h"
+#include "vis_supermarket.h"
 #include "vis_translation.h"
 #include <QtCore/QEasingCurve>
 #include <QtCore/QParallelAnimationGroup>
@@ -27,7 +28,6 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-
 
 class AnimatedButton : public QPushButton {
   Q_OBJECT
@@ -159,4 +159,5 @@ private:
   // Real World Apps Widgets
   VisFriends *m_visFriends = nullptr;
   VisTranslation *m_visTranslation = nullptr;
+  VisSupermarket *m_visSupermarket = nullptr;
 };
