@@ -116,7 +116,7 @@ void VisShortest::startAnimation(AlgoType algo) {
 void VisShortest::onAnimationTick() {
     const int STEPS_PER_TICK = 3;
     for(int i=0; i<STEPS_PER_TICK; i++) {
-        if(m_stepIdx >= (int)m_steps.size()) { 
+        if(m_stepIdx >= static_cast<int>(m_steps.size())) { 
             m_timer->stop(); m_animDone=true; m_hasCurrent=false; 
             updateLabel();
             update(); return; 
@@ -183,7 +183,7 @@ void VisShortest::paintEvent(QPaintEvent*) {
     }
     if(m_animDone && !m_finalPath.empty()) {
         p.setPen(QPen(QColor(255,220,0),3));
-        for(int i=0; i+1<(int)m_finalPath.size(); i++) {
+        for(int i=0; i+1<static_cast<int>(m_finalPath.size()); i++) {
             QPointF a,b;
             for(const auto& n : m_graph->getNodes()) {
                 if(n.getIndex()==m_finalPath[i])   a=QPointF(n.getX(),n.getY());

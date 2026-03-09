@@ -1,17 +1,15 @@
 #include "vis_maze.h"
 #include <QPainter>
-#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <cstdlib>
 #include <ctime>
 #include <random>
 #include <stack>
 #include <algorithm>
 
-static const int DR[4]  = {-1,  0,  1,  0};
-static const int DC[4]  = { 0,  1,  0, -1};
-static const int OPP[4] = { 2,  3,  0,  1};
+static constexpr int DR[4]  = {-1,  0,  1,  0};
+static constexpr int DC[4]  = { 0,  1,  0, -1};
+static constexpr int OPP[4] = { 2,  3,  0,  1};
 static inline int cellToIndex(int r, int c, int cols) { return r * cols + c + 1; }
 static inline int indexToRow(int idx, int cols) { return (idx - 1) / cols; }
 static inline int indexToCol(int idx, int cols) { return (idx - 1) % cols; }
@@ -66,7 +64,7 @@ void VisMaze::generateMaze()
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
     std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
     std::stack<std::pair<int,int>> stk;
-    stk.push({0, 0}); visited[0][0] = true;
+    stk.emplace(0, 0); visited[0][0] = true;
     while(!stk.empty()) {
         auto [r, c] = stk.top();
         std::vector<int> neighbors;
@@ -76,10 +74,10 @@ void VisMaze::generateMaze()
         }
         if(neighbors.empty()) { stk.pop(); }
         else {
-            std::uniform_int_distribution<int> dist(0, (int)neighbors.size()-1);
+            std::uniform_int_distribution<int> dist(0, static_cast<int>(neighbors.size())-1);
             int d = neighbors[dist(rng)]; int nr = r+DR[d], nc = c+DC[d];
             m_maze[r][c].walls[d] = false; m_maze[nr][nc].walls[OPP[d]] = false;
-            visited[nr][nc] = true; stk.push({nr, nc});
+            visited[nr][nc] = true; stk.emplace(nr, nc);
         }
     }
 
@@ -102,7 +100,7 @@ static void reconstructPath(int endIdx, int cols, const std::unordered_map<int,i
                             std::vector<std::pair<int,int>>& outPath) {
     outPath.clear();
     for(int cur = endIdx; cur != -1; cur = parent.count(cur) ? parent.at(cur) : -1)
-        outPath.push_back({indexToRow(cur, cols), indexToCol(cur, cols)});
+        outPath.emplace_back(indexToRow(cur, cols), indexToCol(cur, cols));
     std::reverse(outPath.begin(), outPath.end());
 }
 
@@ -111,7 +109,7 @@ std::vector<std::pair<int,int>> VisMaze::runBFS(std::vector<std::pair<int,int>>&
     std::unordered_map<int,int> parent; parent[startIdx] = -1;
     std::vector<int> order = m_graph->bfs(startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
     std::vector<std::pair<int,int>> result;
-    for(int idx : order) result.push_back({indexToRow(idx, COLS), indexToCol(idx, COLS)});
+    for(int idx : order) result.emplace_back(indexToRow(idx, COLS), indexToCol(idx, COLS));
     reconstructPath(endIdx, COLS, parent, outPath);
     return result;
 }
@@ -121,7 +119,7 @@ std::vector<std::pair<int,int>> VisMaze::runDFS(std::vector<std::pair<int,int>>&
     std::unordered_map<int,int> parent; parent[startIdx] = -1;
     std::vector<int> order = m_graph->dfs(startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
     std::vector<std::pair<int,int>> result;
-    for(int idx : order) result.push_back({indexToRow(idx, COLS), indexToCol(idx, COLS)});
+    for(int idx : order) result.emplace_back(indexToRow(idx, COLS), indexToCol(idx, COLS));
     reconstructPath(endIdx, COLS, parent, outPath);
     return result;
 }
@@ -137,11 +135,11 @@ void VisMaze::startAnimation(AlgoType algo) {
 
 void VisMaze::onAnimationTick() {
     if(!m_showingPath) {
-        if(m_animStep < (int)m_visitOrder.size()) {
+        if(m_animStep < static_cast<int>(m_visitOrder.size())) {
             auto [r, c] = m_visitOrder[m_animStep++]; m_visited[r][c] = true; update();
         } else { m_showingPath = true; m_pathStep = 0; m_timer->setInterval(40); }
     } else {
-        if(m_pathStep < (int)m_finalPath.size()) { m_pathHighlight.push_back(m_finalPath[m_pathStep++]); update(); }
+        if(m_pathStep < static_cast<int>(m_finalPath.size())) { m_pathHighlight.push_back(m_finalPath[m_pathStep++]); update(); }
         else { m_timer->stop(); m_animDone = true; update(); }
     }
 }

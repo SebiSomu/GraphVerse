@@ -83,7 +83,7 @@ void VisComponents::recreateGraph(bool directed) {
     std::vector<Node> nodes = m_graph->getNodes();
     std::vector<Edge> edges = m_graph->getEdges();
     delete m_graph;
-    m_graph = directed ? (Graph*)new DirectedGraph() : (Graph*)new UndirectedGraph();
+    m_graph = directed ? static_cast<Graph*>(new DirectedGraph()) : static_cast<Graph*>(new UndirectedGraph());
     for(const auto& n : nodes) m_graph->addNode(QPoint(n.getX(), n.getY()));
     auto& newNodes = m_graph->getNodes();
     for(const auto& ed : edges) {

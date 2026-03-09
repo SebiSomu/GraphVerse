@@ -175,7 +175,7 @@ void NetworkWidget::paintEvent(QPaintEvent*) {
     QPainter painter(this); painter.setRenderHint(QPainter::Antialiasing);
     if(!m_network) return;
     const auto& iterations = m_network->getIterations();
-    bool displayingIter = (m_iterationIndex>=0 && m_iterationIndex<(int)iterations.size());
+    bool displayingIter = (m_iterationIndex>=0 && m_iterationIndex<static_cast<int>(iterations.size()));
     const std::vector<std::vector<int>>* residualMatrix = nullptr;
     std::set<std::pair<int,int>> augmentEdges;
     if(displayingIter) {
@@ -196,11 +196,11 @@ void NetworkWidget::paintEvent(QPaintEvent*) {
         bool isReverse = hasBoth && (i>j);
         int residual = 0;
         if(displayingIter) {
-            if(residualMatrix && i-1<(int)residualMatrix->size() && j-1<(int)(*residualMatrix)[i-1].size())
+            if(residualMatrix && i-1<static_cast<int>(residualMatrix->size()) && j-1<static_cast<int>((*residualMatrix)[i - 1].size()))
                 residual = (*residualMatrix)[i-1][j-1];
             if(isForward) drawEdge(painter, positions[i-1], positions[j-1], capacity, residual, m_network->getEdgeCost(i,j), false, true, isReverse);
             else if(isReal) {
-                bool isMinCut = (m_iterationIndex==(int)iterations.size()-1) && m_network->isMinCutEdge(i,j);
+                bool isMinCut = (m_iterationIndex==static_cast<int>(iterations.size())-1) && m_network->isMinCutEdge(i,j);
                 drawEdge(painter, positions[i-1], positions[j-1], capacity, residual, m_network->getEdgeCost(i,j), isMinCut, false, isReverse);
             }
         } else {

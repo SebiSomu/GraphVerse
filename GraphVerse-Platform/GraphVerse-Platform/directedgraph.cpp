@@ -50,7 +50,7 @@ void DirectedGraph::drawEdge(QPainter &p) const
     }
 
     for(const auto &n : m_nodes) {
-        QRect r(n.getX() - (int)nodeRadius, n.getY() - (int)nodeRadius, (int)nodeRadius*2, (int)nodeRadius*2);
+        QRect r(n.getX() - static_cast<int>(nodeRadius), n.getY() - static_cast<int>(nodeRadius), static_cast<int>(nodeRadius)*2, static_cast<int>(nodeRadius)*2);
         if(componentsFound) {
             int comp = getComponentColor(n.getIndex());
             QColor nodeColor = getColorForComponent(comp);
@@ -94,7 +94,7 @@ std::unordered_map<int, std::vector<std::pair<int,int>>> DirectedGraph::buildWei
     std::unordered_map<int, std::vector<std::pair<int,int>>> adj;
     for(const auto& n  : m_nodes) adj[n.getIndex()] = {};
     for(const auto& ed : m_edges)
-        adj[ed.getFirst().getIndex()].push_back({ed.getSecond().getIndex(), ed.getCost()});
+        adj[ed.getFirst().getIndex()].emplace_back(ed.getSecond().getIndex(), ed.getCost());
     return adj;
 }
 
@@ -143,7 +143,7 @@ std::vector<int> DirectedGraph::dfs(int startIndex, int stopAt,
         if(onEdge && par != -1) onEdge(par, cur);
         if(cur == stopAt) break;
         auto& nbList = adj[cur];
-        for(int i = (int)nbList.size() - 1; i >= 0; i--) {
+        for(int i = static_cast<int>(nbList.size()) - 1; i >= 0; i--) {
             int nb = nbList[i];
             if(!visited.count(nb)) {
                 visited.insert(nb);
@@ -159,7 +159,7 @@ std::vector<int> DirectedGraph::dfs(int startIndex, int stopAt,
 void DirectedGraph::fillOrder(int nodeIndex, std::unordered_set<int>& visited, std::stack<int>& Stack)
 {
     std::stack<std::pair<int, size_t>> dfsStack;
-    dfsStack.push({nodeIndex, 0});
+    dfsStack.emplace(nodeIndex, 0);
     visited.insert(nodeIndex);
     while(!dfsStack.empty()) {
         int currentNode = dfsStack.top().first;
@@ -171,7 +171,7 @@ void DirectedGraph::fillOrder(int nodeIndex, std::unordered_set<int>& visited, s
             int neighbor = neighbors[currentIndex]; currentIndex++;
             if(visited.find(neighbor) == visited.end()) {
                 visited.insert(neighbor);
-                dfsStack.push({neighbor, 0});
+                dfsStack.emplace(neighbor, 0);
             }
         } else {
             Stack.push(currentNode); dfsStack.pop();
@@ -183,7 +183,7 @@ void DirectedGraph::DFSUtil(int nodeIndex, std::unordered_set<int>& visited,
                             std::unordered_map<int, std::vector<int>>& transposeAdj, int component)
 {
     std::stack<std::pair<int, size_t>> stack;
-    stack.push({nodeIndex, 0});
+    stack.emplace(nodeIndex, 0);
     visited.insert(nodeIndex);
     if(nodeIndex >= 1 && nodeIndex <= static_cast<int>(m_componentsColors.size()))
         m_componentsColors[nodeIndex - 1] = component;
@@ -199,7 +199,7 @@ void DirectedGraph::DFSUtil(int nodeIndex, std::unordered_set<int>& visited,
                 visited.insert(neighbor);
                 if(neighbor >= 1 && neighbor <= static_cast<int>(m_componentsColors.size()))
                     m_componentsColors[neighbor - 1] = component;
-                stack.push({neighbor, 0});
+                stack.emplace(neighbor, 0);
             }
         } else { stack.pop(); }
     }
@@ -265,7 +265,7 @@ void DirectedGraph::buildCondensedGraph()
         for(int nodeIdx : nodes)
             for(const auto& node : m_nodes)
                 if(node.getIndex() == nodeIdx) { sumX += node.getX(); sumY += node.getY(); break; }
-        componentPositions[comp] = QPoint(sumX / (int)nodes.size(), sumY / (int)nodes.size());
+        componentPositions[comp] = QPoint(sumX / static_cast<int>(nodes.size()), sumY / static_cast<int>(nodes.size()));
     }
 
     for(int comp = 0; comp < m_numComponents; comp++) {
@@ -300,9 +300,9 @@ void DirectedGraph::buildCondensedGraph()
 
 void DirectedGraph::drawCondensedGraph(QPainter& p) const
 {
-    const double arrowSize = 15.0;
-    const int nodeWidth = 80, nodeHeight = 40;
-    const double a = nodeWidth / 2.0, b = nodeHeight / 2.0;
+	constexpr double arrowSize = 15.0;
+	constexpr int nodeWidth = 80, nodeHeight = 40;
+	constexpr double a = nodeWidth / 2.0, b = nodeHeight / 2.0;
 
     for(const auto& ed : m_condensedEdges) {
         QPointF startCenter(ed.getFirst().getX(), ed.getFirst().getY());
@@ -372,8 +372,8 @@ std::vector<PathStep> DirectedGraph::dijkstra(int startIdx, int endIdx, std::vec
     for(const auto& n : m_nodes) dist[n.getIndex()] = INF_COST;
     dist[startIdx] = 0; parent[startIdx] = -1;
     using T = std::pair<int,int>;
-    std::priority_queue<T, std::vector<T>, std::greater<T>> pq;
-    pq.push({0, startIdx});
+    std::priority_queue<T, std::vector<T>, std::greater<>> pq;
+    pq.emplace(0, startIdx);
     while(!pq.empty()) {
         auto [d, u] = pq.top(); pq.pop();
         if(settled.count(u)) continue;
@@ -381,7 +381,7 @@ std::vector<PathStep> DirectedGraph::dijkstra(int startIdx, int endIdx, std::vec
         steps.push_back({u, parent.count(u) ? parent[u] : -1, d, false});
         if(u == endIdx) break;
         for(auto& [v, w] : adj[u]) {
-            if(dist[u] + w < dist[v]) { dist[v] = dist[u] + w; parent[v] = u; pq.push({dist[v], v}); }
+            if(dist[u] + w < dist[v]) { dist[v] = dist[u] + w; parent[v] = u; pq.emplace(dist[v], v); }
         }
     }
     outPath = reconstruct(endIdx, parent);
@@ -404,8 +404,8 @@ std::vector<PathStep> DirectedGraph::aStar(int startIdx, int endIdx, std::vector
     for(const auto& n : m_nodes) gCost[n.getIndex()] = INF_COST;
     gCost[startIdx] = 0; parent[startIdx] = -1;
     using T = std::pair<int,int>;
-    std::priority_queue<T, std::vector<T>, std::greater<T>> open;
-    open.push({heuristic(startIdx, endIdx), startIdx});
+    std::priority_queue<T, std::vector<T>, std::greater<>> open;
+    open.emplace(heuristic(startIdx, endIdx), startIdx);
     while(!open.empty()) {
         auto [f, u] = open.top(); open.pop();
         if(closed.count(u)) continue;
@@ -413,8 +413,12 @@ std::vector<PathStep> DirectedGraph::aStar(int startIdx, int endIdx, std::vector
         steps.push_back({u, parent.count(u) ? parent[u] : -1, gCost[u], false});
         if(u == endIdx) break;
         for(auto& [v, w] : adj[u]) {
-            int ng = gCost[u] + w;
-            if(ng < gCost[v]) { gCost[v] = ng; parent[v] = u; open.push({ng + heuristic(v, endIdx), v}); }
+	        if(int ng = gCost[u] + w; ng < gCost[v])
+	        {
+		        gCost[v] = ng; 
+	        	parent[v] = u; 
+	        	open.emplace(ng + heuristic(v, endIdx), v);
+	        }
         }
     }
     outPath = reconstruct(endIdx, parent);
@@ -428,7 +432,7 @@ std::vector<PathStep> DirectedGraph::bellmanFord(int startIdx, int endIdx, std::
     std::vector<PathStep> steps;
     for(const auto& n : m_nodes) dist[n.getIndex()] = INF_COST;
     dist[startIdx] = 0; parent[startIdx] = -1;
-    int N = (int)m_nodes.size();
+    int N = static_cast<int>(m_nodes.size());
     for(int round = 0; round < N - 1; ++round) {
         bool updated = false;
         for(const auto& ed : m_edges) {
@@ -450,7 +454,7 @@ std::vector<PathStep> DirectedGraph::floydWarshall(int startIdx, int endIdx, std
     std::vector<PathStep> steps;
     std::vector<int> ids;
     for(const auto& n : m_nodes) ids.push_back(n.getIndex());
-    int N = (int)ids.size();
+    int N = static_cast<int>(ids.size());
     std::unordered_map<int,int> pos;
     for(int i = 0; i < N; i++) pos[ids[i]] = i;
     std::vector<std::vector<int>> dist(N, std::vector<int>(N, INF_COST));

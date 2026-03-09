@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <limits>
 
-UndirectedGraph::UndirectedGraph() {}
+UndirectedGraph::UndirectedGraph() = default;
 
 void UndirectedGraph::addEdge(Node &f, Node &s, int cost)
 {
@@ -49,8 +49,8 @@ void UndirectedGraph::drawEdge(QPainter &p) const
     }
 
     for(const auto& n : m_nodes) {
-        QRect r(n.getX() - (int)nodeRadius, n.getY() - (int)nodeRadius,
-                (int)nodeRadius*2, (int)nodeRadius*2);
+        QRect r(n.getX() - static_cast<int>(nodeRadius), n.getY() - static_cast<int>(nodeRadius),
+                static_cast<int>(nodeRadius)*2, static_cast<int>(nodeRadius)*2);
         if(componentsFound) {
             int comp = getComponentColor(n.getIndex());
             QColor nodeColor = getColorForComponent(comp);
@@ -120,20 +120,20 @@ std::vector<MSTStep> UndirectedGraph::prim() const
     for(const auto& n : m_nodes) adj[n.getIndex()] = {};
     for(const auto& ed : m_edges) {
         int u = ed.getFirst().getIndex(), v = ed.getSecond().getIndex(), c = ed.getCost();
-        adj[u].push_back({v, c}); adj[v].push_back({u, c});
+        adj[u].emplace_back(v, c); adj[v].emplace_back(u, c);
     }
     std::unordered_set<int> inMST;
     using T = std::tuple<int,int,int>;
     std::priority_queue<T, std::vector<T>, std::greater<T>> pq;
     int start = m_nodes.front().getIndex();
     inMST.insert(start);
-    for(auto& [nb, c] : adj[start]) pq.push({c, start, nb});
+    for(auto& [nb, c] : adj[start]) pq.emplace(c, start, nb);
     while(!pq.empty()) {
         auto [cost, u, v] = pq.top(); pq.pop();
         if(inMST.count(v)) { steps.push_back({u, v, cost, false}); continue; }
         inMST.insert(v);
         steps.push_back({u, v, cost, true});
-        for(auto& [nb, c] : adj[v]) if(!inMST.count(nb)) pq.push({c, v, nb});
+        for(auto& [nb, c] : adj[v]) if(!inMST.count(nb)) pq.emplace(c, v, nb);
     }
     return steps;
 }
@@ -145,7 +145,7 @@ std::vector<MSTStep> UndirectedGraph::boruvka() const
     std::vector<int> ids;
     for(const auto& n : m_nodes) ids.push_back(n.getIndex());
     UnionFind uf; uf.init(ids);
-    int n = (int)m_nodes.size(), mstEdges = 0;
+    int n = static_cast<int>(m_nodes.size()), mstEdges = 0;
     while(mstEdges < n - 1) {
         std::unordered_map<int, const Edge*> cheapest;
         for(const auto& ed : m_edges) {

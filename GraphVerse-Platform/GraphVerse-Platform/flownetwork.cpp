@@ -8,16 +8,16 @@ void FlowNetwork::addNode(const QPointF& pos) {
     int n = m_nodePositions.size();
     if (n == 0) return;
     for (auto& row : m_capacity) row.resize(n, 0);
-    m_capacity.push_back(std::vector<int>(n, 0));
+    m_capacity.emplace_back(n, 0);
     for (auto& row : m_flow) row.resize(n, 0);
-    m_flow.push_back(std::vector<int>(n, 0));
+    m_flow.emplace_back(n, 0);
     for (auto& row : m_cost) row.resize(n, 0);
-    m_cost.push_back(std::vector<int>(n, 0));
+    m_cost.emplace_back(n, 0);
 }
 
 void FlowNetwork::addEdge(int from, int to, int capacity) {
     int u = from - 1, v = to - 1;
-    if (u >= 0 && u < (int)m_nodePositions.size() && v >= 0 && v < (int)m_nodePositions.size())
+    if (u >= 0 && u < static_cast<int>(m_nodePositions.size()) && v >= 0 && v < static_cast<int>(m_nodePositions.size()))
         m_capacity[u][v] = capacity;
 }
 
@@ -25,14 +25,14 @@ void FlowNetwork::setCapacity(int from, int to, int capacity) { addEdge(from, to
 
 void FlowNetwork::setEdgeCost(int from, int to, int cost) {
     int u = from - 1, v = to - 1;
-    if (u >= 0 && u < (int)m_nodePositions.size() && v >= 0 && v < (int)m_nodePositions.size()) {
+    if (u >= 0 && u < static_cast<int>(m_nodePositions.size()) && v >= 0 && v < static_cast<int>(m_nodePositions.size())) {
         m_cost[u][v] = cost; m_cost[v][u] = -cost;
     }
 }
 
 int FlowNetwork::getEdgeCost(int from, int to) const {
     int u = from - 1, v = to - 1;
-    if (u >= 0 && u < (int)m_cost.size() && v >= 0 && v < (int)m_cost.size()) return m_cost[u][v];
+    if (u >= 0 && u < static_cast<int>(m_cost.size()) && v >= 0 && v < static_cast<int>(m_cost.size())) return m_cost[u][v];
     return 0;
 }
 
@@ -154,15 +154,15 @@ int FlowNetwork::eliminateNegativeCycles() {
     bool hasCosts = false;
     for (int i = 0; i < n && !hasCosts; i++) for (int j = 0; j < n && !hasCosts; j++) if (m_cost[i][j] != 0) hasCosts = true;
     if (!hasCosts) return 0;
-    if ((int)m_currentResidual.size() != n) m_currentResidual = m_capacity;
+    if (static_cast<int>(m_currentResidual.size()) != n) m_currentResidual = m_capacity;
     int eliminated = 0;
     for (int guard = 0; guard < 1000; guard++) {
         std::vector<int> cycle = findNegativeCycle();
         if (cycle.empty()) break;
         int r = INT_MAX;
-        for (int i = 0; i+1 < (int)cycle.size(); i++) { int u = cycle[i]-1, v = cycle[i+1]-1; r = std::min(r, m_currentResidual[u][v]); }
+        for (int i = 0; i+1 < static_cast<int>(cycle.size()); i++) { int u = cycle[i]-1, v = cycle[i+1]-1; r = std::min(r, m_currentResidual[u][v]); }
         if (r <= 0 || r == INT_MAX) break;
-        for (int i = 0; i+1 < (int)cycle.size(); i++) { int u = cycle[i]-1, v = cycle[i+1]-1; m_currentResidual[u][v] -= r; m_currentResidual[v][u] += r; }
+        for (int i = 0; i+1 < static_cast<int>(cycle.size()); i++) { int u = cycle[i]-1, v = cycle[i+1]-1; m_currentResidual[u][v] -= r; m_currentResidual[v][u] += r; }
         eliminated++;
     }
     if (eliminated > 0) {
@@ -178,17 +178,17 @@ int FlowNetwork::getNumNodes() const { return m_nodePositions.size(); }
 const std::vector<QPointF>& FlowNetwork::getNodePositions() const { return m_nodePositions; }
 int FlowNetwork::getCapacity(int from, int to) const {
     int u = from-1, v = to-1;
-    if (u >= 0 && u < (int)m_capacity.size() && v >= 0 && v < (int)m_capacity.size()) return m_capacity[u][v];
+    if (u >= 0 && u < static_cast<int>(m_capacity.size()) && v >= 0 && v < static_cast<int>(m_capacity.size())) return m_capacity[u][v];
     return 0;
 }
 int FlowNetwork::getResidual(int from, int to) const {
     int u = from-1, v = to-1;
-    if (u >= 0 && u < (int)m_currentResidual.size() && v >= 0 && v < (int)m_currentResidual.size()) return m_currentResidual[u][v];
+    if (u >= 0 && u < static_cast<int>(m_currentResidual.size()) && v >= 0 && v < static_cast<int>(m_currentResidual.size())) return m_currentResidual[u][v];
     return 0;
 }
 int FlowNetwork::getFlow(int from, int to) const {
     int u = from-1, v = to-1;
-    if (u < 0 || v < 0 || u >= (int)m_capacity.size() || v >= (int)m_capacity.size()) return 0;
+    if (u < 0 || v < 0 || u >= static_cast<int>(m_capacity.size()) || v >= static_cast<int>(m_capacity.size())) return 0;
     if (m_capacity[u][v] > 0) return m_capacity[u][v] - m_currentResidual[u][v];
     return 0;
 }

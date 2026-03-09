@@ -70,7 +70,7 @@ VisTranslation::VisTranslation(QWidget *parent) : QWidget(parent) {
   buildNetwork();
 }
 
-VisTranslation::~VisTranslation() {}
+VisTranslation::~VisTranslation() = default;
 
 void VisTranslation::setupUi() {
   auto *mainLay = new QVBoxLayout(this);
@@ -257,8 +257,8 @@ void VisTranslation::onBuildTreeClicked() {
   std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> adj;
   int totalCost = 0;
   for (const auto &e : mst) {
-    adj[e.u].push_back({e.v, e.cost});
-    adj[e.v].push_back({e.u, e.cost});
+    adj[e.u].emplace_back(e.v, e.cost);
+    adj[e.v].emplace_back(e.u, e.cost);
     totalCost += e.cost;
   }
 
@@ -274,7 +274,7 @@ void VisTranslation::onBuildTreeClicked() {
   auto dfs = [&](auto &self, const std::string &curr, int depth,
                  int costPr) -> void {
     visited.insert(curr);
-    stackList.push_back({curr, depth, costPr});
+    stackList.emplace_back(curr, depth, costPr);
 
     auto children = adj[curr];
     std::sort(children.begin(), children.end(),

@@ -84,7 +84,7 @@ void GraphCanvas::paintEvent(QPaintEvent *) {
     float dist = std::sqrt(dx * dx + dy * dy);
     // Slightly higher distance threshold for more connections
     float alpha = std::max(0.0f, 1.0f - dist / 0.320f);
-    QColor col(110, 118, 255, int(alpha * 65)); // More opaque
+    QColor col(110, 118, 255, static_cast<int>(alpha * 65)); // More opaque
     p.setPen(QPen(col, 1.8));                   // Thicker lines
     p.drawLine(QPointF(a.x * W, a.y * H), QPointF(b.x * W, b.y * H));
   }
@@ -94,7 +94,7 @@ void GraphCanvas::paintEvent(QPaintEvent *) {
     const auto &nd = m_nodes[i];
     float pulse = 0.5f + 0.5f * std::sin(m_time * 2.0f + i * 0.7f);
     float r = 4.0f + pulse * 3.0f; // Larger nodes (4px to 7px base)
-    QColor fill(140, 148, 255, int(80 + 100 * pulse));
+    QColor fill(140, 148, 255, static_cast<int>(80 + 100 * pulse));
     p.setPen(Qt::NoPen);
     p.setBrush(fill);
     p.drawEllipse(QPointF(nd.x * W, nd.y * H), r, r);

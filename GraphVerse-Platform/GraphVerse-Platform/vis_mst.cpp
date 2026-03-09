@@ -80,7 +80,7 @@ void VisMST::startAnimation(AlgoType algo) {
 }
 
 void VisMST::onAnimationTick() {
-    if(m_stepIdx >= (int)m_steps.size()) { 
+    if(m_stepIdx >= static_cast<int>(m_steps.size())) { 
         m_timer->stop(); m_hasCurrent=false; m_animDone=true; 
         updateLabel();
         update(); return; 
@@ -100,7 +100,7 @@ void VisMST::updateLabel() {
     
     int totalCost=0; for(const auto& s:m_accepted) totalCost+=s.cost;
     QString status = m_animDone ? QString("%1: Done! Total cost: %2").arg(algoName).arg(totalCost)
-                                : QString("%1: Building... (%2 edges)").arg(algoName).arg((int)m_accepted.size());
+                                : QString("%1: Building... (%2 edges)").arg(algoName).arg(static_cast<int>(m_accepted.size()));
     m_statusLabel->setText(status);
     m_statusLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: bold;").arg(algoCol.name()));
 }

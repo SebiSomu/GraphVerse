@@ -6,7 +6,7 @@ Graph::Graph() : m_numComponents(0) {
     m_nodes.reserve(500);
 }
 
-Graph::~Graph(){}
+Graph::~Graph() = default;
 
 void Graph::addNode(QPoint p) {
     if(m_nodes.size() + 1 >= m_nodes.capacity()) {
@@ -59,7 +59,7 @@ void Graph::buildAdjacencyList() {
 
 void Graph::DFS(int nodeIndex, int component, std::unordered_set<int>& visited) {
     std::stack<std::pair<int, size_t>> stack;
-    stack.push({nodeIndex, 0});
+    stack.emplace(nodeIndex, 0);
     visited.insert(nodeIndex);
     m_componentsColors[nodeIndex - 1] = component;
 
@@ -73,7 +73,7 @@ void Graph::DFS(int nodeIndex, int component, std::unordered_set<int>& visited) 
             if(visited.find(neighbor) == visited.end()) {
                 visited.insert(neighbor);
                 m_componentsColors[neighbor - 1] = component;
-                stack.push({neighbor, 0});
+                stack.emplace(neighbor, 0);
             }
         } else {
             stack.pop();
@@ -98,7 +98,7 @@ void Graph::findConnectedComponents() {
 }
 
 int Graph::getComponentColor(int nodeIndex) const {
-    if(nodeIndex < 1 || nodeIndex > (int)m_componentsColors.size()) return -1;
+    if(nodeIndex < 1 || nodeIndex > static_cast<int>(m_componentsColors.size())) return -1;
     return m_componentsColors[nodeIndex - 1];
 }
 
@@ -107,7 +107,7 @@ int Graph::getNumComponents() const { return m_numComponents; }
 void Graph::findStronglyConnectedComponents() {}
 
 QColor Graph::getColorForComponent(int component) const {
-    if (m_numComponents <= 0) return QColor(255, 255, 255);
+    if (m_numComponents <= 0) return {255, 255, 255};
     static const std::vector<QColor> baseColors = {
         QColor(255, 0, 0), QColor(255, 255, 0), QColor(0, 0, 255),
         QColor(128, 0, 128), QColor(0, 255, 0), QColor(255, 165, 0),
@@ -119,20 +119,28 @@ QColor Graph::getColorForComponent(int component) const {
     int totalExtra = m_numComponents - baseColorsSize;
     if (totalExtra <= 0) return baseColors[0];
     float progression = static_cast<float>(extraComponent) / totalExtra;
-    int colorCategory = extraComponent % 12;
-    switch (colorCategory) {
-    case 0: return QColor(120+(int)(135*progression), 20+(int)(180*progression), 20+(int)(180*progression));
-    case 1: return QColor(180+(int)(60*progression), 180+(int)(60*progression), 50+(int)(50*progression));
-    case 2: return QColor(30+(int)(40*progression), 80+(int)(100*progression), 150+(int)(80*progression));
-    case 3: return QColor(100+(int)(80*progression), 30+(int)(40*progression), 120+(int)(80*progression));
-    case 4: return QColor(30+(int)(40*progression), 120+(int)(100*progression), 80+(int)(80*progression));
-    case 5: return QColor(180+(int)(60*progression), 100+(int)(80*progression), 30+(int)(40*progression));
-    case 6: return QColor(0, 120+(int)(80*progression), 120+(int)(80*progression));
-    case 7: return QColor(120+(int)(80*progression), 0, 80+(int)(100*progression));
-    case 8: return QColor(160+(int)(60*progression), 140+(int)(60*progression), 100+(int)(60*progression));
-    case 9: return QColor(0, 100+(int)(80*progression), 140+(int)(80*progression));
-    case 10: return QColor(160+(int)(60*progression), 80+(int)(80*progression), 100+(int)(80*progression));
-    case 11: return QColor(120+(int)(60*progression), 80+(int)(60*progression), 140+(int)(60*progression));
-    default: return QColor(255, 0, 0);
+    switch (extraComponent % 12) {
+    case 0: return {120+static_cast<int>(135 * progression), 20+static_cast<int>(180 * progression), 20+static_cast<int>(180 * progression)
+	    };
+    case 1: return {180+static_cast<int>(60 * progression), 180+static_cast<int>(60 * progression), 50+static_cast<int>(50 * progression)
+	    };
+    case 2: return {30+static_cast<int>(40 * progression), 80+static_cast<int>(100 * progression), 150+static_cast<int>(80 * progression)
+	    };
+    case 3: return {100+static_cast<int>(80 * progression), 30+static_cast<int>(40 * progression), 120+static_cast<int>(80 * progression)
+	    };
+    case 4: return {30+static_cast<int>(40 * progression), 120+static_cast<int>(100 * progression), 80+static_cast<int>(80 * progression)
+	    };
+    case 5: return {180+static_cast<int>(60 * progression), 100+static_cast<int>(80 * progression), 30+static_cast<int>(40 * progression)
+	    };
+    case 6: return {0, 120+static_cast<int>(80 * progression), 120+static_cast<int>(80 * progression)};
+    case 7: return {120+static_cast<int>(80 * progression), 0, 80+static_cast<int>(100 * progression)};
+    case 8: return {160+static_cast<int>(60 * progression), 140+static_cast<int>(60 * progression), 100+static_cast<int>(60 * progression)
+	    };
+    case 9: return {0, 100+static_cast<int>(80 * progression), 140+static_cast<int>(80 * progression)};
+    case 10: return {160+static_cast<int>(60 * progression), 80+static_cast<int>(80 * progression), 100+static_cast<int>(80 * progression)
+	    };
+    case 11: return {120+static_cast<int>(60 * progression), 80+static_cast<int>(60 * progression), 140+static_cast<int>(60 * progression)
+	    };
+    default: return {255, 0, 0};
     }
 }

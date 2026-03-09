@@ -49,7 +49,7 @@ VisFriends::VisFriends(QWidget *parent) : QWidget(parent) {
   buildNetwork();
 }
 
-VisFriends::~VisFriends() {}
+VisFriends::~VisFriends() = default;
 
 void VisFriends::setupUi() {
   auto *mainLay = new QVBoxLayout(this);
@@ -240,7 +240,7 @@ VisFriends::getSuggestions(const std::string &root) const {
 
   std::unordered_map<std::string, int> dist;
   std::queue<std::pair<std::string, int>> q;
-  q.push({root, 0});
+  q.emplace(root, 0);
   dist[root] = 0;
 
   std::vector<Suggestion> results;
@@ -262,7 +262,7 @@ VisFriends::getSuggestions(const std::string &root) const {
       for (const auto &v : m_adj.at(u)) {
         if (dist.find(v) == dist.end()) {
           dist[v] = d + 1;
-          q.push({v, d + 1});
+          q.emplace(v, d + 1);
         }
       }
     }
@@ -315,7 +315,7 @@ void VisFriends::onSearchClicked() {
   auto *gridFriends = new QGridLayout;
   gridFriends->setSpacing(12);
   int row = 0, col = 0;
-  for (size_t i = 0; i < std::min(friends.size(), size_t(24));
+  for (size_t i = 0; i < std::min(friends.size(), static_cast<size_t>(24));
        ++i) { // Show up to 24 direct
     auto *card =
         new PersonCard(QString::fromStdString(friends[i]), "1st Degree", false);
@@ -342,7 +342,7 @@ void VisFriends::onSearchClicked() {
   gridSugg->setSpacing(12);
   row = 0;
   col = 0;
-  for (size_t i = 0; i < std::min(suggestions.size(), size_t(40));
+  for (size_t i = 0; i < std::min(suggestions.size(), static_cast<size_t>(40));
        ++i) { // Up to 40 suggestions
     const auto &s = suggestions[i];
     QString det = QString("%1 Mutual Friend%2")

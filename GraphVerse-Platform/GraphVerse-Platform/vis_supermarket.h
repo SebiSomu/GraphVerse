@@ -1,8 +1,6 @@
 #ifndef VIS_SUPERMARKET_H
 #define VIS_SUPERMARKET_H
 
-#include <QtCore/QPoint>
-#include <QtCore/QString>
 #include <QtCore/QTimer>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -26,6 +24,7 @@ protected:
   void mousePressEvent(QMouseEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
+  void resizeEvent(QResizeEvent *event) override;
 
 private slots:
   void onResetClicked();
@@ -50,6 +49,7 @@ private:
   std::vector<int> m_finalPath;
   int m_pathCost;
 
+  QWidget *m_toolbar;
   QLabel *m_statusLabel;
   QLineEdit *m_nameInput;
   InteractionMode m_mode;
