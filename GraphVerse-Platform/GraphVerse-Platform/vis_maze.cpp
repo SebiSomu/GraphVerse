@@ -16,41 +16,79 @@ static inline int indexToCol(int idx, int cols) { return (idx - 1) % cols; }
 
 VisMaze::VisMaze(QWidget* parent)
     : QWidget(parent), m_timer(new QTimer(this)), m_animStep(0), m_animDone(false),
-      m_showingPath(false), m_pathStep(0), m_currentAlgo(AlgoType::None), m_graph(nullptr)
+      m_showingPath(false), m_pathStep(0), m_currentAlgo(AlgoType::None), m_graph(nullptr), m_toolbar(nullptr)
 {
     setMinimumSize(COLS * CELL_SIZE + 20, ROWS * CELL_SIZE + 140);
 
     auto* btnBfs = new QPushButton("BFS", this);
     auto* btnDfs = new QPushButton("DFS", this);
     auto* btnReset = new QPushButton("Reset", this);
-    auto* lblInfo = new QLabel("Start: top-left  |  Exit: bottom-right", this);
+    m_pauseBtn = new QPushButton("Pause", this);
+    m_statusLabel = new QLabel(this);
+    m_hintLabel = new QLabel("Start: top-left  |  Exit: bottom-right", this);
+    m_speedLabel = new QLabel("Speed", this);
+    m_speedSlider = new QSlider(Qt::Horizontal, this);
+    m_pauseBtn->setEnabled(false);
+    m_paused = false;
+    m_tickInterval = 18;
+    m_speedSlider->setRange(1, 100);
+    m_speedSlider->setValue(55);
+    m_speedSlider->setFixedWidth(220);
+    m_statusLabel->setAlignment(Qt::AlignCenter);
+    m_hintLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_speedLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_statusLabel->setMinimumWidth(420);
+    m_hintLabel->setMinimumWidth(240);
 
-    for(auto* btn : {btnBfs, btnDfs, btnReset}) { btn->setFixedHeight(36); btn->setFixedWidth(110); }
-    lblInfo->setAlignment(Qt::AlignCenter);
-    lblInfo->setStyleSheet("color: #aaaaaa; font-size: 12px;");
+    for(auto* btn : {btnBfs, btnDfs, btnReset, m_pauseBtn}) { btn->setFixedHeight(34); btn->setFixedWidth(96); }
+    m_hintLabel->setStyleSheet("color: #aaaaaa; font-size: 11px;");
+    m_statusLabel->setStyleSheet("color:#5fa8ff;font-size:12px;font-weight:bold;");
+    m_speedLabel->setStyleSheet("color:#cbd5e1;font-size:11px;");
+    m_speedSlider->setStyleSheet(
+        "QSlider::groove:horizontal { height: 4px; background: #374151; border-radius: 2px; }"
+        "QSlider::handle:horizontal { background: #60a5fa; width: 12px; margin: -5px 0; border-radius: 6px; }");
 
     QString base = "QPushButton { border-radius:6px; font-weight:bold; font-size:13px; }";
     btnBfs->setStyleSheet(base + "QPushButton { background:#1e90ff; color:white; } QPushButton:hover { background:#1070d0; }");
     btnDfs->setStyleSheet(base + "QPushButton { background:#27ae60; color:white; } QPushButton:hover { background:#1e8449; }");
     btnReset->setStyleSheet(base + "QPushButton { background:#e74c3c; color:white; } QPushButton:hover { background:#c0392b; }");
+    m_pauseBtn->setStyleSheet(base + "QPushButton { background:#6b7280; color:white; } QPushButton:hover { background:#4b5563; }");
 
-    auto* toolbar = new QWidget(this);
-    auto* hbox = new QHBoxLayout(toolbar);
-    hbox->addWidget(btnBfs); hbox->addWidget(btnDfs); hbox->addSpacing(20);
-    hbox->addWidget(btnReset); hbox->addStretch(); hbox->addWidget(lblInfo);
+    m_toolbar = new QWidget(this);
+    auto* hbox = new QHBoxLayout(m_toolbar);
+    hbox->addWidget(btnBfs);
+    hbox->addWidget(btnDfs);
+    hbox->addWidget(btnReset);
+    hbox->addWidget(m_pauseBtn);
+    hbox->addSpacing(8);
+    hbox->addWidget(m_speedLabel);
+    hbox->addWidget(m_speedSlider);
+    hbox->addStretch(1);
+    hbox->addWidget(m_statusLabel, 2);
+    hbox->addStretch(1);
+    hbox->addWidget(m_hintLabel);
     hbox->setContentsMargins(8, 8, 8, 4);
-    toolbar->setGeometry(0, 0, width(), 52);
+    m_toolbar->setGeometry(0, 0, width(), 52);
 
     connect(btnBfs, &QPushButton::clicked, this, &VisMaze::onBfsClicked);
     connect(btnDfs, &QPushButton::clicked, this, &VisMaze::onDfsClicked);
     connect(btnReset, &QPushButton::clicked, this, &VisMaze::onResetClicked);
+    connect(m_pauseBtn, &QPushButton::clicked, this, &VisMaze::onPauseClicked);
+    connect(m_speedSlider, &QSlider::valueChanged, this, &VisMaze::onSpeedChanged);
     connect(m_timer, &QTimer::timeout, this, &VisMaze::onAnimationTick);
 
+    updateStatusLabel();
     srand(static_cast<unsigned>(time(nullptr)));
     generateMaze();
 }
 
 VisMaze::~VisMaze() { delete m_graph; }
+
+void VisMaze::resizeEvent(QResizeEvent* e) {
+    QWidget::resizeEvent(e);
+    if (m_toolbar)
+        m_toolbar->setGeometry(0, 0, width(), 52);
+}
 
 void VisMaze::generateMaze()
 {
@@ -60,6 +98,11 @@ void VisMaze::generateMaze()
     m_visitOrder.clear(); m_finalPath.clear(); m_pathHighlight.clear();
     m_animStep = 0; m_animDone = false; m_showingPath = false; m_pathStep = 0;
     m_currentAlgo = AlgoType::None;
+    m_paused = false;
+    m_tickInterval = 18;
+    m_pauseBtn->setText("Pause");
+    m_pauseBtn->setEnabled(false);
+    updateStatusLabel();
 
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
     std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
@@ -126,27 +169,85 @@ std::vector<std::pair<int,int>> VisMaze::runDFS(std::vector<std::pair<int,int>>&
 
 void VisMaze::startAnimation(AlgoType algo) {
     m_timer->stop(); m_currentAlgo = algo;
+    m_paused = false;
+    m_pauseBtn->setText("Pause");
+    m_pauseBtn->setEnabled(true);
     m_visited.assign(ROWS, std::vector<bool>(COLS, false));
     m_pathHighlight.clear(); m_animStep = 0; m_animDone = false; m_showingPath = false; m_pathStep = 0;
     if(algo == AlgoType::BFS) m_visitOrder = runBFS(m_finalPath);
     else m_visitOrder = runDFS(m_finalPath);
-    m_timer->start(18);
+    m_tickInterval = currentInterval();
+    updateStatusLabel();
+    m_timer->start(m_tickInterval);
 }
 
 void VisMaze::onAnimationTick() {
     if(!m_showingPath) {
         if(m_animStep < static_cast<int>(m_visitOrder.size())) {
             auto [r, c] = m_visitOrder[m_animStep++]; m_visited[r][c] = true; update();
-        } else { m_showingPath = true; m_pathStep = 0; m_timer->setInterval(40); }
+            updateStatusLabel();
+        } else { m_showingPath = true; m_pathStep = 0; m_tickInterval = currentInterval(); m_timer->setInterval(m_tickInterval); updateStatusLabel(); }
     } else {
-        if(m_pathStep < static_cast<int>(m_finalPath.size())) { m_pathHighlight.push_back(m_finalPath[m_pathStep++]); update(); }
-        else { m_timer->stop(); m_animDone = true; update(); }
+        if(m_pathStep < static_cast<int>(m_finalPath.size())) { m_pathHighlight.push_back(m_finalPath[m_pathStep++]); update(); updateStatusLabel(); }
+        else { m_timer->stop(); m_animDone = true; m_pauseBtn->setEnabled(false); updateStatusLabel(); update(); }
     }
 }
 
 void VisMaze::onBfsClicked() { startAnimation(AlgoType::BFS); }
 void VisMaze::onDfsClicked() { startAnimation(AlgoType::DFS); }
 void VisMaze::onResetClicked() { m_timer->stop(); generateMaze(); }
+void VisMaze::onPauseClicked() {
+    if (m_currentAlgo == AlgoType::None || m_animDone)
+        return;
+    if (m_paused) {
+        m_paused = false;
+        m_pauseBtn->setText("Pause");
+        updateStatusLabel();
+        m_timer->start(m_tickInterval);
+        return;
+    }
+    m_paused = true;
+    m_pauseBtn->setText("Resume");
+    updateStatusLabel();
+    m_timer->stop();
+}
+
+void VisMaze::onSpeedChanged(int) {
+    m_tickInterval = currentInterval();
+    if (m_timer->isActive())
+        m_timer->setInterval(m_tickInterval);
+}
+
+int VisMaze::currentInterval() const {
+    int slider = m_speedSlider ? m_speedSlider->value() : 55;
+    int maxMs = m_showingPath ? 180 : 120;
+    int minMs = m_showingPath ? 6 : 3;
+    int slow = 101 - slider;
+    int range = maxMs - minMs;
+    return minMs + (slow * slow * range) / 10000;
+}
+
+void VisMaze::updateStatusLabel() {
+    if (m_currentAlgo == AlgoType::None) {
+        m_statusLabel->setText("Ready. Choose BFS or DFS");
+        m_statusLabel->setStyleSheet("color:#94a3b8;font-size:12px;font-weight:bold;");
+        return;
+    }
+    QString algoName = (m_currentAlgo == AlgoType::BFS) ? "BFS" : "DFS";
+    QColor algoCol = (m_currentAlgo == AlgoType::BFS) ? QColor(80,160,255) : QColor(46,204,113);
+    QString text;
+    if (m_animDone) {
+        text = QString("%1 - done! Path length: %2 steps").arg(algoName).arg(m_finalPath.size());
+    } else if (m_paused) {
+        text = QString("%1 - paused").arg(algoName);
+    } else if (!m_showingPath) {
+        text = QString("%1 - exploring... %2/%3").arg(algoName).arg(m_animStep).arg(m_visitOrder.size());
+    } else {
+        text = QString("%1 - building path... %2/%3").arg(algoName).arg(m_pathStep).arg(m_finalPath.size());
+    }
+    m_statusLabel->setText(text);
+    m_statusLabel->setStyleSheet(QString("color:%1;font-size:12px;font-weight:bold;").arg(algoCol.name()));
+}
 
 void VisMaze::paintEvent(QPaintEvent*) {
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing, false);
@@ -166,12 +267,4 @@ void VisMaze::paintEvent(QPaintEvent*) {
     }
     p.fillRect(ox+4, oy+4, C-8, C-8, QColor(0,210,80));
     p.fillRect(ox+(COLS-1)*C+4, oy+(ROWS-1)*C+4, C-8, C-8, QColor(220,40,40));
-    if(m_currentAlgo != AlgoType::None) {
-        QString algoName = (m_currentAlgo == AlgoType::BFS) ? "BFS" : "DFS";
-        QColor algoCol = (m_currentAlgo == AlgoType::BFS) ? QColor(80,160,255) : QColor(46,204,113);
-        QFont f = p.font(); f.setPointSize(11); f.setBold(true); p.setFont(f); p.setPen(algoCol);
-        QString status = m_animDone ? QString("%1 - done!  Path length: %2 steps").arg(algoName).arg(m_finalPath.size())
-                                    : QString("%1 - searching for exit...").arg(algoName);
-        p.drawText(QRect(ox, oy+ROWS*C+6, COLS*C, 26), Qt::AlignLeft|Qt::AlignVCenter, status);
-    }
 }

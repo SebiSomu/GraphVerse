@@ -11,7 +11,9 @@
 
 VisMST::VisMST(QWidget* parent)
     : QWidget(parent), m_graph(nullptr), m_timer(new QTimer(this)),
-      m_statusLabel(new QLabel(this)),
+      m_statusLabel(new QLabel(this)), m_timerLabel(new QLabel(this)),
+      m_speedLabel(new QLabel("Speed", this)), m_pauseBtn(new QPushButton("Pause", this)),
+      m_speedSlider(new QSlider(Qt::Horizontal, this)), m_toolbar(nullptr),
       m_stepIdx(0), m_animDone(false), m_hasCurrent(false), m_currentAlgo(AlgoType::None)
 {
     setMinimumSize(COLS*SPACING+offsetX()*2, ROWS*SPACING+70+90);
@@ -19,32 +21,52 @@ VisMST::VisMST(QWidget* parent)
     auto* btnP = new QPushButton("Prim", this);
     auto* btnB = new QPushButton("Boruvka", this);
     auto* btnR = new QPushButton("Reset", this);
-    for(auto* b : {btnK,btnP,btnB,btnR}) { b->setFixedHeight(34); b->setFixedWidth(110); }
+    m_pauseBtn->setEnabled(false);
+    m_speedSlider->setRange(1, 100);
+    m_speedSlider->setValue(70);
+    m_speedSlider->setFixedWidth(180);
+    m_paused = false;
+    m_elapsedMs = 0;
+    for(auto* b : {btnK,btnP,btnB,btnR,m_pauseBtn}) { b->setFixedHeight(34); b->setFixedWidth(110); }
     QString base = "QPushButton{border-radius:6px;font-weight:bold;font-size:12px;}";
     btnK->setStyleSheet(base+"QPushButton{background:#1e90ff;color:white;}QPushButton:hover{background:#1070d0;}");
     btnP->setStyleSheet(base+"QPushButton{background:#27ae60;color:white;}QPushButton:hover{background:#1e8449;}");
     btnB->setStyleSheet(base+"QPushButton{background:#9b59b6;color:white;}QPushButton:hover{background:#7d3c98;}");
     btnR->setStyleSheet(base+"QPushButton{background:#e74c3c;color:white;}QPushButton:hover{background:#c0392b;}");
+    m_pauseBtn->setStyleSheet(base+"QPushButton{background:#6b7280;color:white;}QPushButton:hover{background:#4b5563;}");
+    m_speedLabel->setStyleSheet("color:#cbd5e1;font-size:11px;");
+    m_speedSlider->setStyleSheet(
+        "QSlider::groove:horizontal { height: 4px; background: #374151; border-radius: 2px; }"
+        "QSlider::handle:horizontal { background: #60a5fa; width: 12px; margin: -5px 0; border-radius: 6px; }");
 
     m_statusLabel->setStyleSheet("color: white; font-size: 13px; font-weight: bold;");
     m_statusLabel->setAlignment(Qt::AlignCenter);
+    m_statusLabel->setMinimumWidth(300);
+    m_timerLabel->setStyleSheet("color:#facc15;font-size:12px;font-weight:bold;");
+    m_timerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    updateTimerLabel();
 
     auto* lbl = new QLabel("Green = added to MST   Red = rejected   White = final MST", this);
     lbl->setStyleSheet("color:#aaaaaa;font-size:11px;");
-    auto* toolbar = new QWidget(this);
-    auto* hbox = new QHBoxLayout(toolbar);
+    m_toolbar = new QWidget(this);
+    auto* hbox = new QHBoxLayout(m_toolbar);
     hbox->addWidget(btnK); hbox->addWidget(btnP); hbox->addWidget(btnB);
-    hbox->addSpacing(16); hbox->addWidget(btnR); 
+    hbox->addSpacing(16); hbox->addWidget(btnR); hbox->addWidget(m_pauseBtn);
+    hbox->addSpacing(8); hbox->addWidget(m_speedLabel); hbox->addWidget(m_speedSlider);
     hbox->addStretch(1);
-    hbox->addWidget(m_statusLabel, 2);
+    hbox->addWidget(m_statusLabel, 3);
     hbox->addStretch(1);
+    hbox->addWidget(m_timerLabel);
+    hbox->addSpacing(12);
     hbox->addWidget(lbl);
     hbox->setContentsMargins(8,6,8,4);
-    toolbar->setGeometry(0,0,width(),50);
+    m_toolbar->setGeometry(0,0,width(),50);
     connect(btnK, &QPushButton::clicked, this, &VisMST::onKruskalClicked);
     connect(btnP, &QPushButton::clicked, this, &VisMST::onPrimClicked);
     connect(btnB, &QPushButton::clicked, this, &VisMST::onBoruvkaClicked);
     connect(btnR, &QPushButton::clicked, this, &VisMST::onResetClicked);
+    connect(m_pauseBtn, &QPushButton::clicked, this, &VisMST::onPauseClicked);
+    connect(m_speedSlider, &QSlider::valueChanged, this, &VisMST::onSpeedChanged);
     connect(m_timer, &QTimer::timeout, this, &VisMST::onAnimationTick);
     srand(static_cast<unsigned>(time(nullptr)));
     buildGraph();
@@ -52,10 +74,21 @@ VisMST::VisMST(QWidget* parent)
 
 VisMST::~VisMST() { delete m_graph; }
 
+void VisMST::resizeEvent(QResizeEvent* e) {
+    QWidget::resizeEvent(e);
+    if (m_toolbar)
+        m_toolbar->setGeometry(0, 0, width(), 50);
+}
+
 void VisMST::buildGraph() {
     m_timer->stop(); delete m_graph; m_graph = new UndirectedGraph();
     m_steps.clear(); m_accepted.clear(); m_rejected.clear();
     m_hasCurrent = false; m_stepIdx = 0; m_animDone = false; m_currentAlgo = AlgoType::None;
+    m_paused = false;
+    m_pauseBtn->setText("Pause");
+    m_pauseBtn->setEnabled(false);
+    m_elapsedMs = 0;
+    updateTimerLabel();
     m_statusLabel->clear();
     updateLabel();
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
@@ -72,22 +105,32 @@ void VisMST::buildGraph() {
 void VisMST::startAnimation(AlgoType algo) {
     m_timer->stop(); m_currentAlgo = algo;
     m_accepted.clear(); m_rejected.clear(); m_hasCurrent = false; m_stepIdx = 0; m_animDone = false;
+    m_paused = false;
+    m_pauseBtn->setText("Pause");
+    m_pauseBtn->setEnabled(true);
+    m_elapsedMs = 0;
+    m_elapsedClock.restart();
+    updateTimerLabel();
     m_statusLabel->setText("Initializing...");
     if(algo==AlgoType::Kruskal) m_steps=m_graph->kruskal();
     else if(algo==AlgoType::Prim) m_steps=m_graph->prim();
     else m_steps=m_graph->boruvka();
-    m_timer->start(5);
+    m_timer->start(currentInterval());
 }
 
 void VisMST::onAnimationTick() {
     if(m_stepIdx >= static_cast<int>(m_steps.size())) { 
+        m_elapsedMs += m_elapsedClock.elapsed();
         m_timer->stop(); m_hasCurrent=false; m_animDone=true; 
+        m_pauseBtn->setEnabled(false);
+        updateTimerLabel();
         updateLabel();
         update(); return; 
     }
     m_current = m_steps[m_stepIdx++]; m_hasCurrent = true;
     if(m_current.accepted) m_accepted.push_back(m_current); else m_rejected.push_back(m_current);
     updateLabel();
+    updateTimerLabel();
     update();
 }
 
@@ -105,10 +148,47 @@ void VisMST::updateLabel() {
     m_statusLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: bold;").arg(algoCol.name()));
 }
 
+void VisMST::updateTimerLabel() {
+    qint64 totalMs = m_elapsedMs;
+    if (!m_paused && m_timer->isActive())
+        totalMs += m_elapsedClock.elapsed();
+    double seconds = static_cast<double>(totalMs) / 1000.0;
+    m_timerLabel->setText(QString("Time: %1s").arg(seconds, 0, 'f', 2));
+}
+
+int VisMST::currentInterval() const {
+    int slider = m_speedSlider ? m_speedSlider->value() : 70;
+    int minMs = 2;
+    int maxMs = 120;
+    int slow = 101 - slider;
+    int range = maxMs - minMs;
+    return minMs + (slow * slow * range) / 10000;
+}
+
 void VisMST::onKruskalClicked() { startAnimation(AlgoType::Kruskal); }
 void VisMST::onPrimClicked() { startAnimation(AlgoType::Prim); }
 void VisMST::onBoruvkaClicked() { startAnimation(AlgoType::Boruvka); }
 void VisMST::onResetClicked() { buildGraph(); }
+void VisMST::onSpeedChanged(int) {
+    if (m_timer->isActive())
+        m_timer->setInterval(currentInterval());
+}
+void VisMST::onPauseClicked() {
+    if (m_currentAlgo == AlgoType::None || m_animDone)
+        return;
+    if (m_paused) {
+        m_paused = false;
+        m_pauseBtn->setText("Pause");
+        m_elapsedClock.restart();
+        m_timer->start(currentInterval());
+        return;
+    }
+    m_paused = true;
+    m_pauseBtn->setText("Resume");
+    m_elapsedMs += m_elapsedClock.elapsed();
+    m_timer->stop();
+    updateTimerLabel();
+}
 
 void VisMST::paintEvent(QPaintEvent*) {
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing); p.fillRect(rect(), Qt::black);

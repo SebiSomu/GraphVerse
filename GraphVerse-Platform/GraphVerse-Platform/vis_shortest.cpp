@@ -13,6 +13,8 @@
 VisShortest::VisShortest(QWidget* parent)
     : QWidget(parent), m_graph(nullptr), m_startIdx(-1), m_endIdx(-1),
       m_timer(new QTimer(this)), m_statusLabel(new QLabel(this)),
+      m_timerLabel(new QLabel(this)), m_speedLabel(new QLabel("Speed", this)),
+      m_pauseBtn(new QPushButton("Pause", this)), m_speedSlider(new QSlider(Qt::Horizontal, this)), m_toolbar(nullptr),
       m_stepIdx(0), m_animDone(false),
       m_currentNode(-1), m_hasCurrent(false), m_currentAlgo(AlgoType::None)
 {
@@ -22,41 +24,67 @@ VisShortest::VisShortest(QWidget* parent)
     auto* btnBF= new QPushButton("Bellman-Ford", this);
     auto* btnFW= new QPushButton("Floyd-Warshall", this);
     auto* btnR = new QPushButton("Reset", this);
+    m_pauseBtn->setEnabled(false);
+    m_speedSlider->setRange(1, 100);
+    m_speedSlider->setValue(65);
+    m_speedSlider->setFixedWidth(180);
+    m_paused = false;
+    m_elapsedMs = 0;
     btnD->setFixedSize(110,34); btnA->setFixedSize(80,34); btnBF->setFixedSize(130,34);
-    btnFW->setFixedSize(150,34); btnR->setFixedSize(90,34);
+    btnFW->setFixedSize(150,34); btnR->setFixedSize(90,34); m_pauseBtn->setFixedSize(90,34);
     QString base = "QPushButton{border-radius:6px;font-weight:bold;font-size:12px;}";
     btnD->setStyleSheet(base+"QPushButton{background:#1e90ff;color:white;}QPushButton:hover{background:#1070d0;}");
     btnA->setStyleSheet(base+"QPushButton{background:#27ae60;color:white;}QPushButton:hover{background:#1e8449;}");
     btnBF->setStyleSheet(base+"QPushButton{background:#e67e22;color:white;}QPushButton:hover{background:#ca6f1e;}");
     btnFW->setStyleSheet(base+"QPushButton{background:#9b59b6;color:white;}QPushButton:hover{background:#7d3c98;}");
     btnR->setStyleSheet(base+"QPushButton{background:#e74c3c;color:white;}QPushButton:hover{background:#c0392b;}");
+    m_pauseBtn->setStyleSheet(base+"QPushButton{background:#6b7280;color:white;}QPushButton:hover{background:#4b5563;}");
+    m_speedLabel->setStyleSheet("color:#cbd5e1;font-size:11px;");
+    m_speedSlider->setStyleSheet(
+        "QSlider::groove:horizontal { height: 4px; background: #374151; border-radius: 2px; }"
+        "QSlider::handle:horizontal { background: #60a5fa; width: 12px; margin: -5px 0; border-radius: 6px; }");
 
     m_statusLabel->setStyleSheet("color: white; font-size: 13px; font-weight: bold;");
     m_statusLabel->setAlignment(Qt::AlignCenter);
+    m_statusLabel->setMinimumWidth(360);
+    m_timerLabel->setStyleSheet("color:#facc15;font-size:12px;font-weight:bold;");
+    m_timerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    updateTimerLabel();
 
     auto* lbl = new QLabel("Click node = Start   Shift+Click = End", this);
     lbl->setStyleSheet("color:#aaaaaa;font-size:11px;");
-    auto* toolbar = new QWidget(this);
-    auto* hbox = new QHBoxLayout(toolbar);
+    m_toolbar = new QWidget(this);
+    auto* hbox = new QHBoxLayout(m_toolbar);
     hbox->addWidget(btnD); hbox->addWidget(btnA); hbox->addWidget(btnBF); hbox->addWidget(btnFW);
-    hbox->addSpacing(10); hbox->addWidget(btnR); 
+    hbox->addSpacing(10); hbox->addWidget(btnR); hbox->addWidget(m_pauseBtn);
+    hbox->addSpacing(8); hbox->addWidget(m_speedLabel); hbox->addWidget(m_speedSlider);
     hbox->addStretch(1);
-    hbox->addWidget(m_statusLabel, 2);
+    hbox->addWidget(m_statusLabel, 3);
     hbox->addStretch(1);
+    hbox->addWidget(m_timerLabel);
+    hbox->addSpacing(12);
     hbox->addWidget(lbl);
     hbox->setContentsMargins(8,6,8,4);
-    toolbar->setGeometry(0,0,width(),50);
+    m_toolbar->setGeometry(0,0,width(),50);
     connect(btnD, &QPushButton::clicked, this, &VisShortest::onDijkstraClicked);
     connect(btnA, &QPushButton::clicked, this, &VisShortest::onAStarClicked);
     connect(btnBF,&QPushButton::clicked, this, &VisShortest::onBellmanFordClicked);
     connect(btnFW,&QPushButton::clicked, this, &VisShortest::onFloydWarshallClicked);
     connect(btnR, &QPushButton::clicked, this, &VisShortest::onResetClicked);
+    connect(m_pauseBtn, &QPushButton::clicked, this, &VisShortest::onPauseClicked);
+    connect(m_speedSlider, &QSlider::valueChanged, this, &VisShortest::onSpeedChanged);
     connect(m_timer, &QTimer::timeout, this, &VisShortest::onAnimationTick);
     srand(static_cast<unsigned>(time(nullptr)));
     buildGraph();
 }
 
 VisShortest::~VisShortest() { delete m_graph; }
+
+void VisShortest::resizeEvent(QResizeEvent* e) {
+    QWidget::resizeEvent(e);
+    if (m_toolbar)
+        m_toolbar->setGeometry(0, 0, width(), 50);
+}
 
 void VisShortest::buildGraph() {
     m_timer->stop(); delete m_graph; m_graph = new DirectedGraph();
@@ -81,6 +109,11 @@ void VisShortest::buildGraph() {
 void VisShortest::resetAnimation() {
     m_steps.clear(); m_bestCost.clear(); m_parent.clear(); m_finalPath.clear();
     m_stepIdx=0; m_animDone=false; m_hasCurrent=false; m_currentNode=-1; m_currentAlgo=AlgoType::None;
+    m_paused = false;
+    m_pauseBtn->setText("Pause");
+    m_pauseBtn->setEnabled(false);
+    m_elapsedMs = 0;
+    updateTimerLabel();
     m_statusLabel->clear();
     updateLabel();
 }
@@ -105,19 +138,28 @@ void VisShortest::mousePressEvent(QMouseEvent* e) {
 void VisShortest::startAnimation(AlgoType algo) {
     if(m_startIdx==-1 || m_endIdx==-1) return;
     m_timer->stop(); resetAnimation(); m_currentAlgo = algo;
+    m_paused = false;
+    m_pauseBtn->setText("Pause");
+    m_pauseBtn->setEnabled(true);
+    m_elapsedMs = 0;
+    m_elapsedClock.restart();
+    updateTimerLabel();
     std::vector<int> path;
     if(algo==AlgoType::Dijkstra)         m_steps = m_graph->dijkstra(m_startIdx, m_endIdx, path);
     else if(algo==AlgoType::AStar)       m_steps = m_graph->aStar(m_startIdx, m_endIdx, path);
     else if(algo==AlgoType::BellmanFord) m_steps = m_graph->bellmanFord(m_startIdx, m_endIdx, path);
     else                                 m_steps = m_graph->floydWarshall(m_startIdx, m_endIdx, path);
-    m_finalPath = path; m_timer->start(8);
+    m_finalPath = path; m_timer->start(currentInterval());
 }
 
 void VisShortest::onAnimationTick() {
     const int STEPS_PER_TICK = 3;
     for(int i=0; i<STEPS_PER_TICK; i++) {
         if(m_stepIdx >= static_cast<int>(m_steps.size())) { 
+            m_elapsedMs += m_elapsedClock.elapsed();
             m_timer->stop(); m_animDone=true; m_hasCurrent=false; 
+            m_pauseBtn->setEnabled(false);
+            updateTimerLabel();
             updateLabel();
             update(); return; 
         }
@@ -127,6 +169,7 @@ void VisShortest::onAnimationTick() {
         if(s.fromIndex != -1) m_parent[s.nodeIndex] = s.fromIndex;
     }
     updateLabel();
+    updateTimerLabel();
     update();
 }
 
@@ -151,11 +194,48 @@ void VisShortest::updateLabel() {
     m_statusLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: bold;").arg(algoCol.name()));
 }
 
+void VisShortest::updateTimerLabel() {
+    qint64 totalMs = m_elapsedMs;
+    if (!m_paused && m_timer->isActive())
+        totalMs += m_elapsedClock.elapsed();
+    double seconds = static_cast<double>(totalMs) / 1000.0;
+    m_timerLabel->setText(QString("Time: %1s").arg(seconds, 0, 'f', 2));
+}
+
+int VisShortest::currentInterval() const {
+    int slider = m_speedSlider ? m_speedSlider->value() : 65;
+    int minMs = 2;
+    int maxMs = 140;
+    int slow = 101 - slider;
+    int range = maxMs - minMs;
+    return minMs + (slow * slow * range) / 10000;
+}
+
 void VisShortest::onDijkstraClicked()     { startAnimation(AlgoType::Dijkstra); }
 void VisShortest::onAStarClicked()        { startAnimation(AlgoType::AStar); }
 void VisShortest::onBellmanFordClicked()  { startAnimation(AlgoType::BellmanFord); }
 void VisShortest::onFloydWarshallClicked(){ startAnimation(AlgoType::FloydWarshall); }
 void VisShortest::onResetClicked()        { buildGraph(); }
+void VisShortest::onSpeedChanged(int) {
+    if (m_timer->isActive())
+        m_timer->setInterval(currentInterval());
+}
+void VisShortest::onPauseClicked() {
+    if (m_currentAlgo == AlgoType::None || m_animDone)
+        return;
+    if (m_paused) {
+        m_paused = false;
+        m_pauseBtn->setText("Pause");
+        m_elapsedClock.restart();
+        m_timer->start(currentInterval());
+        return;
+    }
+    m_paused = true;
+    m_pauseBtn->setText("Resume");
+    m_elapsedMs += m_elapsedClock.elapsed();
+    m_timer->stop();
+    updateTimerLabel();
+}
 
 void VisShortest::paintEvent(QPaintEvent*) {
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing); p.fillRect(rect(), Qt::black);

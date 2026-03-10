@@ -3,6 +3,8 @@
 #include <QWidget>
 #include <QTimer>
 #include <QPushButton>
+#include <QLabel>
+#include <QSlider>
 #include <vector>
 #include <unordered_map>
 #include "directedgraph.h"
@@ -17,11 +19,14 @@ public:
     ~VisMaze();
 protected:
     void paintEvent(QPaintEvent*) override;
+    void resizeEvent(QResizeEvent*) override;
 private slots:
     void onBfsClicked();
     void onDfsClicked();
     void onResetClicked();
     void onAnimationTick();
+    void onPauseClicked();
+    void onSpeedChanged(int value);
 private:
     static const int COLS = 35, ROWS = 25, CELL_SIZE = 22;
     std::vector<std::vector<Cell>> m_maze;
@@ -33,6 +38,16 @@ private:
     enum class AlgoType { None, BFS, DFS }; AlgoType m_currentAlgo;
     std::vector<std::vector<bool>> m_visited;
     std::vector<std::pair<int,int>> m_pathHighlight;
+    QPushButton* m_pauseBtn;
+    QLabel* m_statusLabel;
+    QLabel* m_hintLabel;
+    QLabel* m_speedLabel;
+    QSlider* m_speedSlider;
+    QWidget* m_toolbar;
+    bool m_paused;
+    int m_tickInterval;
+    int currentInterval() const;
+    void updateStatusLabel();
     void generateMaze();
     std::vector<std::pair<int,int>> runBFS(std::vector<std::pair<int,int>>& path);
     std::vector<std::pair<int,int>> runDFS(std::vector<std::pair<int,int>>& path);
