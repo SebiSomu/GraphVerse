@@ -5,6 +5,7 @@
 #include "vis_friends.h"
 #include "vis_maze.h"
 #include "vis_mst.h"
+#include "vis_ridematch.h"
 #include "vis_shortest.h"
 #include "vis_supermarket.h"
 #include "vis_translation.h"
@@ -160,4 +161,5 @@ private:
   VisFriends *m_visFriends = nullptr;
   VisTranslation *m_visTranslation = nullptr;
   VisSupermarket *m_visSupermarket = nullptr;
+  VisRideMatch *m_visRideMatch = nullptr;
 };

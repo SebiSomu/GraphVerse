@@ -603,7 +603,8 @@ QWidget *GraphVersePlatform::buildAppsView() {
 
   const QStringList apps = {"👥 Friend Suggestion System",
                             "🌍 Translation Network",
-                            "🛒 Supermarket Navigator"};
+                            "🛒 Supermarket Navigator",
+                            "🚕 RideMatch — Passenger ↔ Driver Max-Flow"};
 
   for (int i = 0; i < apps.size(); ++i) {
     const auto &str = apps[i];
@@ -614,7 +615,7 @@ QWidget *GraphVersePlatform::buildAppsView() {
     btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
     llay->addWidget(btn);
 
-    int targetIndex = (i == 0) ? 9 : (i == 1) ? 10 : 11;
+    int targetIndex = (i == 0) ? 9 : (i == 1) ? 10 : (i == 2) ? 11 : 12;
     connect(btn, &QPushButton::clicked, this,
             [this, targetIndex]() { m_stack->setCurrentIndex(targetIndex); });
   }
@@ -784,10 +785,12 @@ void GraphVersePlatform::setupUi() {
   m_visFriends = new VisFriends();
   m_visTranslation = new VisTranslation();
   m_visSupermarket = new VisSupermarket();
+  m_visRideMatch = new VisRideMatch();
 
   m_stack->addWidget(addAppPage(m_visFriends, 9));      // Index 9
   m_stack->addWidget(addAppPage(m_visTranslation, 10)); // Index 10
   m_stack->addWidget(addAppPage(m_visSupermarket, 11)); // Index 11
+  m_stack->addWidget(addAppPage(m_visRideMatch, 12));   // Index 12
 
   m_stack->setCurrentIndex(0);
 

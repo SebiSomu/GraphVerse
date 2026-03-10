@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -106,6 +106,7 @@
     <ClCompile Include="vis_friends.cpp" />
     <ClCompile Include="vis_translation.cpp" />
     <ClCompile Include="vis_supermarket.cpp" />
+    <ClCompile Include="vis_ridematch.cpp" />
     <QtRcc Include="GraphVersePlatform.qrc" />
     <QtUic Include="GraphVersePlatform.ui" />
     <QtMoc Include="GraphVersePlatform.h" />
@@ -117,6 +118,7 @@
     <QtMoc Include="vis_friends.h" />
     <QtMoc Include="vis_translation.h" />
     <QtMoc Include="vis_supermarket.h" />
+    <QtMoc Include="vis_ridematch.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
