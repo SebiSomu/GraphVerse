@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QWidget>
+#include <QSlider>
 #include <vector>
 
 class VisRideMatch : public QWidget {
@@ -22,8 +23,13 @@ private slots:
   void onGenerateSample();
   void onRunMatching();
   void onClear();
+  void onRadiusChanged(int v);
 
 private:
+  QPointF m_offset;
+  double m_scale;
+  void updateViewTransform();
+  QPoint toWorld(const QPoint& screen) const;
   enum class Mode { None, AddPassenger, AddDriver };
   struct Passenger {
     QPoint pos;
@@ -37,11 +43,13 @@ private:
   QWidget *m_toolbar;
   QLabel *m_statusLabel;
   QLabel *m_hintLabel;
+  QLabel *m_radiusLabel;
   QPushButton *m_btnPassenger;
   QPushButton *m_btnDriver;
   QPushButton *m_btnSample;
   QPushButton *m_btnMatch;
   QPushButton *m_btnClear;
+  QSlider *m_radiusSlider;
 
   Mode m_mode;
   std::vector<Passenger> m_passengers;

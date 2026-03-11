@@ -1,6 +1,7 @@
 #include "vis_ridematch.h"
 #include <QHBoxLayout>
 #include <QLineF>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QRandomGenerator>
@@ -9,12 +10,15 @@
 
 VisRideMatch::VisRideMatch(QWidget *parent)
     : QWidget(parent), m_toolbar(nullptr), m_statusLabel(new QLabel(this)),
-      m_hintLabel(new QLabel(this)), m_btnPassenger(new QPushButton(this)),
+      m_hintLabel(new QLabel(this)), m_radiusLabel(new QLabel(this)),
+      m_btnPassenger(new QPushButton(this)),
       m_btnDriver(new QPushButton(this)), m_btnSample(new QPushButton(this)),
       m_btnMatch(new QPushButton(this)), m_btnClear(new QPushButton(this)),
       m_mode(Mode::None), m_passengers(), m_drivers(), m_candidateEdges(),
       m_matchedPairs(), m_nextPassengerId(1), m_nextDriverId(1),
       m_matchDistance(230) {
+  m_scale = 1.0;
+  m_offset = QPointF(0,0);
   setMinimumSize(1200, 720);
   setupUi();
   updateStatus();
@@ -25,11 +29,13 @@ void VisRideMatch::setupUi() {
   auto *hbox = new QHBoxLayout(m_toolbar);
   hbox->setContentsMargins(8, 8, 8, 4);
 
-  m_btnPassenger->setText("Add Passenger");
-  m_btnDriver->setText("Add Driver");
+  m_btnPassenger->setText("Add User");
+  m_btnDriver->setText("Add Car");
   m_btnSample->setText("Sample Data");
   m_btnMatch->setText("Run Matching");
   m_btnClear->setText("Clear");
+  m_btnPassenger->setCheckable(true);
+  m_btnDriver->setCheckable(true);
 
   for (auto *b :
        {m_btnPassenger, m_btnDriver, m_btnSample, m_btnMatch, m_btnClear}) {
@@ -48,14 +54,23 @@ void VisRideMatch::setupUi() {
   m_statusLabel->setAlignment(Qt::AlignCenter);
   m_statusLabel->setMinimumWidth(460);
 
-  m_hintLabel->setText("Click canvas to place nodes. Blue=Passenger, Green=Driver, Gold=Match");
+  m_hintLabel->setText("Click canvas to place nodes. Blue=User, Green=Car, Gold=Match");
   m_hintLabel->setStyleSheet("color:#9ca3af;font-size:11px;");
+  m_radiusLabel->setText("Radius");
+  m_radiusLabel->setStyleSheet("color:#cbd5e1;font-size:11px;");
+  m_radiusSlider = new QSlider(Qt::Horizontal, this);
+  m_radiusSlider->setRange(60, 420);
+  m_radiusSlider->setValue(m_matchDistance);
+  m_radiusSlider->setFixedWidth(160);
 
   hbox->addWidget(m_btnPassenger);
   hbox->addWidget(m_btnDriver);
   hbox->addWidget(m_btnSample);
   hbox->addWidget(m_btnMatch);
   hbox->addWidget(m_btnClear);
+  hbox->addSpacing(8);
+  hbox->addWidget(m_radiusLabel);
+  hbox->addWidget(m_radiusSlider);
   hbox->addStretch(1);
   hbox->addWidget(m_statusLabel, 2);
   hbox->addStretch(1);
@@ -66,6 +81,7 @@ void VisRideMatch::setupUi() {
   connect(m_btnSample, &QPushButton::clicked, this, &VisRideMatch::onGenerateSample);
   connect(m_btnMatch, &QPushButton::clicked, this, &VisRideMatch::onRunMatching);
   connect(m_btnClear, &QPushButton::clicked, this, &VisRideMatch::onClear);
+  connect(m_radiusSlider, &QSlider::valueChanged, this, &VisRideMatch::onRadiusChanged);
 }
 
 void VisRideMatch::resizeEvent(QResizeEvent *e) {
@@ -79,10 +95,11 @@ QRect VisRideMatch::canvasRect() const { return QRect(0, 56, width(), height() -
 void VisRideMatch::mousePressEvent(QMouseEvent *event) {
   if (!canvasRect().contains(event->pos()))
     return;
+  QPoint wp = toWorld(event->pos());
   if (m_mode == Mode::AddPassenger) {
-    m_passengers.push_back(Passenger{event->pos(), m_nextPassengerId++});
+    m_passengers.push_back(Passenger{wp, m_nextPassengerId++});
   } else if (m_mode == Mode::AddDriver) {
-    m_drivers.push_back(Driver{event->pos(), m_nextDriverId++});
+    m_drivers.push_back(Driver{wp, m_nextDriverId++});
   } else {
     return;
   }
@@ -94,11 +111,15 @@ void VisRideMatch::mousePressEvent(QMouseEvent *event) {
 
 void VisRideMatch::onModePassenger() {
   m_mode = Mode::AddPassenger;
+  m_btnPassenger->setChecked(true);
+  m_btnDriver->setChecked(false);
   updateStatus();
 }
 
 void VisRideMatch::onModeDriver() {
   m_mode = Mode::AddDriver;
+  m_btnPassenger->setChecked(false);
+  m_btnDriver->setChecked(true);
   updateStatus();
 }
 
@@ -108,16 +129,21 @@ void VisRideMatch::onGenerateSample() {
   m_matchedPairs.clear();
   m_nextPassengerId = 1;
   m_nextDriverId = 1;
-  QRect area = canvasRect().adjusted(40, 20, -40, -20);
+  QRect area = canvasRect().adjusted(60, 30, -60, -30);
   int pCount = 9;
   int dCount = 7;
+  int cx = area.center().x();
+  int leftMin = std::max(area.left(), cx - 260);
+  int leftMax = std::max(area.left()+10, cx - 80);
+  int rightMin = std::min(area.right()-10, cx + 80);
+  int rightMax = std::min(area.right(), cx + 260);
   for (int i = 0; i < pCount; ++i) {
-    int x = QRandomGenerator::global()->bounded(area.left(), area.center().x() - 20);
+    int x = QRandomGenerator::global()->bounded(leftMin, leftMax);
     int y = QRandomGenerator::global()->bounded(area.top(), area.bottom());
     m_passengers.push_back(Passenger{QPoint(x, y), m_nextPassengerId++});
   }
   for (int i = 0; i < dCount; ++i) {
-    int x = QRandomGenerator::global()->bounded(area.center().x() + 20, area.right());
+    int x = QRandomGenerator::global()->bounded(rightMin, rightMax);
     int y = QRandomGenerator::global()->bounded(area.top(), area.bottom());
     m_drivers.push_back(Driver{QPoint(x, y), m_nextDriverId++});
   }
@@ -250,37 +276,108 @@ void VisRideMatch::paintEvent(QPaintEvent *event) {
   p.setPen(QPen(QColor(35, 43, 68), 1));
   p.drawRect(area.adjusted(0, 0, -1, -1));
 
+  updateViewTransform();
+  p.save();
+  p.translate(m_offset);
+  p.scale(m_scale, m_scale);
+
   p.setPen(QPen(QColor(80, 80, 95), 1));
   for (const auto &edge : m_candidateEdges) {
     const auto &a = m_passengers[edge.first].pos;
     const auto &b = m_drivers[edge.second].pos;
+    QPen pen(QColor(120, 130, 155), 1, Qt::DashLine);
+    pen.setCosmetic(true);
+    p.setPen(pen);
     p.drawLine(a, b);
   }
 
-  p.setPen(QPen(QColor(255, 215, 0), 3));
+  p.setPen(Qt::NoPen);
   for (const auto &edge : m_matchedPairs) {
     const auto &a = m_passengers[edge.first].pos;
     const auto &b = m_drivers[edge.second].pos;
+    QPen glow(QColor(255, 215, 0, 90), 6);
+    glow.setCapStyle(Qt::RoundCap);
+    glow.setCosmetic(true);
+    p.setPen(glow);
+    p.drawLine(a, b);
+    QPen strong(QColor(255, 215, 0), 3);
+    strong.setCapStyle(Qt::RoundCap);
+    strong.setCosmetic(true);
+    p.setPen(strong);
     p.drawLine(a, b);
   }
 
+  // Draw users (passengers) as a pin/person glyph
   for (const auto &passenger : m_passengers) {
-    QRect r(passenger.pos.x() - 11, passenger.pos.y() - 11, 22, 22);
-    p.setBrush(QColor(30, 144, 255));
-    p.setPen(QPen(Qt::white, 1));
-    p.drawEllipse(r);
-    p.setPen(Qt::white);
-    p.setFont(QFont("Segoe UI", 7, QFont::Bold));
-    p.drawText(r, Qt::AlignCenter, QString("P%1").arg(passenger.id));
+    QPoint c = passenger.pos;
+    p.setRenderHint(QPainter::Antialiasing, true);
+    // Pin shape
+    QPainterPath path;
+    path.addEllipse(QRectF(c.x() - 8, c.y() - 8, 16, 16));
+    path.moveTo(c.x(), c.y() + 4);
+    path.lineTo(c.x() - 6, c.y() + 16);
+    path.lineTo(c.x() + 6, c.y() + 16);
+    path.closeSubpath();
+    p.fillPath(path, QColor(30, 144, 255));
+    p.setPen(QPen(QColor(220, 235, 255), 1));
+    p.drawEllipse(QRectF(c.x() - 4, c.y() - 5, 8, 8));
   }
 
+  // Draw cars (drivers) as a car glyph
   for (const auto &driver : m_drivers) {
-    QRect r(driver.pos.x() - 11, driver.pos.y() - 11, 22, 22);
-    p.setBrush(QColor(22, 163, 74));
-    p.setPen(QPen(Qt::white, 1));
-    p.drawEllipse(r);
-    p.setPen(Qt::white);
-    p.setFont(QFont("Segoe UI", 7, QFont::Bold));
-    p.drawText(r, Qt::AlignCenter, QString("D%1").arg(driver.id));
+    QPoint c = driver.pos;
+    QPainterPath car;
+    car.addRoundedRect(QRectF(c.x() - 12, c.y() - 7, 24, 12), 3, 3);
+    car.addRect(QRectF(c.x() - 7, c.y() - 11, 14, 7));
+    p.fillPath(car, QColor(22, 163, 74));
+    // wheels
+    p.setBrush(QColor(20, 20, 22));
+    p.setPen(Qt::NoPen);
+    p.drawEllipse(QRectF(c.x() - 8, c.y() + 6, 6, 6));
+    p.drawEllipse(QRectF(c.x() + 2, c.y() + 6, 6, 6));
   }
+  p.restore();
+}
+
+void VisRideMatch::onRadiusChanged(int v) {
+  m_matchDistance = v;
+  recomputeCandidates();
+  updateStatus();
+  update();
+}
+
+void VisRideMatch::updateViewTransform() {
+  QRect area = canvasRect();
+  if (m_passengers.empty() && m_drivers.empty()) {
+    m_scale = 1.0;
+    m_offset = QPointF(0, area.top());
+    return;
+  }
+  int minX = std::numeric_limits<int>::max(), minY = std::numeric_limits<int>::max();
+  int maxX = std::numeric_limits<int>::min(), maxY = std::numeric_limits<int>::min();
+  auto acc = [&](const QPoint& q){
+    if(q.x() < minX) minX = q.x();
+    if(q.y() < minY) minY = q.y();
+    if(q.x() > maxX) maxX = q.x();
+    if(q.y() > maxY) maxY = q.y();
+  };
+  for(const auto& psg : m_passengers) acc(psg.pos);
+  for(const auto& drv : m_drivers) acc(drv.pos);
+  int bboxW = std::max(40, maxX - minX + 24);
+  int bboxH = std::max(40, maxY - minY + 24);
+  int pad = 32;
+  double sx = (area.width() - 2.0 * pad) / static_cast<double>(bboxW);
+  double sy = (area.height() - 2.0 * pad) / static_cast<double>(bboxH);
+  m_scale = std::min({sx, sy, 1.3});
+  if(m_scale <= 0 || !std::isfinite(m_scale)) m_scale = 1.0;
+  double scaledW = bboxW * m_scale;
+  double scaledH = bboxH * m_scale;
+  double ox = area.left() + (area.width() - scaledW) / 2.0 - m_scale * minX;
+  double oy = area.top() + (area.height() - scaledH) / 2.0 - m_scale * minY;
+  m_offset = QPointF(ox, oy);
+}
+
+QPoint VisRideMatch::toWorld(const QPoint& screen) const {
+  QPointF f = (QPointF(screen) - m_offset) / (m_scale <= 0 ? 1.0 : m_scale);
+  return QPoint(static_cast<int>(std::round(f.x())), static_cast<int>(std::round(f.y())));
 }
