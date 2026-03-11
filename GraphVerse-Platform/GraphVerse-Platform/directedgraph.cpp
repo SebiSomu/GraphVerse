@@ -395,9 +395,25 @@ std::vector<PathStep> DirectedGraph::aStar(int startIdx, int endIdx, std::vector
     std::vector<PathStep> steps;
     std::unordered_map<int, QPoint> pos;
     for(const auto& n : m_nodes) pos[n.getIndex()] = n.getCoord();
+    double minRatio = std::numeric_limits<double>::infinity();
+    for(const auto& ed : m_edges) {
+        QPointF A(ed.getFirst().getX(), ed.getFirst().getY());
+        QPointF B(ed.getSecond().getX(), ed.getSecond().getY());
+        double L = QLineF(A, B).length();
+        if(L > 1e-6) {
+            double r = static_cast<double>(ed.getCost()) / L;
+            if(r < minRatio) minRatio = r;
+        }
+    }
+    if(!std::isfinite(minRatio) || minRatio <= 0.0) minRatio = 0.0;
     auto heuristic = [&](int a, int b) -> int {
-        int dx = pos[a].x() - pos[b].x(), dy = pos[a].y() - pos[b].y();
-        return static_cast<int>(std::sqrt(dx*dx + dy*dy) * 0.5);
+        if(minRatio == 0.0) return 0;
+        double dx = static_cast<double>(pos[a].x() - pos[b].x());
+        double dy = static_cast<double>(pos[a].y() - pos[b].y());
+        double eu = std::sqrt(dx*dx + dy*dy);
+        double h = eu * minRatio;
+        if(h < 0) h = 0;
+        return static_cast<int>(h);
     };
     std::unordered_map<int,int> gCost, parent;
     std::unordered_set<int> closed;
