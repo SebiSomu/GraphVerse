@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <QPainter>
+#include <QLineF>
+#include <QRect>
+#include <QColor>
 
 DirectedGraph::DirectedGraph() : m_showCondensedGraph(false) {}
 
@@ -185,8 +189,8 @@ void DirectedGraph::DFSUtil(int nodeIndex, std::unordered_set<int>& visited,
     std::stack<std::pair<int, size_t>> stack;
     stack.emplace(nodeIndex, 0);
     visited.insert(nodeIndex);
-    if(nodeIndex >= 1 && nodeIndex <= static_cast<int>(m_componentsColors.size()))
-        m_componentsColors[nodeIndex - 1] = component;
+    int numComp = static_cast<int>(m_componentsColors.size());
+    m_componentsColors[nodeIndex] = component;
     while(!stack.empty()) {
         int currentNode = stack.top().first;
         size_t& currentIndex = stack.top().second;
@@ -197,8 +201,7 @@ void DirectedGraph::DFSUtil(int nodeIndex, std::unordered_set<int>& visited,
             int neighbor = neighbors[currentIndex]; currentIndex++;
             if(visited.find(neighbor) == visited.end()) {
                 visited.insert(neighbor);
-                if(neighbor >= 1 && neighbor <= static_cast<int>(m_componentsColors.size()))
-                    m_componentsColors[neighbor - 1] = component;
+                m_componentsColors[neighbor] = component;
                 stack.emplace(neighbor, 0);
             }
         } else { stack.pop(); }
@@ -221,8 +224,7 @@ void DirectedGraph::findConnectedComponents()
 {
     if(m_nodes.empty()) { m_numComponents = 0; return; }
     buildAdjacencyList();
-    m_componentsColors.resize(m_nodes.size());
-    std::fill(m_componentsColors.begin(), m_componentsColors.end(), -1);
+    m_componentsColors.clear();
     std::stack<int> finishTimeStack;
     std::unordered_set<int> visited;
     for(const auto& node : m_nodes) {

@@ -30,7 +30,7 @@ private:
                  int component);
     std::unordered_map<int, std::vector<int>> getTranspose();
     bool m_showCondensedGraph;
-    std::vector<Node> m_condensedNodes;
+    std::list<Node> m_condensedNodes;
     std::vector<Edge> m_condensedEdges;
     std::unordered_map<int, int> m_nodeToComponent;
     void buildCondensedGraph();

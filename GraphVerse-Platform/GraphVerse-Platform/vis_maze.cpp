@@ -128,13 +128,16 @@ void VisMaze::generateMaze()
     for(int r = 0; r < ROWS; r++)
         for(int c = 0; c < COLS; c++)
             m_graph->addNode(QPoint(offsetX() + c*CELL_SIZE + CELL_SIZE/2, offsetY() + r*CELL_SIZE + CELL_SIZE/2));
-    auto& nodes = m_graph->getNodes();
+    
+    std::vector<Node*> nodes;
+    for(auto& n : m_graph->getNodes()) nodes.push_back(&n);
+    
     for(int r = 0; r < ROWS; r++)
         for(int c = 0; c < COLS; c++)
             for(int d = 0; d < 4; d++) {
                 if(m_maze[r][c].walls[d]) continue;
                 int nr = r+DR[d], nc = c+DC[d];
-                m_graph->addEdge(nodes[cellToIndex(r,c,COLS)-1], nodes[cellToIndex(nr,nc,COLS)-1]);
+                m_graph->addEdge(*nodes[cellToIndex(r,c,COLS)-1], *nodes[cellToIndex(nr,nc,COLS)-1]);
             }
     update();
 }

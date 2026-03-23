@@ -14,50 +14,50 @@ class QMouseEvent;
 class QPaintEvent;
 
 class VisSupermarket : public QWidget {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  explicit VisSupermarket(QWidget *parent = nullptr);
-  ~VisSupermarket();
+	explicit VisSupermarket(QWidget* parent = nullptr);
+	~VisSupermarket();
 
 protected:
-  void paintEvent(QPaintEvent *event) override;
-  void mousePressEvent(QMouseEvent *event) override;
-  void mouseMoveEvent(QMouseEvent *event) override;
-  void mouseReleaseEvent(QMouseEvent *event) override;
-  void resizeEvent(QResizeEvent *event) override;
+	void paintEvent(QPaintEvent* event) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseMoveEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
+	void resizeEvent(QResizeEvent* event) override;
 
 private slots:
-  void onResetClicked();
-  void onFindPathClicked();
-  void onAddSectionClicked();
-  void onRemoveSectionClicked();
+	void onResetClicked();
+	void onFindPathClicked();
+	void onAddSectionClicked();
+	void onRemoveSectionClicked();
 
 private:
-  enum class InteractionMode { Normal, Adding, Removing };
+	enum class InteractionMode { Normal, Adding, Removing };
 
-  void setupUi();
-  void buildHipermarketLayout();
-  int nodeAt(QPoint pos) const;
-  void updateStatus(const QString &text);
-  void updateGraphEdges();
+	void setupUi();
+	void buildHipermarketLayout();
+	int nodeAt(QPoint pos) const;
+	void updateStatus(const QString& text);
+	void updateGraphEdges();
 
-  DirectedGraph *m_graph;
-  std::unordered_map<int, QString> m_nodeNames;
+	DirectedGraph* m_graph;
+	std::unordered_map<int, QString> m_nodeNames;
 
-  int m_startIdx;
-  int m_endIdx;
-  std::vector<int> m_finalPath;
-  int m_pathCost;
+	int m_startIdx;
+	int m_endIdx;
+	std::vector<int> m_finalPath;
+	int m_pathCost;
 
-  QWidget *m_toolbar;
-  QLabel *m_statusLabel;
-  QLineEdit *m_nameInput;
-  InteractionMode m_mode;
+	QWidget* m_toolbar;
+	QLabel* m_statusLabel;
+	QLineEdit* m_nameInput;
+	InteractionMode m_mode;
 
-  int m_draggedNodeIdx;
-  bool m_isDragging;
+	int m_draggedNodeIdx;
+	bool m_isDragging;
 
-  const int NODE_R = 25;
+	const int NODE_R = 25;
 };
 
 #endif // VIS_SUPERMARKET_H

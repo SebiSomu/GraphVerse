@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <limits>
+#include <QtGui/QPainter>
 
 UndirectedGraph::UndirectedGraph() = default;
 

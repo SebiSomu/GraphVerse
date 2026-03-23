@@ -144,17 +144,17 @@ void VisSupermarket::updateGraphEdges() {
 		return;
 
 	m_graph->getEdges().clear();
-	const std::vector<Node>& nodes = m_graph->getNodes();
+	std::vector<Node*> nodes;
+	for (auto& n : m_graph->getNodes()) nodes.push_back(&n);
+
 	for (size_t i = 0; i < nodes.size(); ++i) {
 		for (size_t j = i + 1; j < nodes.size(); ++j) {
-			int dx = nodes[i].getX() - nodes[j].getX();
-			int dy = nodes[i].getY() - nodes[j].getY();
+			int dx = nodes[i]->getX() - nodes[j]->getX();
+			int dy = nodes[i]->getY() - nodes[j]->getY();
 			int dist = static_cast<int>(std::sqrt(dx * dx + dy * dy));
 			if (dist < 250) {
-				m_graph->addEdge(const_cast<Node&>(nodes[i]),
-					const_cast<Node&>(nodes[j]), dist);
-				m_graph->addEdge(const_cast<Node&>(nodes[j]),
-					const_cast<Node&>(nodes[i]), dist);
+				m_graph->addEdge(*nodes[i], *nodes[j], dist);
+				m_graph->addEdge(*nodes[j], *nodes[i], dist);
 			}
 		}
 	}
@@ -243,52 +243,12 @@ void VisSupermarket::mousePressEvent(QMouseEvent* e) {
 	if (m_mode == InteractionMode::Removing) {
 		if (hit != -1) {
 			QString name = m_nodeNames[hit];
-
-			std::vector<Node> oldNodes = m_graph->getNodes();
-
-			struct Ed {
-				int u, v, cost;
-			};
-			std::vector<Ed> oldEdgesData;
-			for (const auto& ed : m_graph->getEdges()) {
-				oldEdgesData.push_back({ ed.getFirst().getIndex(),
-										ed.getSecond().getIndex(), ed.getCost() });
-			}
-			auto oldNames = m_nodeNames;
-
-			delete m_graph;
-			m_graph = new DirectedGraph();
-			m_nodeNames.clear();
-
-			std::unordered_map<int, int> oldToNew;
-			for (const auto& n : oldNodes) {
-				if (n.getIndex() == hit)
-					continue;
-				m_graph->addNode(n.getCoord());
-				int newIdx = m_graph->getNodes().back().getIndex();
-				m_nodeNames[newIdx] = oldNames[n.getIndex()];
-				oldToNew[n.getIndex()] = newIdx;
-			}
-
-			for (const auto& ed : oldEdgesData) {
-				if (ed.u == hit || ed.v == hit)
-					continue;
-
-				auto& nodes = m_graph->getNodes();
-				Node* f = nullptr;
-				Node* s = nullptr;
-				for (auto& n : nodes) {
-					if (n.getIndex() == oldToNew[ed.u])
-						f = &n;
-					if (n.getIndex() == oldToNew[ed.v])
-						s = &n;
-				}
-				if (f && s)
-					m_graph->addEdge(*f, *s, ed.cost);
-			}
+			m_graph->removeNode(hit);
+			m_nodeNames.erase(hit);
 
 			m_startIdx = m_endIdx = -1;
 			m_finalPath.clear();
+			updateGraphEdges();
 			m_mode = InteractionMode::Normal;
 			updateStatus("🗑 Removed: " + name);
 			update();

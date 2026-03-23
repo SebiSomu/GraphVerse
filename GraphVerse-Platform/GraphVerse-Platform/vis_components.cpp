@@ -80,20 +80,37 @@ void VisComponents::updateButtonText() {
 }
 
 void VisComponents::recreateGraph(bool directed) {
-    std::vector<Node> nodes = m_graph->getNodes();
-    std::vector<Edge> edges = m_graph->getEdges();
+    if (!m_graph) return;
+    
+    struct EdgeInfo { int from; int to; int cost; };
+    std::vector<std::pair<QPoint, int>> nodeInfos;
+    for (const auto& n : m_graph->getNodes()) {
+        nodeInfos.push_back({QPoint(n.getX(), n.getY()), n.getIndex()});
+    }
+    
+    std::vector<EdgeInfo> edgeInfos;
+    for (const auto& ed : m_graph->getEdges()) {
+        edgeInfos.push_back({ed.getFirst().getIndex(), ed.getSecond().getIndex(), ed.getCost()});
+    }
+
     delete m_graph;
     m_graph = directed ? static_cast<Graph*>(new DirectedGraph()) : static_cast<Graph*>(new UndirectedGraph());
-    for(const auto& n : nodes) m_graph->addNode(QPoint(n.getX(), n.getY()));
-    auto& newNodes = m_graph->getNodes();
-    for(const auto& ed : edges) {
-        Node* first = nullptr; Node* second = nullptr;
-        for(auto& n : newNodes) {
-            if(n.getIndex() == ed.getFirst().getIndex()) first = &n;
-            if(n.getIndex() == ed.getSecond().getIndex()) second = &n;
-        }
-        if(first && second) m_graph->addEdge(*first, *second);
+    
+    for (const auto& info : nodeInfos) {
+        m_graph->addNode(info.first);
+        m_graph->getNodes().back().setIndex(info.second);
     }
+    
+    auto& newNodes = m_graph->getNodes();
+    for (const auto& info : edgeInfos) {
+        Node* first = nullptr; Node* second = nullptr;
+        for (auto& n : newNodes) {
+            if (n.getIndex() == info.from) first = &n;
+            if (n.getIndex() == info.to) second = &n;
+        }
+        if (first && second) m_graph->addEdge(*first, *second, info.cost);
+    }
+    
     m_firstNode = nullptr; m_draggedNode = nullptr; m_dragging = false;
     updateButtonText();
 }

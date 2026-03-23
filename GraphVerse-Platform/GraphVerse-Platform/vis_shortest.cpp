@@ -93,15 +93,18 @@ void VisShortest::buildGraph() {
     std::uniform_int_distribution<int> costDist(1, 20);
     const int ox = offsetX(), oy = offsetY();
     for(int r=0;r<ROWS;r++) for(int c=0;c<COLS;c++) m_graph->addNode(QPoint(ox+c*SPACING, oy+r*SPACING));
-    auto& nodes = m_graph->getNodes();
+    
+    std::vector<Node*> nodes;
+    for(auto& n : m_graph->getNodes()) nodes.push_back(&n);
+    
     auto idx = [&](int r, int c){ return r*COLS+c; };
     for(int r=0;r<ROWS;r++) for(int c=0;c<COLS-1;c++) {
-        m_graph->addEdge(nodes[idx(r,c)], nodes[idx(r,c+1)], costDist(rng));
-        m_graph->addEdge(nodes[idx(r,c+1)], nodes[idx(r,c)], costDist(rng));
+        m_graph->addEdge(*nodes[idx(r,c)], *nodes[idx(r,c+1)], costDist(rng));
+        m_graph->addEdge(*nodes[idx(r,c+1)], *nodes[idx(r,c)], costDist(rng));
     }
     for(int r=0;r<ROWS-1;r++) for(int c=0;c<COLS;c++) {
-        m_graph->addEdge(nodes[idx(r,c)], nodes[idx(r+1,c)], costDist(rng));
-        m_graph->addEdge(nodes[idx(r+1,c)], nodes[idx(r,c)], costDist(rng));
+        m_graph->addEdge(*nodes[idx(r,c)], *nodes[idx(r+1,c)], costDist(rng));
+        m_graph->addEdge(*nodes[idx(r+1,c)], *nodes[idx(r,c)], costDist(rng));
     }
     update();
 }

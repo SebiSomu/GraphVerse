@@ -1,47 +1,43 @@
 #include "graph.h"
+#include <algorithm>
 #include <stack>
 #include <algorithm>
+#include <unordered_set>
+#include <QtGui/QColor>
+#include <QtCore/QPoint>
 
 Graph::Graph() : m_numComponents(0) {
-    m_nodes.reserve(500);
 }
 
 Graph::~Graph() = default;
 
 void Graph::addNode(QPoint p) {
-    if(m_nodes.size() + 1 >= m_nodes.capacity()) {
-        std::vector<Edge> tempEdges = m_edges;
-        m_edges.clear();
-        m_nodes.reserve(m_nodes.capacity() * 2);
+    Node n;
+    n.setCoord(p);
+    int maxIdx = 0;
+    for(const auto& node : m_nodes) 
+        maxIdx = std::max(node.getIndex(), maxIdx);
+    n.setIndex(maxIdx + 1);
+    m_nodes.push_back(n);
 
-        Node n;
-        n.setCoord(p);
-        n.setIndex(static_cast<int>(m_nodes.size() + 1));
-        m_nodes.push_back(n);
-
-        for(const auto& ed : tempEdges) {
-            Node* first = nullptr;
-            Node* second = nullptr;
-            for(auto& node : m_nodes) {
-                if(node.getIndex() == ed.getFirst().getIndex()) first = &node;
-                if(node.getIndex() == ed.getSecond().getIndex()) second = &node;
-            }
-            if(first && second) {
-                m_edges.emplace_back(first, second, ed.getCost());
-            }
-        }
-    } else {
-        Node n;
-        n.setCoord(p);
-        n.setIndex(static_cast<int>(m_nodes.size() + 1));
-        m_nodes.push_back(n);
-    }
     m_componentsColors.clear();
     m_numComponents = 0;
 }
 
-std::vector<Node>& Graph::getNodes() { return m_nodes; }
-const std::vector<Node>& Graph::getNodes() const { return m_nodes; }
+void Graph::removeNode(int index) {
+    auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [index](const Node& n){ return n.getIndex() == index; });
+    if (it != m_nodes.end()) {
+        m_nodes.erase(it);
+        m_edges.erase(std::remove_if(m_edges.begin(), m_edges.end(), [index](const Edge& e){
+            return e.getFirst().getIndex() == index || e.getSecond().getIndex() == index;
+        }), m_edges.end());
+        m_componentsColors.clear();
+        m_numComponents = 0;
+    }
+}
+
+std::list<Node>& Graph::getNodes() { return m_nodes; }
+const std::list<Node>& Graph::getNodes() const { return m_nodes; }
 std::vector<Edge>& Graph::getEdges() { return m_edges; }
 const std::vector<Edge>& Graph::getEdges() const { return m_edges; }
 
@@ -61,7 +57,7 @@ void Graph::DFS(int nodeIndex, int component, std::unordered_set<int>& visited) 
     std::stack<std::pair<int, size_t>> stack;
     stack.emplace(nodeIndex, 0);
     visited.insert(nodeIndex);
-    m_componentsColors[nodeIndex - 1] = component;
+    m_componentsColors[nodeIndex] = component;
 
     while(!stack.empty()) {
         int currentNode = stack.top().first;
@@ -72,7 +68,7 @@ void Graph::DFS(int nodeIndex, int component, std::unordered_set<int>& visited) 
             currentIndex++;
             if(visited.find(neighbor) == visited.end()) {
                 visited.insert(neighbor);
-                m_componentsColors[neighbor - 1] = component;
+                m_componentsColors[neighbor] = component;
                 stack.emplace(neighbor, 0);
             }
         } else {
@@ -84,8 +80,7 @@ void Graph::DFS(int nodeIndex, int component, std::unordered_set<int>& visited) 
 void Graph::findConnectedComponents() {
     if(m_nodes.empty()) { m_numComponents = 0; return; }
     buildAdjacencyList();
-    m_componentsColors.resize(m_nodes.size());
-    std::fill(m_componentsColors.begin(), m_componentsColors.end(), -1);
+    m_componentsColors.clear();
     std::unordered_set<int> visited;
     m_numComponents = 0;
     for(const auto& node : m_nodes) {
@@ -98,8 +93,8 @@ void Graph::findConnectedComponents() {
 }
 
 int Graph::getComponentColor(int nodeIndex) const {
-    if(nodeIndex < 1 || nodeIndex > static_cast<int>(m_componentsColors.size())) return -1;
-    return m_componentsColors[nodeIndex - 1];
+    auto it = m_componentsColors.find(nodeIndex);
+    return (it != m_componentsColors.end()) ? it->second : -1;
 }
 
 int Graph::getNumComponents() const { return m_numComponents; }

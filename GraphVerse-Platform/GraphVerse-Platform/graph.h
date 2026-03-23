@@ -2,6 +2,7 @@
 #define GRAPH_H
 #include "edge.h"
 #include <vector>
+#include <list>
 #include <QPainter>
 #include <unordered_map>
 #include <unordered_set>
@@ -10,9 +11,9 @@
 class Graph
 {
 protected:
-    std::vector<Node> m_nodes;
+    std::list<Node> m_nodes;
     std::vector<Edge> m_edges;
-    std::vector<int> m_componentsColors;
+    std::unordered_map<int, int> m_componentsColors;
     int m_numComponents;
     std::unordered_map<int, std::vector<int>> m_adjacencyList;
     virtual void buildAdjacencyList();
@@ -22,10 +23,11 @@ public:
     Graph();
     virtual ~Graph();
     void addNode(QPoint p);
+    void removeNode(int index);
     virtual void addEdge(Node &f, Node &s, int cost = 1) = 0;
     virtual void drawEdge(QPainter& p) const = 0;
-    std::vector<Node>& getNodes();
-    const std::vector<Node>& getNodes() const;
+    std::list<Node>& getNodes();
+    const std::list<Node>& getNodes() const;
     std::vector<Edge>& getEdges();
     const std::vector<Edge>& getEdges() const;
     virtual std::string getGraphType() const = 0;
