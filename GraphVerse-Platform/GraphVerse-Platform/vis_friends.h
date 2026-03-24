@@ -1,11 +1,11 @@
 #ifndef VIS_FRIENDS_H
 #define VIS_FRIENDS_H
 
-#include <QLineEdit>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QScrollArea>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 #include <string>
 #include <unordered_map>
 #include <vector>

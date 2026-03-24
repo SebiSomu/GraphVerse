@@ -1,4 +1,8 @@
 #include "vis_shortest.h"
+#include "algorithms/dijkstra_solver.h"
+#include "algorithms/astar_solver.h"
+#include "algorithms/bellman_ford_solver.h"
+#include "algorithms/floyd_warshall_solver.h"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QHBoxLayout>
@@ -148,10 +152,10 @@ void VisShortest::startAnimation(AlgoType algo) {
     m_elapsedClock.restart();
     updateTimerLabel();
     std::vector<int> path;
-    if(algo==AlgoType::Dijkstra)         m_steps = m_graph->dijkstra(m_startIdx, m_endIdx, path);
-    else if(algo==AlgoType::AStar)       m_steps = m_graph->aStar(m_startIdx, m_endIdx, path);
-    else if(algo==AlgoType::BellmanFord) m_steps = m_graph->bellmanFord(m_startIdx, m_endIdx, path);
-    else                                 m_steps = m_graph->floydWarshall(m_startIdx, m_endIdx, path);
+    if(algo==AlgoType::Dijkstra)         m_steps = DijkstraSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
+    else if(algo==AlgoType::AStar)       m_steps = AStarSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
+    else if(algo==AlgoType::BellmanFord) m_steps = BellmanFordSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
+    else                                 m_steps = FloydWarshallSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
     m_finalPath = path; m_timer->start(currentInterval());
 }
 

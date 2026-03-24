@@ -2,6 +2,7 @@
 #include "Node.h"
 #include "directedgraph.h"
 #include "edge.h"
+#include "algorithms/dijkstra_solver.h"
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 #include <QtWidgets/QHBoxLayout>
@@ -342,7 +343,7 @@ void VisSupermarket::onFindPathClicked() {
 	}
 	std::vector<int> path;
 	if (m_graph)
-		m_graph->dijkstra(m_startIdx, m_endIdx, path);
+		DijkstraSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
 	m_finalPath = path;
 	if (m_finalPath.empty()) {
 		updateStatus("⚠️ No route found between " + m_nodeNames[m_startIdx] +

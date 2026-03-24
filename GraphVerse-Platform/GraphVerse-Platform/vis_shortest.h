@@ -7,6 +7,7 @@
 #include <QSlider>
 #include <QElapsedTimer>
 #include <unordered_map>
+#include "algorithms/graph_algorithm_types.h"
 #include "directedgraph.h"
 
 class VisShortest : public QWidget {

@@ -1,6 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
-#include <QPoint>
+#include <QtCore/QPoint>
+
 
 class Node
 {

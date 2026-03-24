@@ -1,6 +1,10 @@
 #include "vis_components.h"
 #include "undirectedgraph.h"
 #include "directedgraph.h"
+#include "algorithms/connected_components_solver.h"
+#include "algorithms/kosaraju_solver.h"
+#include "rendering/graph_renderer_factory.h"
+#include "rendering/component_colorizer.h"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMessageBox>
@@ -45,15 +49,19 @@ void VisComponents::onCheckBoxStateChanged(int state) {
 
 void VisComponents::onFindComponents() {
     if(!m_graph) return;
-    if(dynamic_cast<UndirectedGraph*>(m_graph)) {
-        m_graph->findConnectedComponents();
+    std::unordered_map<int, int> colors;
+    int count = 0;
+    if(auto* ug = dynamic_cast<UndirectedGraph*>(m_graph)) {
+        count = ConnectedComponentsSolver{}.solve(*m_graph, colors);
+        m_graph->setComponentData(count, colors);
         QMessageBox::information(this, "Connected Components",
-            QString("The graph has %1 connected components!").arg(m_graph->getNumComponents()));
+            QString("The graph has %1 connected components!").arg(count));
         m_btnToggleCondensed->setEnabled(false);
-    } else if(dynamic_cast<DirectedGraph*>(m_graph)) {
-        m_graph->findConnectedComponents();
+    } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph)) {
+        count = KosarajuSolver{}.solve(*dg, colors);
+        m_graph->setComponentData(count, colors);
         QMessageBox::information(this, "Strongly Connected Components",
-            QString("The graph has %1 strongly connected components!").arg(m_graph->getNumComponents()));
+            QString("The graph has %1 strongly connected components!").arg(count));
         m_btnToggleCondensed->setEnabled(true);
         m_btnToggleCondensed->setText("Show normal graph");
     }
@@ -130,6 +138,7 @@ void VisComponents::mouseReleaseEvent(QMouseEvent* m) {
         if(!overlayed) { m_graph->addNode(m->pos()); update(); }
         return;
     } else if(m->button() == Qt::LeftButton) {
+
         auto& nodes = m_graph->getNodes();
         Node* selected = nullptr;
         for(auto& n : nodes)
@@ -171,5 +180,5 @@ void VisComponents::mouseMoveEvent(QMouseEvent* m) {
 void VisComponents::paintEvent(QPaintEvent*) {
     if(!m_graph) return;
     QPainter p(this); p.fillRect(rect(), Qt::black);
-    m_graph->drawEdge(p);
+    GraphRendererFactory::createRenderer(*m_graph)->render(p, *m_graph);
 }

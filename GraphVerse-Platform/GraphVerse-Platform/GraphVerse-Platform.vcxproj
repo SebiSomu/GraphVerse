@@ -121,14 +121,57 @@
     <QtMoc Include="vis_ridematch.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="algorithms\dijkstra_solver.cpp" />
+    <ClCompile Include="algorithms\astar_solver.cpp" />
+    <ClCompile Include="algorithms\bellman_ford_solver.cpp" />
+    <ClCompile Include="algorithms\floyd_warshall_solver.cpp" />
+    <ClCompile Include="algorithms\bfs_traversal.cpp" />
+    <ClCompile Include="algorithms\dfs_traversal.cpp" />
+    <ClCompile Include="algorithms\kruskal_solver.cpp" />
+    <ClCompile Include="algorithms\prim_solver.cpp" />
+    <ClCompile Include="algorithms\boruvka_solver.cpp" />
+    <ClCompile Include="algorithms\kosaraju_solver.cpp" />
+    <ClCompile Include="algorithms\connected_components_solver.cpp" />
+    <ClCompile Include="algorithms\condensed_graph_solver.cpp" />
+    <ClCompile Include="rendering\directed_graph_renderer.cpp" />
+    <ClCompile Include="rendering\undirected_graph_renderer.cpp" />
+    <ClCompile Include="rendering\graph_renderer_factory.cpp" />
+    <ClCompile Include="rendering\component_colorizer.cpp" />
+
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h" />
     <ClInclude Include="edge.h" />
     <ClInclude Include="graph.h" />
+    <ClInclude Include="graph_interfaces.h" />
+
     <ClInclude Include="directedgraph.h" />
     <ClInclude Include="undirectedgraph.h" />
     <ClInclude Include="flownetwork.h" />
+    <ClInclude Include="algorithms\graph_algorithm_types.h" />
+    <ClInclude Include="algorithms\graph_utils.h" />
+    <ClInclude Include="algorithms\union_find.h" />
+    <ClInclude Include="algorithms\i_shortest_path.h" />
+    <ClInclude Include="algorithms\i_mst_algorithm.h" />
+    <ClInclude Include="algorithms\i_traversal.h" />
+    <ClInclude Include="algorithms\dijkstra_solver.h" />
+    <ClInclude Include="algorithms\astar_solver.h" />
+    <ClInclude Include="algorithms\bellman_ford_solver.h" />
+    <ClInclude Include="algorithms\floyd_warshall_solver.h" />
+    <ClInclude Include="algorithms\bfs_traversal.h" />
+    <ClInclude Include="algorithms\dfs_traversal.h" />
+    <ClInclude Include="algorithms\kruskal_solver.h" />
+    <ClInclude Include="algorithms\prim_solver.h" />
+    <ClInclude Include="algorithms\boruvka_solver.h" />
+    <ClInclude Include="algorithms\kosaraju_solver.h" />
+    <ClInclude Include="algorithms\connected_components_solver.h" />
+    <ClInclude Include="algorithms\condensed_graph_solver.h" />
+    <ClInclude Include="rendering\graph_renderer.h" />
+    <ClInclude Include="rendering\directed_graph_renderer.h" />
+    <ClInclude Include="rendering\undirected_graph_renderer.h" />
+    <ClInclude Include="rendering\graph_renderer_factory.h" />
+    <ClInclude Include="rendering\component_colorizer.h" />
+
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

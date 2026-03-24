@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QElapsedTimer>
+#include "algorithms/graph_algorithm_types.h"
 #include "undirectedgraph.h"
 
 class VisMST : public QWidget {

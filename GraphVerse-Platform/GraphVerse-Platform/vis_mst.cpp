@@ -1,4 +1,7 @@
 #include "vis_mst.h"
+#include "algorithms/kruskal_solver.h"
+#include "algorithms/prim_solver.h"
+#include "algorithms/boruvka_solver.h"
 #include <QPainter>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -115,9 +118,9 @@ void VisMST::startAnimation(AlgoType algo) {
     m_elapsedClock.restart();
     updateTimerLabel();
     m_statusLabel->setText("Initializing...");
-    if(algo==AlgoType::Kruskal) m_steps=m_graph->kruskal();
-    else if(algo==AlgoType::Prim) m_steps=m_graph->prim();
-    else m_steps=m_graph->boruvka();
+    if(algo==AlgoType::Kruskal) m_steps=KruskalSolver{}.solve(*m_graph);
+    else if(algo==AlgoType::Prim) m_steps=PrimSolver{}.solve(*m_graph);
+    else m_steps=BoruvkaSolver{}.solve(*m_graph);
     m_timer->start(currentInterval());
 }
 

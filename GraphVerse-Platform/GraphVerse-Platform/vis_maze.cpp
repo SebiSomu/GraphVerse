@@ -1,4 +1,6 @@
 #include "vis_maze.h"
+#include "algorithms/bfs_traversal.h"
+#include "algorithms/dfs_traversal.h"
 #include <QPainter>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -153,7 +155,8 @@ static void reconstructPath(int endIdx, int cols, const std::unordered_map<int,i
 std::vector<std::pair<int,int>> VisMaze::runBFS(std::vector<std::pair<int,int>>& outPath) {
     const int startIdx = cellToIndex(0, 0, COLS), endIdx = cellToIndex(ROWS-1, COLS-1, COLS);
     std::unordered_map<int,int> parent; parent[startIdx] = -1;
-    std::vector<int> order = m_graph->bfs(startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
+    BFSTraversal bfs;
+    std::vector<int> order = bfs.solve(*m_graph, startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
     std::vector<std::pair<int,int>> result;
     for(int idx : order) result.emplace_back(indexToRow(idx, COLS), indexToCol(idx, COLS));
     reconstructPath(endIdx, COLS, parent, outPath);
@@ -163,7 +166,8 @@ std::vector<std::pair<int,int>> VisMaze::runBFS(std::vector<std::pair<int,int>>&
 std::vector<std::pair<int,int>> VisMaze::runDFS(std::vector<std::pair<int,int>>& outPath) {
     const int startIdx = cellToIndex(0, 0, COLS), endIdx = cellToIndex(ROWS-1, COLS-1, COLS);
     std::unordered_map<int,int> parent; parent[startIdx] = -1;
-    std::vector<int> order = m_graph->dfs(startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
+    DFSTraversal dfs;
+    std::vector<int> order = dfs.solve(*m_graph, startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
     std::vector<std::pair<int,int>> result;
     for(int idx : order) result.emplace_back(indexToRow(idx, COLS), indexToCol(idx, COLS));
     reconstructPath(endIdx, COLS, parent, outPath);
