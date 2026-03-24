@@ -29,9 +29,9 @@ private slots:
     void onPauseClicked();
     void onSpeedChanged(int value);
 private:
-    static const int COLS=20, ROWS=9, SPACING=65, NODE_R=8;
-    int offsetX() const { return 60; }
-    int offsetY() const { return 70; }
+    static constexpr int COLS=20, ROWS=9, SPACING=65, NODE_R=8;
+    constexpr int offsetX() const { return 60; }
+    constexpr int offsetY() const { return 70; }
     enum class AlgoType { None, Dijkstra, AStar, BellmanFord, FloydWarshall };
     std::unique_ptr<DirectedGraph> m_graph;
     QTimer* m_timer;

@@ -2,6 +2,7 @@
 
 #include "vis_components.h"
 #include "vis_flow.h"
+#include "vis_floodfill.h"
 #include "vis_friends.h"
 #include "vis_maze.h"
 #include "vis_mst.h"
@@ -128,7 +129,7 @@ private:
   void applyGlobalStyle();
 
   // Navigation
-  void navigateToPlaceholder(const QString &title, int returnIndex);
+  void navigateToPlaceholder(const QString &title, QWidget *returnWidget);
 
   // UI Builders
   QWidget *buildHeader();
@@ -139,27 +140,54 @@ private:
   QWidget *buildHomeView();
   QWidget *buildVisualisersView();
   QWidget *buildAppsView();
+  QWidget *buildTheoreticalView();
   QWidget *buildPlaceholderView();
 
   // Components
   QStackedWidget *m_stack = nullptr;
   GraphCanvas *m_canvas = nullptr;
 
+  // View Pointers
+  QWidget *m_homeView = nullptr;
+  QWidget *m_visualisersView = nullptr;
+  QWidget *m_appsView = nullptr;
+  QWidget *m_theoreticalView = nullptr;
+
   // Placeholder Page Components
   QWidget *m_placeholderPage = nullptr;
   QLabel *m_placeholderTitleLabel = nullptr;
   AnimatedButton *m_placeholderBackBtn = nullptr;
 
-  // Visualiser Widgets
+  // Visualiser Widgets & Wrappers
   VisMaze *m_visMaze = nullptr;
-  VisComponents *m_visComponents = nullptr;
-  VisMST *m_visMST = nullptr;
-  VisShortest *m_visShortest = nullptr;
-  VisFlow *m_visFlow = nullptr;
+  QWidget *m_mazeWrapper = nullptr;
 
-  // Real World Apps Widgets
+  VisComponents *m_visComponents = nullptr;
+  QWidget *m_componentsWrapper = nullptr;
+
+  VisMST *m_visMST = nullptr;
+  QWidget *m_mstWrapper = nullptr;
+
+  VisShortest *m_visShortest = nullptr;
+  QWidget *m_shortestWrapper = nullptr;
+
+  VisFlow *m_visFlow = nullptr;
+  QWidget *m_flowWrapper = nullptr;
+
+  // Real-World App Widgets & Wrappers
   VisFriends *m_visFriends = nullptr;
+  QWidget *m_friendsWrapper = nullptr;
+
   VisTranslation *m_visTranslation = nullptr;
+  QWidget *m_translationWrapper = nullptr;
+
   VisSupermarket *m_visSupermarket = nullptr;
+  QWidget *m_supermarketWrapper = nullptr;
+
   VisRideMatch *m_visRideMatch = nullptr;
+  QWidget *m_rideMatchWrapper = nullptr;
+
+  // Theoretical Widgets & Wrappers
+  VisFloodFill *m_visFloodFill = nullptr;
+  QWidget *m_floodFillWrapper = nullptr;
 };

@@ -41,6 +41,9 @@
     <QtMoc Include="vis_ridematch.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="vis_floodfill.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <ClCompile Include="GraphVersePlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vis_ridematch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vis_floodfill.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

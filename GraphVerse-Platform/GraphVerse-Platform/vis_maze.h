@@ -29,7 +29,7 @@ private slots:
     void onPauseClicked();
     void onSpeedChanged(int value);
 private:
-    static const int COLS = 35, ROWS = 25, CELL_SIZE = 22;
+    static constexpr int COLS = 35, ROWS = 25, CELL_SIZE = 22;
     std::vector<std::vector<Cell>> m_maze;
     std::unique_ptr<DirectedGraph> m_graph;
     QTimer* m_timer;
@@ -53,7 +53,7 @@ private:
     std::vector<std::pair<int,int>> runBFS(std::vector<std::pair<int,int>>& path);
     std::vector<std::pair<int,int>> runDFS(std::vector<std::pair<int,int>>& path);
     void startAnimation(AlgoType algo);
-    int offsetX() const { return 10; }
-    int offsetY() const { return 60; }
+    constexpr int offsetX() const { return 10; }
+    constexpr int offsetY() const { return 60; }
 };
 #endif

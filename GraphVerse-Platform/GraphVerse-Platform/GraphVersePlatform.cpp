@@ -85,7 +85,7 @@ void GraphCanvas::paintEvent(QPaintEvent *) {
     // Slightly higher distance threshold for more connections
     float alpha = std::max(0.0f, 1.0f - dist / 0.320f);
     QColor col(110, 118, 255, static_cast<int>(alpha * 65)); // More opaque
-    p.setPen(QPen(col, 1.8));                   // Thicker lines
+    p.setPen(QPen(col, 1.8));                                // Thicker lines
     p.drawLine(QPointF(a.x * W, a.y * H), QPointF(b.x * W, b.y * H));
   }
 
@@ -370,8 +370,8 @@ QWidget *GraphVersePlatform::buildHeader() {
       "QPushButton:hover { color:#EBEDFF; background:rgba(99,102,241,0.15); }");
   hlay->addWidget(homeLnk);
   connect(homeLnk, &QPushButton::clicked, this, [this]() {
-    if (m_stack)
-      m_stack->setCurrentIndex(0);
+    if (m_stack && m_homeView)
+      m_stack->setCurrentWidget(m_homeView);
   });
 
   return header;
@@ -477,6 +477,11 @@ QWidget *GraphVersePlatform::buildHomeView() {
       "⚡", Palette::ACCENT_VIS);
   clay->addWidget(btnVis);
 
+  auto *btnTheoretical = new BigCategoryButton(
+      "Theoretical Applications", "Classical problems envolving graph theory.",
+      "📚", QColor(245, 158, 11));
+  clay->addWidget(btnTheoretical);
+
   auto *btnApps = new BigCategoryButton("Real-World Applications",
                                         "See graphs in action solving concrete "
                                         "problems in translating and networks.",
@@ -486,9 +491,11 @@ QWidget *GraphVersePlatform::buildHomeView() {
 
   // Wire up navigation
   connect(btnVis, &BigCategoryButton::clicked, this,
-          [this]() { m_stack->setCurrentIndex(1); });
+          [this]() { m_stack->setCurrentWidget(m_visualisersView); });
   connect(btnApps, &BigCategoryButton::clicked, this,
-          [this]() { m_stack->setCurrentIndex(2); });
+          [this]() { m_stack->setCurrentWidget(m_appsView); });
+  connect(btnTheoretical, &BigCategoryButton::clicked, this,
+          [this]() { m_stack->setCurrentWidget(m_theoreticalView); });
 
   auto *scroll = new QScrollArea;
   scroll->setWidgetResizable(true);
@@ -563,16 +570,28 @@ QWidget *GraphVersePlatform::buildVisualisersView() {
       {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall", 7},
       {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles", 8}};
 
-  for (const auto &entry : algos) {
+  for (int i = 0; i < algos.size(); ++i) {
+    const auto &entry = algos[i];
     auto *btn = new AnimatedButton(entry.label);
     btn->setGlowColor(Palette::ACCENT_VIS);
     btn->setMinimumHeight(64);
     btn->setMaximumHeight(64);
     btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
     llay->addWidget(btn);
-    int targetIdx = entry.stackIndex;
-    connect(btn, &QPushButton::clicked, this,
-            [this, targetIdx]() { m_stack->setCurrentIndex(targetIdx); });
+
+    connect(btn, &QPushButton::clicked, this, [this, i]() {
+      QWidget *target = nullptr;
+      if (i == 0) target = m_mazeWrapper;
+      else if (i == 1) target = m_componentsWrapper;
+      else if (i == 2) target = m_mstWrapper;
+      else if (i == 3) target = m_shortestWrapper;
+      else if (i == 4) target = m_flowWrapper;
+
+      if (target)
+        m_stack->setCurrentWidget(target);
+      else
+        navigateToPlaceholder("Algorithm", m_visualisersView);
+    });
   }
   llay->addStretch();
 
@@ -601,10 +620,9 @@ QWidget *GraphVersePlatform::buildAppsView() {
   llay->setContentsMargins(48, 16, 48, 60);
   llay->setSpacing(18);
 
-  const QStringList apps = {"👥 Friend Suggestion System",
-                            "🌍 Translation Network",
-                            "🛒 Supermarket Navigator",
-                            "🚕 RideMatch — Passenger ↔ Driver Max-Flow"};
+  const QStringList apps = {
+      "👥 Friend Suggestion System", "🌍 Translation Network",
+      "🛒 Supermarket Navigator", "🚕 RideMatch — Passenger ↔ Driver Max-Flow"};
 
   for (int i = 0; i < apps.size(); ++i) {
     const auto &str = apps[i];
@@ -615,9 +633,63 @@ QWidget *GraphVersePlatform::buildAppsView() {
     btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
     llay->addWidget(btn);
 
-    int targetIndex = (i == 0) ? 9 : (i == 1) ? 10 : (i == 2) ? 11 : 12;
-    connect(btn, &QPushButton::clicked, this,
-            [this, targetIndex]() { m_stack->setCurrentIndex(targetIndex); });
+    connect(btn, &QPushButton::clicked, this, [this, i, str]() {
+      QWidget *target = nullptr;
+      if (i == 0) target = m_friendsWrapper;
+      else if (i == 1) target = m_translationWrapper;
+      else if (i == 2) target = m_supermarketWrapper;
+      else if (i == 3) target = m_rideMatchWrapper;
+
+      if (target)
+        m_stack->setCurrentWidget(target);
+      else
+        navigateToPlaceholder(str, m_appsView);
+    });
+  }
+  llay->addStretch();
+
+  auto *scroll = new QScrollArea;
+  scroll->setWidgetResizable(true);
+  scroll->setWidget(listArea);
+  vlay->addWidget(scroll);
+
+  return page;
+}
+
+// ─────────────────────────────────────────────────────────────
+// PAGE 13: THEORETICAL APPS
+// ─────────────────────────────────────────────────────────────
+QWidget *GraphVersePlatform::buildTheoreticalView() {
+  auto *page = new QWidget;
+  auto *vlay = new QVBoxLayout(page);
+  vlay->setContentsMargins(0, 0, 0, 0);
+  vlay->setSpacing(0);
+
+  vlay->addWidget(buildPageHeader("Theoretical Applications", "📚",
+                                  QColor(245, 158, 11), m_stack));
+
+  auto *listArea = new QWidget;
+  auto *llay = new QVBoxLayout(listArea);
+  llay->setContentsMargins(48, 16, 48, 60);
+  llay->setSpacing(18);
+
+  const QStringList theoreticals = {"💧 Flood Fill Algorithm"};
+
+  for (int i = 0; i < theoreticals.size(); ++i) {
+    const auto &str = theoreticals[i];
+    auto *btn = new AnimatedButton(str);
+    btn->setGlowColor(QColor(245, 158, 11));
+    btn->setMinimumHeight(64);
+    btn->setMaximumHeight(64);
+    btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
+    llay->addWidget(btn);
+
+    connect(btn, &QPushButton::clicked, this, [this, i]() {
+      if (i == 0)
+        m_stack->setCurrentWidget(m_floodFillWrapper);
+      else
+        m_stack->setCurrentWidget(m_placeholderPage);
+    });
   }
   llay->addStretch();
 
@@ -687,16 +759,17 @@ QWidget *GraphVersePlatform::buildPlaceholderView() {
 }
 
 void GraphVersePlatform::navigateToPlaceholder(const QString &title,
-                                               int returnIndex) {
+                                               QWidget *returnWidget) {
   if (m_placeholderTitleLabel) {
     m_placeholderTitleLabel->setText(title);
   }
   if (m_placeholderBackBtn) {
     disconnect(m_placeholderBackBtn, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_placeholderBackBtn, &QPushButton::clicked, this,
-            [this, returnIndex]() { m_stack->setCurrentIndex(returnIndex); });
+    connect(m_placeholderBackBtn, &QPushButton::clicked, this, [this, returnWidget]() {
+      m_stack->setCurrentWidget(returnWidget);
+    });
   }
-  m_stack->setCurrentIndex(3);
+  m_stack->setCurrentWidget(m_placeholderPage);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -717,13 +790,20 @@ void GraphVersePlatform::setupUi() {
   rootLayout->addWidget(buildHeader());
 
   m_stack = new QStackedWidget;
-  m_stack->addWidget(buildHomeView());        // Index 0
-  m_stack->addWidget(buildVisualisersView()); // Index 1
-  m_stack->addWidget(buildAppsView());        // Index 2
-  m_stack->addWidget(buildPlaceholderView()); // Index 3
+  m_homeView = buildHomeView();
+  m_stack->addWidget(m_homeView); // Index 0
+
+  m_visualisersView = buildVisualisersView();
+  m_stack->addWidget(m_visualisersView); // Index 1
+
+  m_appsView = buildAppsView();
+  m_stack->addWidget(m_appsView); // Index 2
+
+  m_placeholderPage = buildPlaceholderView();
+  m_stack->addWidget(m_placeholderPage); // Index 3
 
   // ─── Visualiser pages with Back navigation ───
-  auto addVisPage = [&](QWidget *vis, int stackIdx) {
+  auto addVisPage = [&](QWidget *vis) {
     auto *wrapper = new QWidget;
     auto *wlay = new QVBoxLayout(wrapper);
     wlay->setContentsMargins(0, 0, 0, 0);
@@ -742,7 +822,7 @@ void GraphVersePlatform::setupUi() {
     wlay->addWidget(topBar);
     wlay->addWidget(vis, 1);
     QObject::connect(backBtn, &QPushButton::clicked, m_stack,
-                     [this]() { m_stack->setCurrentIndex(1); });
+                     [this]() { m_stack->setCurrentWidget(m_visualisersView); });
     return wrapper;
   };
 
@@ -752,14 +832,23 @@ void GraphVersePlatform::setupUi() {
   m_visShortest = new VisShortest();
   m_visFlow = new VisFlow();
 
-  m_stack->addWidget(addVisPage(m_visMaze, 4));       // Index 4
-  m_stack->addWidget(addVisPage(m_visComponents, 5)); // Index 5
-  m_stack->addWidget(addVisPage(m_visMST, 6));        // Index 6
-  m_stack->addWidget(addVisPage(m_visShortest, 7));   // Index 7
-  m_stack->addWidget(addVisPage(m_visFlow, 8));       // Index 8
+  m_mazeWrapper = addVisPage(m_visMaze);
+  m_stack->addWidget(m_mazeWrapper);
+
+  m_componentsWrapper = addVisPage(m_visComponents);
+  m_stack->addWidget(m_componentsWrapper);
+
+  m_mstWrapper = addVisPage(m_visMST);
+  m_stack->addWidget(m_mstWrapper);
+
+  m_shortestWrapper = addVisPage(m_visShortest);
+  m_stack->addWidget(m_shortestWrapper);
+
+  m_flowWrapper = addVisPage(m_visFlow);
+  m_stack->addWidget(m_flowWrapper);
 
   // ─── Real World Apps pages with Back navigation ───
-  auto addAppPage = [&](QWidget *appWidget, int stackIdx) {
+  auto addAppPage = [&](QWidget *appWidget) {
     auto *wrapper = new QWidget;
     auto *wlay = new QVBoxLayout(wrapper);
     wlay->setContentsMargins(0, 0, 0, 0);
@@ -778,7 +867,7 @@ void GraphVersePlatform::setupUi() {
     wlay->addWidget(topBar);
     wlay->addWidget(appWidget, 1);
     QObject::connect(backBtn, &QPushButton::clicked, m_stack,
-                     [this]() { m_stack->setCurrentIndex(2); });
+                     [this]() { m_stack->setCurrentWidget(m_appsView); });
     return wrapper;
   };
 
@@ -787,12 +876,51 @@ void GraphVersePlatform::setupUi() {
   m_visSupermarket = new VisSupermarket();
   m_visRideMatch = new VisRideMatch();
 
-  m_stack->addWidget(addAppPage(m_visFriends, 9));      // Index 9
-  m_stack->addWidget(addAppPage(m_visTranslation, 10)); // Index 10
-  m_stack->addWidget(addAppPage(m_visSupermarket, 11)); // Index 11
-  m_stack->addWidget(addAppPage(m_visRideMatch, 12));   // Index 12
+  m_friendsWrapper = addAppPage(m_visFriends);
+  m_stack->addWidget(m_friendsWrapper);
 
-  m_stack->setCurrentIndex(0);
+  m_translationWrapper = addAppPage(m_visTranslation);
+  m_stack->addWidget(m_translationWrapper);
+
+  m_supermarketWrapper = addAppPage(m_visSupermarket);
+  m_stack->addWidget(m_supermarketWrapper);
+
+  m_rideMatchWrapper = addAppPage(m_visRideMatch);
+  m_stack->addWidget(m_rideMatchWrapper);
+
+  // ─── Theoretical Apps ───
+  m_theoreticalView = buildTheoreticalView();
+  m_stack->addWidget(m_theoreticalView);
+
+  auto addTheoreticalPage = [&](QWidget *widget) {
+    auto *wrapper = new QWidget;
+    auto *wlay = new QVBoxLayout(wrapper);
+    wlay->setContentsMargins(0, 0, 0, 0);
+    wlay->setSpacing(0);
+    auto *backBtn = new AnimatedButton("← Back to Theoreticals");
+    backBtn->setGlowColor(QColor(140, 148, 190));
+    backBtn->setMinimumHeight(40);
+    backBtn->setMaximumHeight(40);
+    backBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    backBtn->setMinimumWidth(200);
+    auto *topBar = new QWidget;
+    auto *tbLay = new QHBoxLayout(topBar);
+    tbLay->setContentsMargins(16, 8, 16, 0);
+    tbLay->addWidget(backBtn);
+    tbLay->addStretch();
+    wlay->addWidget(topBar);
+    wlay->addWidget(widget, 1);
+    QObject::connect(backBtn, &QPushButton::clicked, m_stack, [this]() {
+      m_stack->setCurrentWidget(m_theoreticalView);
+    });
+    return wrapper;
+  };
+
+  m_visFloodFill = new VisFloodFill();
+  m_floodFillWrapper = addTheoreticalPage(m_visFloodFill);
+  m_stack->addWidget(m_floodFillWrapper);
+
+  m_stack->setCurrentWidget(m_homeView);
 
   rootLayout->addWidget(m_stack, 1);
   rootLayout->addWidget(buildFooter());

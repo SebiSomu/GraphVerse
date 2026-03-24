@@ -21,6 +21,6 @@ struct MSTStep {
     bool accepted;
 };
 
-static const int INF_COST = std::numeric_limits<int>::max() / 2;
+static constexpr int INF_COST = std::numeric_limits<int>::max() / 2;
 
 #endif // GRAPH_ALGORITHM_TYPES_H

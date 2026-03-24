@@ -109,6 +109,7 @@
     <ClCompile Include="vis_translation.cpp" />
     <ClCompile Include="vis_supermarket.cpp" />
     <ClCompile Include="vis_ridematch.cpp" />
+    <ClCompile Include="vis_floodfill.cpp" />
     <QtRcc Include="GraphVersePlatform.qrc" />
     <QtUic Include="GraphVersePlatform.ui" />
     <QtMoc Include="GraphVersePlatform.h" />
@@ -121,6 +122,7 @@
     <QtMoc Include="vis_translation.h" />
     <QtMoc Include="vis_supermarket.h" />
     <QtMoc Include="vis_ridematch.h" />
+    <QtMoc Include="vis_floodfill.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="algorithms\dijkstra_solver.cpp" />

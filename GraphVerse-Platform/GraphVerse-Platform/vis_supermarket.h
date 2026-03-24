@@ -58,7 +58,7 @@ private:
 	int m_draggedNodeIdx;
 	bool m_isDragging;
 
-	const int NODE_R = 25;
+	static constexpr int NODE_R = 25;
 };
 
 #endif // VIS_SUPERMARKET_H
