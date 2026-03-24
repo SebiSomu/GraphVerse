@@ -11,20 +11,10 @@
 
 class DirectedGraph : public Graph
 {
-private:
-    // Condensed graph state (visual feature, stays here)
-    bool m_showCondensedGraph;
-    CondensedGraph m_condensed;
-    std::unordered_map<int, int> m_nodeToComponent;
-
 public:
     DirectedGraph();
     void addEdge(Node &f, Node &s, int cost = 1) override;
     std::string_view getGraphType() const override;
-    void buildCondensedGraph();
-    void toggleCondensedGraph();
-    bool isShowingCondensedGraph() const;
-    const CondensedGraph& getCondensedGraph() const { return m_condensed; }
 };
 
 #endif // DIRECTEDGRAPH_H

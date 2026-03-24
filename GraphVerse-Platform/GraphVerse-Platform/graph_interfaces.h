@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <QtCore/QPoint>
 
 #include "Node.h"
@@ -23,12 +24,19 @@ public:
     virtual std::string_view getGraphType() const = 0;
 };
 
-class IComponentAnalysis {
-public:
-    virtual ~IComponentAnalysis() = default;
-    virtual void setComponentData(int num, const std::unordered_map<int, int>& colors) = 0;
-    virtual int getComponentColor(int nodeIndex) const = 0;
-    virtual int getNumComponents() const = 0;
+struct ComponentResult {
+    int numComponents = 0;
+    std::unordered_map<int, int> nodeToComponent;
+};
+
+struct CondensedGraph {
+    std::list<Node> nodes;
+    std::vector<Edge> edges;
+};
+
+struct CondensedResult {
+    bool isShowing = false;
+    CondensedGraph graph;
 };
 
 #endif // GRAPH_INTERFACES_H

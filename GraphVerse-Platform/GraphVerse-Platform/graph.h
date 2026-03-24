@@ -8,13 +8,11 @@
 #include <unordered_set>
 #include <string>
 
-class Graph : public IGraph, public IComponentAnalysis
+class Graph : public IGraph
 {
 protected:
     std::list<Node> m_nodes;
     std::vector<Edge> m_edges;
-    int m_numComponents;
-    std::unordered_map<int, int> m_componentsColors;
 
 public:
     Graph();
@@ -28,9 +26,6 @@ public:
     std::vector<Edge>& getEdges() override;
     const std::vector<Edge>& getEdges() const override;
     std::string_view getGraphType() const override = 0;
-    void setComponentData(int num, const std::unordered_map<int, int>& colors) override;
-    int getComponentColor(int nodeIndex) const override;
-    int getNumComponents() const override;
 };
 
 #endif // GRAPH_H

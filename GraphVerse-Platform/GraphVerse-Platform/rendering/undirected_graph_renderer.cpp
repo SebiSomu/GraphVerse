@@ -6,10 +6,11 @@
 #include <QtMath>
 #include "component_colorizer.h"
 
-void UndirectedGraphRenderer::render(QPainter& p, const Graph& graph) {
+void UndirectedGraphRenderer::render(QPainter& p, const Graph& graph,
+                                     const ComponentResult* compResults,
+                                     const CondensedResult*) {
     const double nodeRadius = 10.0;
-    int numComponents = graph.getNumComponents();
-    bool componentsFound = (numComponents > 0);
+    bool componentsFound = (compResults != nullptr && compResults->numComponents > 0);
 
     // Draw Edges
     for (const auto& ed : graph.getEdges()) {
@@ -21,8 +22,9 @@ void UndirectedGraphRenderer::render(QPainter& p, const Graph& graph) {
         QPointF adjEnd = end - QPointF(nodeRadius * cos(angle), nodeRadius * sin(angle));
 
         if (componentsFound) {
-            int comp = graph.getComponentColor(ed.getFirst().getIndex());
-            QColor edgeCol = ComponentColorizer::getColorForComponent(comp, numComponents);
+            auto it = compResults->nodeToComponent.find(ed.getFirst().getIndex());
+            int comp = (it != compResults->nodeToComponent.end()) ? it->second : -1;
+            QColor edgeCol = ComponentColorizer::getColorForComponent(comp, compResults->numComponents);
             p.setPen(QPen(edgeCol, 2));
         } else {
             p.setPen(QPen(Qt::white, 1));
@@ -35,8 +37,9 @@ void UndirectedGraphRenderer::render(QPainter& p, const Graph& graph) {
         QRect r(n.getX() - static_cast<int>(nodeRadius), n.getY() - static_cast<int>(nodeRadius),
                 static_cast<int>(nodeRadius) * 2, static_cast<int>(nodeRadius) * 2);
         if (componentsFound) {
-            int comp = graph.getComponentColor(n.getIndex());
-            QColor nodeColor = ComponentColorizer::getColorForComponent(comp, numComponents);
+            auto it = compResults->nodeToComponent.find(n.getIndex());
+            int comp = (it != compResults->nodeToComponent.end()) ? it->second : -1;
+            QColor nodeColor = ComponentColorizer::getColorForComponent(comp, compResults->numComponents);
             p.setPen(QPen(nodeColor, 2));
             p.setBrush(QBrush(nodeColor.lighter(160)));
         } else {

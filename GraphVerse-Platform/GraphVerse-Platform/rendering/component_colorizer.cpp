@@ -1,7 +1,7 @@
 #include "component_colorizer.h"
 
 QColor ComponentColorizer::getColorForComponent(int component, int totalComponents) {
-    if (totalComponents <= 0) return {255, 255, 255};
+    if (totalComponents <= 0 || component < 0) return {255, 255, 255};
     static const std::vector<QColor> baseColors = {
         QColor(255, 0, 0), QColor(255, 255, 0), QColor(0, 0, 255),
         QColor(128, 0, 128), QColor(0, 255, 0), QColor(255, 165, 0),

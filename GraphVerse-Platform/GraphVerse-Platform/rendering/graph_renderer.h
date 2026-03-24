@@ -7,7 +7,9 @@
 class IGraphRenderer {
 public:
     virtual ~IGraphRenderer() = default;
-    virtual void render(QPainter& p, const Graph& graph) = 0;
+    virtual void render(QPainter& p, const Graph& graph, 
+                        const ComponentResult* compResults = nullptr,
+                        const CondensedResult* condensedResults = nullptr) = 0;
 };
 
 #endif // I_GRAPH_RENDERER_H

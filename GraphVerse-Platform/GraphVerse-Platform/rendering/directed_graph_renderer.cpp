@@ -1,26 +1,33 @@
 #include "directed_graph_renderer.h"
 #include "../directedgraph.h"
 #include "component_colorizer.h"
+#include <QPainter>
 #include <QPen>
 #include <QBrush>
 #include <QLineF>
+#include <QPointF>
+#include <QRect>
 #include <QtMath>
+#include <cmath>
 
-void DirectedGraphRenderer::render(QPainter& p, const Graph& graph) {
-    const DirectedGraph* dg = dynamic_cast<const DirectedGraph*>(&graph);
-    if (!dg) return;
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
-    if (dg->isShowingCondensedGraph() && dg->getNumComponents() > 0) {
-        drawCondensedGraph(p, graph);
+void DirectedGraphRenderer::render(QPainter& p, const Graph& graph, 
+                                   const ComponentResult* compResults,
+                                   const CondensedResult* condensedResults) {
+    if (condensedResults && condensedResults->isShowing && compResults && compResults->numComponents > 0) {
+        drawCondensedGraph(p, graph, condensedResults, compResults);
     } else {
-        drawNormalGraph(p, graph);
+        drawNormalGraph(p, graph, compResults);
     }
 }
 
-void DirectedGraphRenderer::drawNormalGraph(QPainter& p, const Graph& graph) const {
+void DirectedGraphRenderer::drawNormalGraph(QPainter& p, const Graph& graph, const ComponentResult* results) const {
     const double arrowSize = 15.0;
     const double nodeRadius = 10.0;
-    bool componentsFound = (graph.getNumComponents() > 0);
+    bool componentsFound = (results != nullptr && results->numComponents > 0);
 
     // Edges
     for (const auto& ed : graph.getEdges()) {
@@ -32,8 +39,9 @@ void DirectedGraphRenderer::drawNormalGraph(QPainter& p, const Graph& graph) con
         QPointF adjEnd = end - QPointF(nodeRadius * cos(angle), nodeRadius * sin(angle));
 
         if (componentsFound) {
-            int comp = graph.getComponentColor(ed.getFirst().getIndex());
-            QColor edgeCol = ComponentColorizer::getColorForComponent(comp, graph.getNumComponents());
+            auto it = results->nodeToComponent.find(ed.getFirst().getIndex());
+            int comp = (it != results->nodeToComponent.end()) ? it->second : -1;
+            QColor edgeCol = ComponentColorizer::getColorForComponent(comp, results->numComponents);
             p.setPen(QPen(edgeCol, 2));
         } else {
             p.setPen(QPen(Qt::white, 1));
@@ -48,8 +56,9 @@ void DirectedGraphRenderer::drawNormalGraph(QPainter& p, const Graph& graph) con
         QRect r(n.getX() - static_cast<int>(nodeRadius), n.getY() - static_cast<int>(nodeRadius),
                 static_cast<int>(nodeRadius) * 2, static_cast<int>(nodeRadius) * 2);
         if (componentsFound) {
-            int comp = graph.getComponentColor(n.getIndex());
-            QColor nodeColor = ComponentColorizer::getColorForComponent(comp, graph.getNumComponents());
+            auto it = results->nodeToComponent.find(n.getIndex());
+            int comp = (it != results->nodeToComponent.end()) ? it->second : -1;
+            QColor nodeColor = ComponentColorizer::getColorForComponent(comp, results->numComponents);
             p.setPen(QPen(nodeColor, 2));
             p.setBrush(QBrush(nodeColor.lighter(160)));
         } else {
@@ -62,11 +71,10 @@ void DirectedGraphRenderer::drawNormalGraph(QPainter& p, const Graph& graph) con
     }
 }
 
-void DirectedGraphRenderer::drawCondensedGraph(QPainter& p, const Graph& graph) const {
-    const DirectedGraph* dg = dynamic_cast<const DirectedGraph*>(&graph);
-    if (!dg) return;
+void DirectedGraphRenderer::drawCondensedGraph(QPainter& p, const Graph& graph, const CondensedResult* results, const ComponentResult* compResults) const {
+    if (!results || !compResults) return;
 
-    const auto& condensed = dg->getCondensedGraph();
+    const auto& condensed = results->graph;
     constexpr double arrowSize = 15.0;
     constexpr int nodeWidth = 80, nodeHeight = 40;
     constexpr double a = nodeWidth / 2.0, b = nodeHeight / 2.0;
@@ -89,7 +97,7 @@ void DirectedGraphRenderer::drawCondensedGraph(QPainter& p, const Graph& graph) 
             QLineF line(adjStart, adjEnd);
             double angle = std::atan2(line.dy(), line.dx());
             int comp = ed.getFirst().getIndex() - 1;
-            QColor edgeColor = ComponentColorizer::getColorForComponent(comp, graph.getNumComponents());
+            QColor edgeColor = ComponentColorizer::getColorForComponent(comp, compResults->numComponents);
             p.setPen(QPen(edgeColor, 3));
             p.drawLine(adjStart, adjEnd);
             p.drawLine(adjEnd, adjEnd - QPointF(arrowSize * cos(angle - M_PI / 6), arrowSize * sin(angle - M_PI / 6)));
@@ -100,7 +108,7 @@ void DirectedGraphRenderer::drawCondensedGraph(QPainter& p, const Graph& graph) 
     for (const auto& n : condensed.nodes) {
         QRect r(n.getX() - nodeWidth / 2, n.getY() - nodeHeight / 2, nodeWidth, nodeHeight);
         int comp = n.getIndex() - 1;
-        QColor nodeColor = ComponentColorizer::getColorForComponent(comp, graph.getNumComponents());
+        QColor nodeColor = ComponentColorizer::getColorForComponent(comp, compResults->numComponents);
         p.setPen(QPen(nodeColor, 3));
         p.setBrush(QBrush(nodeColor.lighter(180)));
         p.drawEllipse(r);
@@ -108,7 +116,9 @@ void DirectedGraphRenderer::drawCondensedGraph(QPainter& p, const Graph& graph) 
         
         QString label; bool first = true;
         for (const auto& origNode : graph.getNodes()) {
-            if (graph.getComponentColor(origNode.getIndex()) == comp) {
+            auto it = compResults->nodeToComponent.find(origNode.getIndex());
+            int nodeComp = (it != compResults->nodeToComponent.end()) ? it->second : -1;
+            if (nodeComp == comp) {
                 if (!first) label += ",";
                 label += QString::number(origNode.getIndex());
                 first = false;

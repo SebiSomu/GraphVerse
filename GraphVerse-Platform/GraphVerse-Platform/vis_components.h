@@ -33,5 +33,7 @@ private:
     QCheckBox* m_checkBox;
     void recreateGraph(bool directed);
     void updateButtonText();
+    ComponentResult m_compResult;
+    CondensedResult m_condensedResult;
 };
 #endif

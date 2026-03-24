@@ -6,10 +6,6 @@
 #include <vector>
 #include <list>
 
-struct CondensedGraph {
-    std::list<Node> nodes;
-    std::vector<Edge> edges;
-};
 
 class CondensedGraphSolver {
 public:

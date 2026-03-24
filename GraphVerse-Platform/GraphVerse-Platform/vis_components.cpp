@@ -3,6 +3,7 @@
 #include "directedgraph.h"
 #include "algorithms/connected_components_solver.h"
 #include "algorithms/kosaraju_solver.h"
+#include "algorithms/condensed_graph_solver.h"
 #include "rendering/graph_renderer_factory.h"
 #include "rendering/component_colorizer.h"
 #include <QPainter>
@@ -10,6 +11,7 @@
 #include <QMessageBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QString>
 #include <cmath>
 
 VisComponents::VisComponents(QWidget* parent)
@@ -49,20 +51,21 @@ void VisComponents::onCheckBoxStateChanged(int state) {
 
 void VisComponents::onFindComponents() {
     if(!m_graph) return;
-    std::unordered_map<int, int> colors;
+    m_compResult.nodeToComponent.clear();
     int count = 0;
     if(auto* ug = dynamic_cast<UndirectedGraph*>(m_graph.get())) {
-        count = ConnectedComponentsSolver{}.solve(*m_graph, colors);
-        m_graph->setComponentData(count, colors);
+        count = ConnectedComponentsSolver{}.solve(*m_graph, m_compResult.nodeToComponent);
+        m_compResult.numComponents = count;
         QMessageBox::information(this, "Connected Components",
             QString("The graph has %1 connected components!").arg(count));
         m_btnToggleCondensed->setEnabled(false);
     } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph.get())) {
-        count = KosarajuSolver{}.solve(*dg, colors);
-        m_graph->setComponentData(count, colors);
+        count = KosarajuSolver{}.solve(*dg, m_compResult.nodeToComponent);
+        m_compResult.numComponents = count;
         QMessageBox::information(this, "Strongly Connected Components",
             QString("The graph has %1 strongly connected components!").arg(count));
-        dg->buildCondensedGraph();
+        
+        m_condensedResult.graph = CondensedGraphSolver{}.solve(*dg, count, m_compResult.nodeToComponent);
         m_btnToggleCondensed->setEnabled(true);
         m_btnToggleCondensed->setText("Show condensed graph");
     }
@@ -70,10 +73,9 @@ void VisComponents::onFindComponents() {
 }
 
 void VisComponents::onToggleCondensedView() {
-    DirectedGraph* dg = dynamic_cast<DirectedGraph*>(m_graph.get());
-    if(dg && dg->getNumComponents() > 0) {
-        dg->toggleCondensedGraph();
-        m_btnToggleCondensed->setText(dg->isShowingCondensedGraph() ? "Show normal graph" : "Show condensed graph");
+    if(m_compResult.numComponents > 0) {
+        m_condensedResult.isShowing = !m_condensedResult.isShowing;
+        m_btnToggleCondensed->setText(m_condensedResult.isShowing ? "Show normal graph" : "Show condensed graph");
         update();
     }
 }
@@ -84,7 +86,7 @@ void VisComponents::updateButtonText() {
         m_btnToggleCondensed->setEnabled(false);
     } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph.get())) {
         m_btnComponents->setText("Find strongly connected components");
-        m_btnToggleCondensed->setEnabled(m_graph->getNumComponents() > 0);
+        m_btnToggleCondensed->setEnabled(m_compResult.numComponents > 0);
     }
 }
 
@@ -184,5 +186,5 @@ void VisComponents::mouseMoveEvent(QMouseEvent* m) {
 void VisComponents::paintEvent(QPaintEvent*) {
     if(!m_graph) return;
     QPainter p(this); p.fillRect(rect(), Qt::black);
-    GraphRendererFactory::createRenderer(*m_graph)->render(p, *m_graph);
+    GraphRendererFactory::createRenderer(*m_graph)->render(p, *m_graph, &m_compResult, &m_condensedResult);
 }

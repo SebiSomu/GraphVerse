@@ -5,11 +5,13 @@
 
 class DirectedGraphRenderer : public IGraphRenderer {
 public:
-    void render(QPainter& p, const Graph& graph) override;
+    void render(QPainter& p, const Graph& graph,
+                const ComponentResult* compResults = nullptr,
+                const CondensedResult* condensedResults = nullptr) override;
 
 private:
-    void drawCondensedGraph(QPainter& p, const Graph& graph) const;
-    void drawNormalGraph(QPainter& p, const Graph& graph) const;
+    void drawCondensedGraph(QPainter& p, const Graph& graph, const CondensedResult* results, const ComponentResult* compResults) const;
+    void drawNormalGraph(QPainter& p, const Graph& graph, const ComponentResult* results) const;
 };
 
 #endif // DIRECTED_GRAPH_RENDERER_H
