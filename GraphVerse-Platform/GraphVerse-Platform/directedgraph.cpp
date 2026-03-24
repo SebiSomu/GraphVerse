@@ -18,6 +18,9 @@ std::string DirectedGraph::getGraphType() const { return "Directed"; }
 
 void DirectedGraph::toggleCondensedGraph() {
     m_showCondensedGraph = !m_showCondensedGraph;
+    if (m_showCondensedGraph) {
+        buildCondensedGraph();
+    }
 }
 
 bool DirectedGraph::isShowingCondensedGraph() const {

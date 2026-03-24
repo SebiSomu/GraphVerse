@@ -62,8 +62,9 @@ void VisComponents::onFindComponents() {
         m_graph->setComponentData(count, colors);
         QMessageBox::information(this, "Strongly Connected Components",
             QString("The graph has %1 strongly connected components!").arg(count));
+        dg->buildCondensedGraph();
         m_btnToggleCondensed->setEnabled(true);
-        m_btnToggleCondensed->setText("Show normal graph");
+        m_btnToggleCondensed->setText("Show condensed graph");
     }
     update();
 }
