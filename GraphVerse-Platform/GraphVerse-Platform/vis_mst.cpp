@@ -75,7 +75,7 @@ VisMST::VisMST(QWidget* parent)
     buildGraph();
 }
 
-VisMST::~VisMST() { delete m_graph; }
+VisMST::~VisMST() = default;
 
 void VisMST::resizeEvent(QResizeEvent* e) {
     QWidget::resizeEvent(e);
@@ -84,7 +84,7 @@ void VisMST::resizeEvent(QResizeEvent* e) {
 }
 
 void VisMST::buildGraph() {
-    m_timer->stop(); delete m_graph; m_graph = new UndirectedGraph();
+    m_timer->stop(); m_graph = std::make_unique<UndirectedGraph>();
     m_steps.clear(); m_accepted.clear(); m_rejected.clear();
     m_hasCurrent = false; m_stepIdx = 0; m_animDone = false; m_currentAlgo = AlgoType::None;
     m_paused = false;

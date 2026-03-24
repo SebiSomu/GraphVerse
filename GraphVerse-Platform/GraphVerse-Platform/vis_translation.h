@@ -14,6 +14,7 @@ struct TranslationEdge {
   std::string u, v;
   int cost;
   bool operator<(const TranslationEdge &o) const { return cost < o.cost; }
+  bool operator==(const TranslationEdge &o) const { return cost == o.cost && u == o.u && v == o.v; }
 };
 
 class VisTranslation : public QWidget {

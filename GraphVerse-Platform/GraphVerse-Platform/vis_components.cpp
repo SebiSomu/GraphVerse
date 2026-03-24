@@ -16,7 +16,7 @@ VisComponents::VisComponents(QWidget* parent)
     : QWidget(parent), m_graph(nullptr), m_firstNode(nullptr), m_draggedNode(nullptr)
 {
     setMinimumSize(800, 600);
-    m_graph = new UndirectedGraph();
+    m_graph = std::make_unique<UndirectedGraph>();
 
     m_checkBox = new QCheckBox("Directed", this);
     m_checkBox->setStyleSheet("color: white; font-size: 12px;");
@@ -40,7 +40,7 @@ VisComponents::VisComponents(QWidget* parent)
     updateButtonText();
 }
 
-VisComponents::~VisComponents() { delete m_graph; }
+VisComponents::~VisComponents() = default;
 
 void VisComponents::onCheckBoxStateChanged(int state) {
     recreateGraph(state == Qt::Checked);
@@ -51,13 +51,13 @@ void VisComponents::onFindComponents() {
     if(!m_graph) return;
     std::unordered_map<int, int> colors;
     int count = 0;
-    if(auto* ug = dynamic_cast<UndirectedGraph*>(m_graph)) {
+    if(auto* ug = dynamic_cast<UndirectedGraph*>(m_graph.get())) {
         count = ConnectedComponentsSolver{}.solve(*m_graph, colors);
         m_graph->setComponentData(count, colors);
         QMessageBox::information(this, "Connected Components",
             QString("The graph has %1 connected components!").arg(count));
         m_btnToggleCondensed->setEnabled(false);
-    } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph)) {
+    } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph.get())) {
         count = KosarajuSolver{}.solve(*dg, colors);
         m_graph->setComponentData(count, colors);
         QMessageBox::information(this, "Strongly Connected Components",
@@ -70,7 +70,7 @@ void VisComponents::onFindComponents() {
 }
 
 void VisComponents::onToggleCondensedView() {
-    DirectedGraph* dg = dynamic_cast<DirectedGraph*>(m_graph);
+    DirectedGraph* dg = dynamic_cast<DirectedGraph*>(m_graph.get());
     if(dg && dg->getNumComponents() > 0) {
         dg->toggleCondensedGraph();
         m_btnToggleCondensed->setText(dg->isShowingCondensedGraph() ? "Show normal graph" : "Show condensed graph");
@@ -79,10 +79,10 @@ void VisComponents::onToggleCondensedView() {
 }
 
 void VisComponents::updateButtonText() {
-    if(dynamic_cast<UndirectedGraph*>(m_graph)) {
+    if(dynamic_cast<UndirectedGraph*>(m_graph.get())) {
         m_btnComponents->setText("Find connected components");
         m_btnToggleCondensed->setEnabled(false);
-    } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph)) {
+    } else if(auto* dg = dynamic_cast<DirectedGraph*>(m_graph.get())) {
         m_btnComponents->setText("Find strongly connected components");
         m_btnToggleCondensed->setEnabled(m_graph->getNumComponents() > 0);
     }
@@ -102,8 +102,11 @@ void VisComponents::recreateGraph(bool directed) {
         edgeInfos.push_back({ed.getFirst().getIndex(), ed.getSecond().getIndex(), ed.getCost()});
     }
 
-    delete m_graph;
-    m_graph = directed ? static_cast<Graph*>(new DirectedGraph()) : static_cast<Graph*>(new UndirectedGraph());
+    if (directed) {
+        m_graph = std::make_unique<DirectedGraph>();
+    } else {
+        m_graph = std::make_unique<UndirectedGraph>();
+    }
     
     for (const auto& info : nodeInfos) {
         m_graph->addNode(info.first);
@@ -150,7 +153,7 @@ void VisComponents::mouseReleaseEvent(QMouseEvent* m) {
                 bool exists = false;
                 for(auto& ed : m_graph->getEdges()) {
                     if((ed.getFirst().getIndex()==m_firstNode->getIndex() && ed.getSecond().getIndex()==selected->getIndex()) ||
-                       (!dynamic_cast<DirectedGraph*>(m_graph) &&
+                       (!dynamic_cast<DirectedGraph*>(m_graph.get()) &&
                         ed.getFirst().getIndex()==selected->getIndex() && ed.getSecond().getIndex()==m_firstNode->getIndex()))
                     { exists = true; break; }
                 }

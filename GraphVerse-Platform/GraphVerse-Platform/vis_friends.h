@@ -15,6 +15,7 @@ struct Suggestion {
   std::string name;
   int distance;
   int mutualCount;
+  bool operator==(const Suggestion &o) const { return distance == o.distance && mutualCount == o.mutualCount && name == o.name; }
 };
 
 class VisFriends : public QWidget {

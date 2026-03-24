@@ -20,7 +20,7 @@ private:
 public:
     DirectedGraph();
     void addEdge(Node &f, Node &s, int cost = 1) override;
-    std::string getGraphType() const override;
+    std::string_view getGraphType() const override;
     void buildCondensedGraph();
     void toggleCondensedGraph();
     bool isShowingCondensedGraph() const;

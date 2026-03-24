@@ -7,6 +7,7 @@
 #include <QtWidgets/QWidget>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 class DirectedGraph;
 class QPainter;
@@ -41,7 +42,7 @@ private:
 	void updateStatus(const QString& text);
 	void updateGraphEdges();
 
-	DirectedGraph* m_graph;
+	std::unique_ptr<DirectedGraph> m_graph;
 	std::unordered_map<int, QString> m_nodeNames;
 
 	int m_startIdx;

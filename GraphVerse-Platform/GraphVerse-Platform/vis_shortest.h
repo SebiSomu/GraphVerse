@@ -33,7 +33,7 @@ private:
     int offsetX() const { return 60; }
     int offsetY() const { return 70; }
     enum class AlgoType { None, Dijkstra, AStar, BellmanFord, FloydWarshall };
-    DirectedGraph* m_graph;
+    std::unique_ptr<DirectedGraph> m_graph;
     QTimer* m_timer;
     QLabel* m_statusLabel;
     QLabel* m_timerLabel;

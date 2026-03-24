@@ -82,7 +82,7 @@ VisShortest::VisShortest(QWidget* parent)
     buildGraph();
 }
 
-VisShortest::~VisShortest() { delete m_graph; }
+VisShortest::~VisShortest() = default;
 
 void VisShortest::resizeEvent(QResizeEvent* e) {
     QWidget::resizeEvent(e);
@@ -91,7 +91,7 @@ void VisShortest::resizeEvent(QResizeEvent* e) {
 }
 
 void VisShortest::buildGraph() {
-    m_timer->stop(); delete m_graph; m_graph = new DirectedGraph();
+    m_timer->stop(); m_graph = std::make_unique<DirectedGraph>();
     resetAnimation(); m_startIdx = -1; m_endIdx = -1;
     std::mt19937 rng(static_cast<unsigned>(time(nullptr)));
     std::uniform_int_distribution<int> costDist(1, 20);

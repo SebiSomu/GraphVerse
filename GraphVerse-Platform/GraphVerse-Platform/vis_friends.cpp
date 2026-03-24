@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <queue>
 #include <unordered_set>
+#include <ranges>
 
 
 namespace PaletteApp {
@@ -213,21 +214,21 @@ void VisFriends::buildNetwork() {
 
   // Clean up duplicates
   for (auto &pair : m_adj) {
-    std::sort(pair.second.begin(), pair.second.end());
+    std::ranges::sort(pair.second);
     pair.second.erase(std::unique(pair.second.begin(), pair.second.end()),
                       pair.second.end());
   }
 }
 
 int VisFriends::countMutual(const std::string &a, const std::string &b) const {
-  if (m_adj.find(a) == m_adj.end() || m_adj.find(b) == m_adj.end())
+  if (!m_adj.contains(a) || !m_adj.contains(b))
     return 0;
 
   std::unordered_set<std::string> friendsA(m_adj.at(a).begin(),
                                            m_adj.at(a).end());
   int mutual = 0;
   for (const auto &f : m_adj.at(b)) {
-    if (friendsA.count(f))
+    if (friendsA.contains(f))
       mutual++;
   }
   return mutual;
@@ -235,7 +236,7 @@ int VisFriends::countMutual(const std::string &a, const std::string &b) const {
 
 std::vector<Suggestion>
 VisFriends::getSuggestions(const std::string &root) const {
-  if (m_adj.find(root) == m_adj.end())
+  if (!m_adj.contains(root))
     return {};
 
   std::unordered_map<std::string, int> dist;
@@ -260,7 +261,7 @@ VisFriends::getSuggestions(const std::string &root) const {
 
     if (d < 2) { // up to depth 2
       for (const auto &v : m_adj.at(u)) {
-        if (dist.find(v) == dist.end()) {
+        if (!dist.contains(v)) {
           dist[v] = d + 1;
           q.emplace(v, d + 1);
         }
@@ -268,7 +269,7 @@ VisFriends::getSuggestions(const std::string &root) const {
     }
   }
 
-  std::sort(results.begin(), results.end(),
+  std::ranges::sort(results,
             [](const Suggestion &a, const Suggestion &b) {
               if (a.distance != b.distance)
                 return a.distance < b.distance;
@@ -293,7 +294,7 @@ void VisFriends::onSearchClicked() {
     delete child;
   }
 
-  if (m_adj.find(name) == m_adj.end()) {
+  if (!m_adj.contains(name)) {
     auto *err = new QLabel(QString("User '%1' not found in the network. Try "
                                    "'Sebi', 'John', 'Li', etc.")
                                .arg(qname));

@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include "graph.h"
+#include <memory>
 
 class VisComponents : public QWidget
 {
@@ -21,7 +22,7 @@ private slots:
     void onFindComponents();
     void onToggleCondensedView();
 private:
-    Graph* m_graph;
+    std::unique_ptr<Graph> m_graph;
     Node* m_firstNode;
     Node* m_draggedNode;
     bool m_dragging = false;

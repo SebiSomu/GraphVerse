@@ -8,6 +8,7 @@
 #include <QElapsedTimer>
 #include "algorithms/graph_algorithm_types.h"
 #include "undirectedgraph.h"
+#include <memory>
 
 class VisMST : public QWidget {
     Q_OBJECT
@@ -30,7 +31,7 @@ private:
     int offsetX() const { return 60; }
     int offsetY() const { return 70; }
     enum class AlgoType { None, Kruskal, Prim, Boruvka };
-    UndirectedGraph* m_graph;
+    std::unique_ptr<UndirectedGraph> m_graph;
     QTimer* m_timer;
     QLabel* m_statusLabel;
     QLabel* m_timerLabel;

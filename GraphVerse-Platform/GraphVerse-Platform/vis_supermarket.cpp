@@ -24,7 +24,7 @@ VisSupermarket::VisSupermarket(QWidget* parent)
 	buildHipermarketLayout();
 }
 
-VisSupermarket::~VisSupermarket() { delete m_graph; }
+VisSupermarket::~VisSupermarket() = default;
 
 void VisSupermarket::resizeEvent(QResizeEvent* event) {
 	QWidget::resizeEvent(event);
@@ -103,8 +103,7 @@ void VisSupermarket::updateStatus(const QString& text) {
 }
 
 void VisSupermarket::buildHipermarketLayout() {
-	delete m_graph;
-	m_graph = new DirectedGraph();
+	m_graph = std::make_unique<DirectedGraph>();
 	m_nodeNames.clear();
 	m_startIdx = -1;
 	m_endIdx = -1;

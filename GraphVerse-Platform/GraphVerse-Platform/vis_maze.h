@@ -8,6 +8,7 @@
 #include <vector>
 #include <unordered_map>
 #include "directedgraph.h"
+#include <memory>
 
 struct Cell { bool walls[4] = {true,true,true,true}; };
 
@@ -30,7 +31,7 @@ private slots:
 private:
     static const int COLS = 35, ROWS = 25, CELL_SIZE = 22;
     std::vector<std::vector<Cell>> m_maze;
-    DirectedGraph* m_graph;
+    std::unique_ptr<DirectedGraph> m_graph;
     QTimer* m_timer;
     std::vector<std::pair<int,int>> m_visitOrder;
     std::vector<std::pair<int,int>> m_finalPath;

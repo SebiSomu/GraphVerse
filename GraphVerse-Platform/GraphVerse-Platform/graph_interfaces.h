@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <QtCore/QPoint>
 
 #include "Node.h"
@@ -19,7 +20,7 @@ public:
     virtual void addNode(QPoint p) = 0;
     virtual void removeNode(int index) = 0;
     virtual void addEdge(Node &f, Node &s, int cost = 1) = 0;
-    virtual std::string getGraphType() const = 0;
+    virtual std::string_view getGraphType() const = 0;
 };
 
 class IComponentAnalysis {

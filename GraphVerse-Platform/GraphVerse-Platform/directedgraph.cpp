@@ -14,7 +14,7 @@ void DirectedGraph::addEdge(Node &f, Node &s, int cost) {
 }
 
 
-std::string DirectedGraph::getGraphType() const { return "Directed"; }
+std::string_view DirectedGraph::getGraphType() const { return "Directed"; }
 
 void DirectedGraph::toggleCondensedGraph() {
     m_showCondensedGraph = !m_showCondensedGraph;

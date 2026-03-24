@@ -84,7 +84,7 @@ VisMaze::VisMaze(QWidget* parent)
     generateMaze();
 }
 
-VisMaze::~VisMaze() { delete m_graph; }
+VisMaze::~VisMaze() = default;
 
 void VisMaze::resizeEvent(QResizeEvent* e) {
     QWidget::resizeEvent(e);
@@ -126,7 +126,7 @@ void VisMaze::generateMaze()
         }
     }
 
-    delete m_graph; m_graph = new DirectedGraph();
+    m_graph = std::make_unique<DirectedGraph>();
     for(int r = 0; r < ROWS; r++)
         for(int c = 0; c < COLS; c++)
             m_graph->addNode(QPoint(offsetX() + c*CELL_SIZE + CELL_SIZE/2, offsetY() + r*CELL_SIZE + CELL_SIZE/2));

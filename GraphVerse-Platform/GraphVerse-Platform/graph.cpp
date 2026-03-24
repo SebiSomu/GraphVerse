@@ -1,5 +1,6 @@
 #include "graph.h"
 #include <algorithm>
+#include <ranges>
 #include <unordered_set>
 #include <QtCore/QPoint>
 
@@ -22,12 +23,12 @@ void Graph::addNode(QPoint p) {
 }
 
 void Graph::removeNode(int index) {
-    auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [index](const Node& n){ return n.getIndex() == index; });
+    auto it = std::ranges::find(m_nodes, index, &Node::getIndex);
     if (it != m_nodes.end()) {
         m_nodes.erase(it);
-        m_edges.erase(std::remove_if(m_edges.begin(), m_edges.end(), [index](const Edge& e){
+        std::erase_if(m_edges, [index](const Edge& e){
             return e.getFirst().getIndex() == index || e.getSecond().getIndex() == index;
-        }), m_edges.end());
+        });
         m_componentsColors.clear();
         m_numComponents = 0;
     }

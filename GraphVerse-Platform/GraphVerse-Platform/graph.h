@@ -27,7 +27,7 @@ public:
     const std::list<Node>& getNodes() const override;
     std::vector<Edge>& getEdges() override;
     const std::vector<Edge>& getEdges() const override;
-    std::string getGraphType() const override = 0;
+    std::string_view getGraphType() const override = 0;
     void setComponentData(int num, const std::unordered_map<int, int>& colors) override;
     int getComponentColor(int nodeIndex) const override;
     int getNumComponents() const override;
