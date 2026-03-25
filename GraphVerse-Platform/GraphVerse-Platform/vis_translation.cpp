@@ -148,15 +148,29 @@ void VisTranslation::setupUi() {
 	mainLay->addWidget(m_scrollArea, 1);
 }
 
-void VisTranslation::addPair(const std::string& langs1,
-	const std::string& langs2, int cost) {
-	m_edges.push_back({ langs1, langs2, cost });
-	if (std::ranges::find(m_allLanguages, langs1) ==
-		m_allLanguages.end())
-		m_allLanguages.push_back(langs1);
-	if (std::ranges::find(m_allLanguages, langs2) ==
-		m_allLanguages.end())
-		m_allLanguages.push_back(langs2);
+void VisTranslation::addPair(const QString& langs1,
+	const QString& langs2, int cost) {
+    if (!m_nameToIndex.contains(langs1)) {
+        m_graph.addNode(QPoint(0, 0));
+        m_graph.getNodes().back().setName(langs1);
+        m_nameToIndex[langs1] = m_graph.getNodes().back().getIndex();
+    }
+    if (!m_nameToIndex.contains(langs2)) {
+        m_graph.addNode(QPoint(0, 0));
+        m_graph.getNodes().back().setName(langs2);
+        m_nameToIndex[langs2] = m_graph.getNodes().back().getIndex();
+    }
+
+    Node* n1 = nullptr;
+    Node* n2 = nullptr;
+    for(auto& node : m_graph.getNodes()) {
+        if (node.getIndex() == m_nameToIndex[langs1]) n1 = &node;
+        if (node.getIndex() == m_nameToIndex[langs2]) n2 = &node;
+    }
+
+    if (n1 && n2) {
+        m_graph.addEdge(*n1, *n2, cost);
+    }
 }
 
 void VisTranslation::buildNetwork() {
@@ -180,7 +194,7 @@ void VisTranslation::buildNetwork() {
 
 		size_t l1_start = content.find("\"", l1_label + 8) + 1;
 		size_t l1_end = content.find("\"", l1_start);
-		std::string lang1 = content.substr(l1_start, l1_end - l1_start);
+		QString lang1 = QString::fromStdString(content.substr(l1_start, l1_end - l1_start));
 
 		size_t l2_label = content.find("\"lang2\":", l1_end);
 		if (l2_label == std::string::npos)
@@ -188,7 +202,7 @@ void VisTranslation::buildNetwork() {
 
 		size_t l2_start = content.find("\"", l2_label + 8) + 1;
 		size_t l2_end = content.find("\"", l2_start);
-		std::string lang2 = content.substr(l2_start, l2_end - l2_start);
+		QString lang2 = QString::fromStdString(content.substr(l2_start, l2_end - l2_start));
 
 		size_t cost_label = content.find("\"cost\":", l2_end);
 		if (cost_label == std::string::npos)
@@ -204,21 +218,23 @@ void VisTranslation::buildNetwork() {
 }
 
 std::vector<TranslationEdge> VisTranslation::kruskalMST() const {
-	std::vector<TranslationEdge> mst;
-	std::vector<TranslationEdge> sortedEdges = m_edges;
-	std::ranges::sort(sortedEdges, std::ranges::less{}, &TranslationEdge::cost);
-
-	DSU dsu;
-	for (const auto& l : m_allLanguages)
-		dsu.makeSet(l);
-
-	for (const auto& e : sortedEdges) {
-		if (dsu.findSet(e.u) != dsu.findSet(e.v)) {
-			dsu.unionSet(e.u, e.v);
-			mst.push_back(e);
-		}
-	}
-	return mst;
+    KruskalSolver solver;
+    auto steps = solver.solve(m_graph);
+    
+    std::vector<TranslationEdge> mst;
+    auto nodes = m_graph.getNodes();
+    
+    for (const auto& step : steps) {
+        if (step.accepted) {
+            QString nameU, nameV;
+            for(const auto& n : nodes) {
+                if(n.getIndex() == step.fromIndex) nameU = n.getName();
+                if(n.getIndex() == step.toIndex) nameV = n.getName();
+            }
+            mst.push_back({ nameU, nameV, step.cost });
+        }
+    }
+    return mst;
 }
 
 void VisTranslation::onBuildTreeClicked() {
@@ -241,8 +257,7 @@ void VisTranslation::onBuildTreeClicked() {
 		delete child;
 	}
 
-	if (std::ranges::find(m_allLanguages, root) ==
-		m_allLanguages.end()) {
+	if (!m_nameToIndex.contains(qroot)) {
 		auto* err = new QLabel(QString("Language '%1' not found in the network. "
 			"Try 'Spanish', 'French', etc.")
 			.arg(qroot));
@@ -258,7 +273,7 @@ void VisTranslation::onBuildTreeClicked() {
 	auto mst = kruskalMST();
 
 	// Build Adjacency List from MST
-	std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> adj;
+	std::unordered_map<QString, std::vector<std::pair<QString, int>>> adj;
 	int totalCost = 0;
 	for (const auto& e : mst) {
 		adj[e.u].emplace_back(e.v, e.cost);
@@ -273,9 +288,9 @@ void VisTranslation::onBuildTreeClicked() {
 	m_resultsLayout->addWidget(statLbl);
 
 	// DFS to render Tree Hierarchy
-	std::unordered_set<std::string> visited;
-	std::vector<std::tuple<std::string, int, int>> stackList;
-	auto dfs = [&](auto& self, const std::string& curr, int depth,
+	std::unordered_set<QString> visited;
+	std::vector<std::tuple<QString, int, int>> stackList;
+	auto dfs = [&](auto& self, const QString& curr, int depth,
 		int costPr) -> void {
 			visited.insert(curr);
 			stackList.emplace_back(curr, depth, costPr);
@@ -294,12 +309,12 @@ void VisTranslation::onBuildTreeClicked() {
 			}
 		};
 
-	dfs(dfs, root, 0, 0);
+	dfs(dfs, qroot, 0, 0);
 
 	// Build the visual lines (normal loop, no processEvents inside)
 	for (const auto& [lang, depth, cost] : stackList) {
 		auto* item =
-			new TranslationNodeItem(QString::fromStdString(lang), cost, depth);
+			new TranslationNodeItem(lang, cost, depth);
 		m_resultsLayout->addWidget(item);
 	}
 

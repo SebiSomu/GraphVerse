@@ -20,6 +20,7 @@ public:
     void addNode(QPoint p) override;
     void removeNode(int index) override;
     void addEdge(Node &f, Node &s, int cost = 1) override = 0;
+    void clear() override;
 
     std::list<Node>& getNodes() override;
     const std::list<Node>& getNodes() const override;

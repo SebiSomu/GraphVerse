@@ -14,6 +14,12 @@ struct PathStep {
     bool isFinal;
 };
 
+struct TraversalStep {
+    int nodeIndex;
+    int parentIndex;
+    int distance;
+};
+
 struct MSTStep {
     int  fromIndex;
     int  toIndex;

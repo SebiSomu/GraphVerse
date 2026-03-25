@@ -9,6 +9,11 @@ Graph::Graph() {
 
 Graph::~Graph() = default;
 
+void Graph::clear() {
+    m_nodes.clear();
+    m_edges.clear();
+}
+
 void Graph::addNode(QPoint p) {
     Node n;
     n.setCoord(p);

@@ -8,6 +8,8 @@
 #include <queue>
 #include <unordered_set>
 #include <ranges>
+#include "algorithms/bfs_traversal.h"
+#include "algorithms/graph_utils.h"
 
 
 namespace PaletteApp {
@@ -124,15 +126,12 @@ void VisFriends::setupUi() {
   mainLay->addWidget(m_scrollArea, 1);
 }
 
-void VisFriends::addFriendship(const std::string &a, const std::string &b) {
-  m_adj[a].push_back(b);
-  m_adj[b].push_back(a);
+void VisFriends::addFriendship(Node &a, Node &b) {
+  m_graph.addEdge(a, b);
 }
 
 void VisFriends::buildNetwork() {
-  // Generate an enormous list of international friend connections
-  // Over 100 names, numerous edges
-  std::vector<std::string> names = {
+  std::vector<QString> names = {
       "John",      "Oliver",     "Harry",     "Jack",    "Jacob",
       "Noah",      "Charlie",    "Thomas",    "George",  "Oscar",
       "Emma",      "Olivia",     "Amelia",    "Isla",    "Ava",
@@ -156,135 +155,112 @@ void VisFriends::buildNetwork() {
       "Matteo",    "Alessandro", "Leonardo",  "Lorenzo", "Mattia",
       "Sofia",     "Giulia",     "Aurora",    "Ginevra", "Alice_IT"};
 
-  // Ensure all names exist in map at least
-  for (const auto &n : names)
-    m_adj[n] = {};
+  m_graph.clear();
+  m_nameToIndex.clear();
 
-  // Group formations
+  std::vector<Node*> nodes;
+  for (const auto &n : names) {
+    m_graph.addNode(QPoint(0, 0));
+    Node& node = m_graph.getNodes().back();
+    node.setName(n);
+    m_nameToIndex[n] = node.getIndex();
+    nodes.push_back(&node);
+  }
+
   auto makeClique = [&](int start, int end) {
     for (int i = start; i < end; i++)
       for (int j = i + 1; j < end; j++)
-        addFriendship(names[i], names[j]);
+        addFriendship(*nodes[i], *nodes[j]);
   };
 
-  makeClique(0, 5);  // English bros
-  makeClique(5, 10); // English sis
-  addFriendship("John", "Emma");
-  addFriendship("Oliver", "Olivia");
-  addFriendship("Oscar", "Lily");
+  makeClique(0, 5);  
+  makeClique(5, 10); 
+  addFriendship(*nodes[0], *nodes[10]); // John, Emma
+  addFriendship(*nodes[1], *nodes[11]); // Oliver, Olivia
+  addFriendship(*nodes[9], *nodes[19]); // Oscar, Lily
 
   // Romanian network
   makeClique(20, 26);
   makeClique(26, 32);
-  addFriendship("Sebi", "Cezar");
-  addFriendship("Sebi", "Andrei");
-  addFriendship("Andrei", "Mihai");
-  addFriendship("Andrei", "Elena");
-  addFriendship("Andrei", "Radu");
-  addFriendship("Mihai", "Elena");
-  addFriendship("Mihai", "Bogdan");
-  addFriendship("Elena", "Ioana");
-  addFriendship("Ioana", "Alexandra");
-  addFriendship("Ioana", "Vlad");
-  addFriendship("Vlad", "Marius");
-  addFriendship("Teodora", "Marius");
-  addFriendship("Cristina", "Teodora");
-  addFriendship("Bogdan", "Vlad");
-  addFriendship("Florin", "Dragos");
+  addFriendship(*nodes[20], *nodes[41]); // Sebi, Cezar
+  addFriendship(*nodes[20], *nodes[21]); // Sebi, Andrei
+  addFriendship(*nodes[21], *nodes[22]); // Andrei, Mihai
+  addFriendship(*nodes[21], *nodes[23]); 
+  addFriendship(*nodes[21], *nodes[24]); 
+  addFriendship(*nodes[22], *nodes[23]); 
+  addFriendship(*nodes[22], *nodes[25]); 
+  addFriendship(*nodes[23], *nodes[26]); 
+  addFriendship(*nodes[26], *nodes[27]); 
+  addFriendship(*nodes[26], *nodes[28]); 
+  addFriendship(*nodes[28], *nodes[30]); // Vlad, Marius
+  addFriendship(*nodes[29], *nodes[30]); // Teodora, Marius
+  addFriendship(*nodes[31], *nodes[29]); // Cristina, Teodora
+  addFriendship(*nodes[25], *nodes[28]); // Bogdan, Vlad
+  addFriendship(*nodes[32], *nodes[38]); // Florin, Dragos
 
-  // Global bridges
-  addFriendship("Sebi", "John");
-  addFriendship("Oliver", "Arthur");
-  addFriendship("Harry", "Matteo");
-  addFriendship("Mia", "Sofia");
-  addFriendship("Sophia", "Ali");
-  addFriendship("Omar", "Wei");
-  addFriendship("Li", "Hiroshi");
-  addFriendship("Yuki", "Alejandro");
-  addFriendship("Daniel", "Alessandro");
-
-  // Add random links
+  // Random links
   srand(42);
   for (int i = 0; i < 60; ++i) {
     int u = rand() % names.size();
     int v = rand() % names.size();
     if (u != v)
-      addFriendship(names[u], names[v]);
-  }
-
-  // Clean up duplicates
-  for (auto &pair : m_adj) {
-    std::ranges::sort(pair.second);
-    pair.second.erase(std::unique(pair.second.begin(), pair.second.end()),
-                      pair.second.end());
+      addFriendship(*nodes[u], *nodes[v]);
   }
 }
 
-int VisFriends::countMutual(const std::string &a, const std::string &b) const {
-  if (!m_adj.contains(a) || !m_adj.contains(b))
-    return 0;
+int VisFriends::countMutual(int nodeIdxA, int nodeIdxB) const {
+  std::unordered_set<int> friendsA;
+  for (const auto &e : m_graph.getEdges()) {
+    if (e.getFirst().getIndex() == nodeIdxA) friendsA.insert(e.getSecond().getIndex());
+    else if (e.getSecond().getIndex() == nodeIdxA) friendsA.insert(e.getFirst().getIndex());
+  }
 
-  std::unordered_set<std::string> friendsA(m_adj.at(a).begin(),
-                                           m_adj.at(a).end());
   int mutual = 0;
-  for (const auto &f : m_adj.at(b)) {
-    if (friendsA.contains(f))
-      mutual++;
+  for (const auto &e : m_graph.getEdges()) {
+    int other = -1;
+    if (e.getFirst().getIndex() == nodeIdxB) other = e.getSecond().getIndex();
+    else if (e.getSecond().getIndex() == nodeIdxB) other = e.getFirst().getIndex();
+    
+    if (other != -1 && friendsA.contains(other)) mutual++;
   }
   return mutual;
 }
 
-std::vector<Suggestion>
-VisFriends::getSuggestions(const std::string &root) const {
-  if (!m_adj.contains(root))
-    return {};
-
-  std::unordered_map<std::string, int> dist;
-  std::queue<std::pair<std::string, int>> q;
-  q.emplace(root, 0);
-  dist[root] = 0;
+std::vector<Suggestion> VisFriends::getSuggestions(int rootNodeIdx) const {
+  BFSTraversal bfs;
+  auto steps = bfs.solve(m_graph, rootNodeIdx);
 
   std::vector<Suggestion> results;
+  auto nodes = m_graph.getNodes();
 
-  while (!q.empty()) {
-    auto [u, d] = q.front();
-    q.pop();
-
-    if (d > 0) {
+  for (const auto& step : steps) {
+    if (step.distance == 2) {
       Suggestion s;
-      s.name = u;
-      s.distance = d;
-      s.mutualCount = countMutual(root, u);
-      if (d == 2)
-        results.push_back(s); // Only suggest 2nd degree friends
-    }
-
-    if (d < 2) { // up to depth 2
-      for (const auto &v : m_adj.at(u)) {
-        if (!dist.contains(v)) {
-          dist[v] = d + 1;
-          q.emplace(v, d + 1);
-        }
+      s.distance = 2;
+      s.mutualCount = countMutual(rootNodeIdx, step.nodeIndex);
+      
+      // Find name
+      for(const auto& n : nodes) {
+          if(n.getIndex() == step.nodeIndex) {
+              s.name = n.getName();
+              break;
+          }
       }
+      results.push_back(s);
     }
   }
 
-  std::ranges::sort(results,
-            [](const Suggestion &a, const Suggestion &b) {
-              if (a.distance != b.distance)
-                return a.distance < b.distance;
-              return a.mutualCount > b.mutualCount;
-            });
+  std::ranges::sort(results, [](const Suggestion &a, const Suggestion &b) {
+    return a.mutualCount > b.mutualCount;
+  });
 
   return results;
 }
 
 void VisFriends::onSearchClicked() {
-  QString qname = m_searchInput->text().trimmed();
-  if (qname.isEmpty())
+  QString name = m_searchInput->text().trimmed();
+  if (name.isEmpty())
     return;
-
-  std::string name = qname.toStdString();
 
   // Clear old layout
   QLayoutItem *child;
@@ -294,18 +270,25 @@ void VisFriends::onSearchClicked() {
     delete child;
   }
 
-  if (!m_adj.contains(name)) {
+  if (!m_nameToIndex.contains(name)) {
     auto *err = new QLabel(QString("User '%1' not found in the network. Try "
                                    "'Sebi', 'John', 'Li', etc.")
-                               .arg(qname));
+                                .arg(name));
     err->setStyleSheet("color: #F87171; font-size: 14px;");
     m_resultsLayout->addWidget(err);
     m_resultsLayout->addStretch();
     return;
   }
 
+  int rootIdx = m_nameToIndex[name];
+  
   // Direct Friends
-  const auto &friends = m_adj[name];
+  std::vector<QString> friends;
+  for(const auto& e : m_graph.getEdges()) {
+      if(e.getFirst().getIndex() == rootIdx) friends.push_back(e.getSecond().getName());
+      else if(e.getSecond().getIndex() == rootIdx) friends.push_back(e.getFirst().getName());
+  }
+  std::ranges::sort(friends);
 
   auto *lblDirect = new QLabel(
       QString("Current Network (%1 direct connections)").arg(friends.size()));
@@ -317,9 +300,8 @@ void VisFriends::onSearchClicked() {
   gridFriends->setSpacing(12);
   int row = 0, col = 0;
   for (size_t i = 0; i < std::min(friends.size(), static_cast<size_t>(24));
-       ++i) { // Show up to 24 direct
-    auto *card =
-        new PersonCard(QString::fromStdString(friends[i]), "1st Degree", false);
+       ++i) { 
+    auto *card = new PersonCard(friends[i], "1st Degree", false);
     gridFriends->addWidget(card, row, col);
     if (++col >= 5) {
       col = 0;
@@ -331,7 +313,7 @@ void VisFriends::onSearchClicked() {
   m_resultsLayout->addWidget(w1);
 
   // Suggestions
-  auto suggestions = getSuggestions(name);
+  auto suggestions = getSuggestions(rootIdx);
 
   auto *lblSugg = new QLabel(
       QString("Suggested Friends (%1 found)").arg(suggestions.size()));
@@ -344,12 +326,12 @@ void VisFriends::onSearchClicked() {
   row = 0;
   col = 0;
   for (size_t i = 0; i < std::min(suggestions.size(), static_cast<size_t>(40));
-       ++i) { // Up to 40 suggestions
+       ++i) { 
     const auto &s = suggestions[i];
     QString det = QString("%1 Mutual Friend%2")
                       .arg(s.mutualCount)
                       .arg(s.mutualCount == 1 ? "" : "s");
-    auto *card = new PersonCard(QString::fromStdString(s.name), det, true);
+    auto *card = new PersonCard(s.name, det, true);
     gridSugg->addWidget(card, row, col);
     if (++col >= 5) {
       col = 0;

@@ -673,7 +673,7 @@ QWidget *GraphVersePlatform::buildTheoreticalView() {
   llay->setContentsMargins(48, 16, 48, 60);
   llay->setSpacing(18);
 
-  const QStringList theoreticals = {"💧 Flood Fill Algorithm"};
+  const QStringList theoreticals = {"💧 Flood Fill Algorithm", "🇷🇴 Traveling Salesman (Romania)"};
 
   for (int i = 0; i < theoreticals.size(); ++i) {
     const auto &str = theoreticals[i];
@@ -687,6 +687,8 @@ QWidget *GraphVersePlatform::buildTheoreticalView() {
     connect(btn, &QPushButton::clicked, this, [this, i]() {
       if (i == 0)
         m_stack->setCurrentWidget(m_floodFillWrapper);
+      else if (i == 1)
+        m_stack->setCurrentWidget(m_tspWrapper);
       else
         m_stack->setCurrentWidget(m_placeholderPage);
     });
@@ -919,6 +921,10 @@ void GraphVersePlatform::setupUi() {
   m_visFloodFill = new VisFloodFill();
   m_floodFillWrapper = addTheoreticalPage(m_visFloodFill);
   m_stack->addWidget(m_floodFillWrapper);
+
+  m_visTSP = new VisTSP();
+  m_tspWrapper = addTheoreticalPage(m_visTSP);
+  m_stack->addWidget(m_tspWrapper);
 
   m_stack->setCurrentWidget(m_homeView);
 

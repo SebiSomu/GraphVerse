@@ -1,7 +1,8 @@
 #ifndef I_TRAVERSAL_H
 #define I_TRAVERSAL_H
 
-#include "../graph.h"
+#include "graph_algorithm_types.h"
+#include "../graph_interfaces.h"
 #include <vector>
 #include <functional>
 #include <string>
@@ -9,10 +10,8 @@
 class ITraversalAlgorithm {
 public:
     virtual ~ITraversalAlgorithm() = default;
-    virtual std::vector<int> solve(
-        const Graph& graph, int startIndex, int stopAt = -1,
-        std::function<void(int)> onVisit = nullptr,
-        std::function<void(int, int)> onEdge = nullptr) const = 0;
+    virtual std::vector<TraversalStep> solve(
+        const IGraph& graph, int startIndex, int stopAt = -1) const = 0;
     virtual std::string name() const = 0;
 };
 

@@ -7,6 +7,7 @@
 #include <QRandomGenerator>
 #include <QResizeEvent>
 #include <queue>
+#include "GraphRenderer.h"
 
 VisRideMatch::VisRideMatch(QWidget* parent)
 	: QWidget(parent), m_toolbar(nullptr), m_statusLabel(new QLabel(this)),
@@ -156,10 +157,73 @@ void VisRideMatch::onGenerateSample() {
 
 void VisRideMatch::onRunMatching() {
 	recomputeCandidates();
-	int maxMatch = runFordFulkerson();
+	
+	m_matchingGraph.clear();
+	
+	// Bipartite matching construction:
+	// Source -> Passengers (capacity 1)
+	// Passengers -> Drivers (capacity 1, based on distance)
+	// Drivers -> Sink (capacity 1)
+
+	m_matchingGraph.addNode(QPoint(0,0)); 
+	Node& source = m_matchingGraph.getNodes().back();
+	source.setIndex(0);
+	source.setName("SOURCE");
+
+	m_matchingGraph.addNode(QPoint(0,0));
+	Node& sink = m_matchingGraph.getNodes().back();
+	sink.setIndex(9999);
+	sink.setName("SINK");
+
+	std::unordered_map<int, Node*> pNodes;
+	for (const auto& p : m_passengers) {
+		m_matchingGraph.addNode(p.pos);
+		Node& n = m_matchingGraph.getNodes().back();
+		n.setIndex(p.id + 100);
+		n.setName(QString("P%1").arg(p.id));
+		pNodes[p.id] = &n;
+		m_matchingGraph.addEdge(source, n, 1);
+	}
+
+	std::unordered_map<int, Node*> dNodes;
+	for (const auto& d : m_drivers) {
+		m_matchingGraph.addNode(d.pos);
+		Node& n = m_matchingGraph.getNodes().back();
+		n.setIndex(d.id + 1000);
+		n.setName(QString("D%1").arg(d.id));
+		dNodes[d.id] = &n;
+		m_matchingGraph.addEdge(n, sink, 1);
+	}
+
+	for (const auto& edge : m_candidateEdges) {
+		int pIdx = edge.first;
+		int dIdx = edge.second;
+		m_matchingGraph.addEdge(*pNodes[m_passengers[pIdx].id], *dNodes[m_drivers[dIdx].id], 1);
+	}
+
+	MaxFlowSolver solver;
+	MaxFlowResult result = solver.solve(m_matchingGraph, 0, 9999);
+
+	m_matchedPairs.clear();
+	for (const auto& edge : result.matchedEdges) {
+		int u = edge.first;
+		int v = edge.second;
+		if (u >= 101 && u < 1000 && v >= 1001) {
+			int pId = u - 100;
+			int dId = v - 1000;
+			
+			int pIdx = -1, dIdx = -1;
+			for(int i=0; i<m_passengers.size(); ++i) if(m_passengers[i].id == pId) pIdx = i;
+			for(int i=0; i<m_drivers.size(); ++i) if(m_drivers[i].id == dId) dIdx = i;
+			
+			if (pIdx != -1 && dIdx != -1)
+				m_matchedPairs.emplace_back(pIdx, dIdx);
+		}
+	}
+
 	m_statusLabel->setText(
-		QString("RideMatch (Ford-Fulkerson): %1/%2 passengers matched, %3 drivers")
-		.arg(maxMatch)
+		QString("RideMatch (SOLID Solver): %1/%2 passengers matched, %3 drivers")
+		.arg(result.maxFlow)
 		.arg(m_passengers.size())
 		.arg(m_drivers.size()));
 	update();
@@ -189,70 +253,7 @@ void VisRideMatch::recomputeCandidates() {
 }
 
 int VisRideMatch::runFordFulkerson() {
-	int P = static_cast<int>(m_passengers.size());
-	int D = static_cast<int>(m_drivers.size());
-	int N = 2 + P + D;
-	int source = 0;
-	int sink = N - 1;
-	std::vector<std::vector<int>> capacity(N, std::vector<int>(N, 0));
-	for (int p = 0; p < P; ++p)
-		capacity[source][1 + p] = 1;
-	for (const auto& edge : m_candidateEdges) {
-		int p = edge.first;
-		int d = edge.second;
-		capacity[1 + p][1 + P + d] = 1;
-	}
-	for (int d = 0; d < D; ++d)
-		capacity[1 + P + d][sink] = 1;
-
-	std::vector<std::vector<int>> residual = capacity;
-	std::vector<int> parent(N, -1);
-	auto bfs = [&]() -> bool {
-		std::fill(parent.begin(), parent.end(), -1);
-		std::queue<int> q;
-		q.push(source);
-		parent[source] = source;
-		while (!q.empty()) {
-			int u = q.front();
-			q.pop();
-			for (int v = 0; v < N; ++v) {
-				if (parent[v] == -1 && residual[u][v] > 0) {
-					parent[v] = u;
-					if (v == sink)
-						return true;
-					q.push(v);
-				}
-			}
-		}
-		return false;
-		};
-
-	int maxFlow = 0;
-	while (bfs()) {
-		int pathFlow = 1;
-		for (int v = sink; v != source; v = parent[v]) {
-			int u = parent[v];
-			pathFlow = std::min(pathFlow, residual[u][v]);
-		}
-		for (int v = sink; v != source; v = parent[v]) {
-			int u = parent[v];
-			residual[u][v] -= pathFlow;
-			residual[v][u] += pathFlow;
-		}
-		maxFlow += pathFlow;
-	}
-
-	m_matchedPairs.clear();
-	for (int p = 0; p < P; ++p) {
-		int pNode = 1 + p;
-		for (int d = 0; d < D; ++d) {
-			int dNode = 1 + P + d;
-			if (capacity[pNode][dNode] > 0 && residual[pNode][dNode] == 0)
-				m_matchedPairs.emplace_back(p, d);
-		}
-	}
-
-	return maxFlow;
+    return 0; // Legacy, not used
 }
 
 void VisRideMatch::updateStatus() {
@@ -283,61 +284,62 @@ void VisRideMatch::paintEvent(QPaintEvent* event) {
 	p.translate(m_offset);
 	p.scale(m_scale, m_scale);
 
-	p.setPen(QPen(QColor(80, 80, 95), 1));
+	RenderSettings settings;
+	settings.edgeColor = QColor(120, 130, 155, 100);
+	settings.edgeWidth = 1;
+	settings.showEdgeCosts = false;
+
+	// Draw candidate edges (Dashed via settings or manual p.setPen if renderer doesn't support dash)
+	// Actually renderer uses solid line, I'll keep the manual dash for now or add to settings.
+	QPen dashPen(settings.edgeColor, 1, Qt::DashLine);
+	dashPen.setCosmetic(true);
+	p.setPen(dashPen);
 	for (const auto& edge : m_candidateEdges) {
-		const auto& a = m_passengers[edge.first].pos;
-		const auto& b = m_drivers[edge.second].pos;
-		QPen pen(QColor(120, 130, 155), 1, Qt::DashLine);
-		pen.setCosmetic(true);
-		p.setPen(pen);
-		p.drawLine(a, b);
+		p.drawLine(m_passengers[edge.first].pos, m_drivers[edge.second].pos);
 	}
 
-	p.setPen(Qt::NoPen);
+	// Draw matched pairs (High contrast)
+	RenderSettings matchSettings = settings;
+	matchSettings.highlightColor = QColor(255, 215, 0); // Gold
+	matchSettings.edgeWidth = 3;
+	
 	for (const auto& edge : m_matchedPairs) {
-		const auto& a = m_passengers[edge.first].pos;
-		const auto& b = m_drivers[edge.second].pos;
-		QPen glow(QColor(255, 215, 0, 90), 6);
-		glow.setCapStyle(Qt::RoundCap);
-		glow.setCosmetic(true);
-		p.setPen(glow);
+		QPoint a = m_passengers[edge.first].pos;
+		QPoint b = m_drivers[edge.second].pos;
+		
+		// Glow effect
+		p.setPen(QPen(QColor(255, 215, 0, 80), 8));
 		p.drawLine(a, b);
-		QPen strong(QColor(255, 215, 0), 3);
-		strong.setCapStyle(Qt::RoundCap);
-		strong.setCosmetic(true);
-		p.setPen(strong);
+		
+		p.setPen(QPen(matchSettings.highlightColor, matchSettings.edgeWidth));
 		p.drawLine(a, b);
 	}
 
-	// Draw users (passengers) as a pin/person glyph
-	for (const auto& passenger : m_passengers) {
-		QPoint c = passenger.pos;
-		p.setRenderHint(QPainter::Antialiasing, true);
-		// Pin shape
-		QPainterPath path;
-		path.addEllipse(QRectF(c.x() - 8, c.y() - 8, 16, 16));
-		path.moveTo(c.x(), c.y() + 4);
-		path.lineTo(c.x() - 6, c.y() + 16);
-		path.lineTo(c.x() + 6, c.y() + 16);
-		path.closeSubpath();
-		p.fillPath(path, QColor(30, 144, 255));
-		p.setPen(QPen(QColor(220, 235, 255), 1));
-		p.drawEllipse(QRectF(c.x() - 4, c.y() - 5, 8, 8));
+	// Draw users as standardized nodes or keep glyphs? 
+	// The user wants "SOLID" and "Architecture", let's use the renderer with different settings.
+	
+	RenderSettings pSettings = settings;
+	pSettings.nodeColor = QColor(30, 144, 255); // Dodger Blue
+	pSettings.nodeRadius = 12;
+
+	for (const auto& psg : m_passengers) {
+		Node n; 
+		n.setCoord(psg.pos);
+		n.setName(QString("P%1").arg(psg.id));
+		GraphRenderer::drawNode(p, n, pSettings);
 	}
 
-	// Draw cars (drivers) as a car glyph
-	for (const auto& driver : m_drivers) {
-		QPoint c = driver.pos;
-		QPainterPath car;
-		car.addRoundedRect(QRectF(c.x() - 12, c.y() - 7, 24, 12), 3, 3);
-		car.addRect(QRectF(c.x() - 7, c.y() - 11, 14, 7));
-		p.fillPath(car, QColor(22, 163, 74));
-		// wheels
-		p.setBrush(QColor(20, 20, 22));
-		p.setPen(Qt::NoPen);
-		p.drawEllipse(QRectF(c.x() - 8, c.y() + 6, 6, 6));
-		p.drawEllipse(QRectF(c.x() + 2, c.y() + 6, 6, 6));
+	RenderSettings dSettings = settings;
+	dSettings.nodeColor = QColor(22, 163, 74); // Green
+	dSettings.nodeRadius = 14;
+
+	for (const auto& drv : m_drivers) {
+		Node n;
+		n.setCoord(drv.pos);
+		n.setName(QString("D%1").arg(drv.id));
+		GraphRenderer::drawNode(p, n, dSettings);
 	}
+
 	p.restore();
 }
 

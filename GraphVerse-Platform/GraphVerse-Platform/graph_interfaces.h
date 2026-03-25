@@ -21,6 +21,7 @@ public:
     virtual void addNode(QPoint p) = 0;
     virtual void removeNode(int index) = 0;
     virtual void addEdge(Node &f, Node &s, int cost = 1) = 0;
+    virtual void clear() = 0;
     virtual std::string_view getGraphType() const = 0;
 };
 

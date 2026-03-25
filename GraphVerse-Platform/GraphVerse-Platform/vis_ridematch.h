@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QSlider>
 #include <vector>
+#include "directedgraph.h"
+#include "algorithms/max_flow_solver.h"
 
 class VisRideMatch : public QWidget {
 	Q_OBJECT
@@ -54,6 +56,7 @@ private:
 	Mode m_mode;
 	std::vector<Passenger> m_passengers;
 	std::vector<Driver> m_drivers;
+	DirectedGraph m_matchingGraph;
 	std::vector<std::pair<int, int>> m_candidateEdges;
 	std::vector<std::pair<int, int>> m_matchedPairs;
 	int m_nextPassengerId;

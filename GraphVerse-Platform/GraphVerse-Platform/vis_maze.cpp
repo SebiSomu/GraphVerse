@@ -154,22 +154,34 @@ static void reconstructPath(int endIdx, int cols, const std::unordered_map<int,i
 
 std::vector<std::pair<int,int>> VisMaze::runBFS(std::vector<std::pair<int,int>>& outPath) {
     const int startIdx = cellToIndex(0, 0, COLS), endIdx = cellToIndex(ROWS-1, COLS-1, COLS);
-    std::unordered_map<int,int> parent; parent[startIdx] = -1;
+    std::unordered_map<int,int> parent;
     BFSTraversal bfs;
-    std::vector<int> order = bfs.solve(*m_graph, startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
+    std::vector<TraversalStep> steps = bfs.solve(*m_graph, startIdx, endIdx);
+    
     std::vector<std::pair<int,int>> result;
-    for(int idx : order) result.emplace_back(indexToRow(idx, COLS), indexToCol(idx, COLS));
+    for(const auto& s : steps) {
+        result.emplace_back(indexToRow(s.nodeIndex, COLS), indexToCol(s.nodeIndex, COLS));
+        if (s.parentIndex != -1) parent[s.nodeIndex] = s.parentIndex;
+    }
+    if (parent.find(startIdx) == parent.end()) parent[startIdx] = -1;
+
     reconstructPath(endIdx, COLS, parent, outPath);
     return result;
 }
 
 std::vector<std::pair<int,int>> VisMaze::runDFS(std::vector<std::pair<int,int>>& outPath) {
     const int startIdx = cellToIndex(0, 0, COLS), endIdx = cellToIndex(ROWS-1, COLS-1, COLS);
-    std::unordered_map<int,int> parent; parent[startIdx] = -1;
+    std::unordered_map<int,int> parent;
     DFSTraversal dfs;
-    std::vector<int> order = dfs.solve(*m_graph, startIdx, endIdx, nullptr, [&](int par, int child){ parent[child] = par; });
+    std::vector<TraversalStep> steps = dfs.solve(*m_graph, startIdx, endIdx);
+
     std::vector<std::pair<int,int>> result;
-    for(int idx : order) result.emplace_back(indexToRow(idx, COLS), indexToCol(idx, COLS));
+    for(const auto& s : steps) {
+        result.emplace_back(indexToRow(s.nodeIndex, COLS), indexToCol(s.nodeIndex, COLS));
+        if (s.parentIndex != -1) parent[s.nodeIndex] = s.parentIndex;
+    }
+    if (parent.find(startIdx) == parent.end()) parent[startIdx] = -1;
+
     reconstructPath(endIdx, COLS, parent, outPath);
     return result;
 }

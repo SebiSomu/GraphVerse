@@ -13,9 +13,10 @@
 #include <cmath>
 #include <unordered_map>
 #include <vector>
+#include "GraphRenderer.h"
 
 VisSupermarket::VisSupermarket(QWidget* parent)
-	: QWidget(parent), m_graph(nullptr), m_nodeNames(), m_startIdx(-1),
+	: QWidget(parent), m_graph(nullptr), m_startIdx(-1),
 	m_endIdx(-1), m_finalPath(), m_pathCost(0),
 	m_toolbar(nullptr), m_statusLabel(new QLabel(this)),
 	m_nameInput(new QLineEdit(this)), m_mode(InteractionMode::Normal),
@@ -104,7 +105,7 @@ void VisSupermarket::updateStatus(const QString& text) {
 
 void VisSupermarket::buildHipermarketLayout() {
 	m_graph = std::make_unique<DirectedGraph>();
-	m_nodeNames.clear();
+
 	m_startIdx = -1;
 	m_endIdx = -1;
 	m_finalPath.clear();
@@ -131,8 +132,7 @@ void VisSupermarket::buildHipermarketLayout() {
 
 	for (const auto& s : sections) {
 		m_graph->addNode(s.pos);
-		int idx = m_graph->getNodes().back().getIndex();
-		m_nodeNames[idx] = s.name;
+		m_graph->getNodes().back().setName(s.name);
 	}
 
 	updateGraphEdges();
@@ -229,8 +229,7 @@ void VisSupermarket::mousePressEvent(QMouseEvent* e) {
 	if (m_mode == InteractionMode::Adding) {
 		QString name = m_nameInput->text().trimmed();
 		m_graph->addNode(graphPos.toPoint()); // Use transformed coordinates
-		int idx = m_graph->getNodes().back().getIndex();
-		m_nodeNames[idx] = name;
+		m_graph->getNodes().back().setName(name);
 
 		updateGraphEdges();
 		m_nameInput->clear();
@@ -242,9 +241,9 @@ void VisSupermarket::mousePressEvent(QMouseEvent* e) {
 
 	if (m_mode == InteractionMode::Removing) {
 		if (hit != -1) {
-			QString name = m_nodeNames[hit];
+			QString name = "";
+			for(const auto& n : m_graph->getNodes()) if(n.getIndex() == hit) name = n.getName();
 			m_graph->removeNode(hit);
-			m_nodeNames.erase(hit);
 
 			m_startIdx = m_endIdx = -1;
 			m_finalPath.clear();
@@ -324,8 +323,12 @@ void VisSupermarket::mouseReleaseEvent(QMouseEvent* e) {
 			onFindPathClicked();
 		}
 		else {
-			QString startName = (m_startIdx != -1) ? m_nodeNames[m_startIdx] : "...";
-			QString endName = (m_endIdx != -1) ? m_nodeNames[m_endIdx] : "...";
+			QString startName = "...";
+			QString endName = "...";
+			for (const auto& n : m_graph->getNodes()) {
+				if (n.getIndex() == m_startIdx) startName = n.getName();
+				if (n.getIndex() == m_endIdx) endName = n.getName();
+			}
 			updateStatus(QString("Route: %1 → %2").arg(startName, endName));
 		}
 		update();
@@ -345,8 +348,13 @@ void VisSupermarket::onFindPathClicked() {
 		DijkstraSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
 	m_finalPath = path;
 	if (m_finalPath.empty()) {
-		updateStatus("⚠️ No route found between " + m_nodeNames[m_startIdx] +
-			" and " + m_nodeNames[m_endIdx]);
+		QString startName = "";
+		QString endName = "";
+		for (const auto& n : m_graph->getNodes()) {
+			if (n.getIndex() == m_startIdx) startName = n.getName();
+			if (n.getIndex() == m_endIdx) endName = n.getName();
+		}
+		updateStatus("⚠️ No route found between " + startName + " and " + endName);
 	}
 	else {
 		m_pathCost = 0;
@@ -404,17 +412,6 @@ void VisSupermarket::paintEvent(QPaintEvent*) {
 		Qt::RoundJoin));
 	p.drawRoundedRect(storeRect, 15, 15);
 
-	// Blue "Blueprint" border
-	p.setBrush(Qt::NoBrush);
-	p.setPen(QPen(QColor(99, 102, 241, 200), 3));
-	p.drawRoundedRect(storeRect, 15, 15);
-
-	// Subtle labels for bounds
-	p.setPen(QColor(99, 102, 241, 150));
-	p.setFont(QFont("Segoe UI", 10, QFont::Bold));
-	p.drawText(storeRect.adjusted(20, 10, 0, 0), Qt::AlignTop | Qt::AlignLeft,
-		"SUPERMARKET FLOOR PLAN");
-
 	// Grid limited to floor
 	p.setPen(QPen(QColor(30, 40, 70), 1));
 	for (int x = (int)storeRect.left(); x < storeRect.right(); x += 50)
@@ -422,59 +419,37 @@ void VisSupermarket::paintEvent(QPaintEvent*) {
 	for (int y = (int)storeRect.top(); y < storeRect.bottom(); y += 50)
 		p.drawLine((int)storeRect.left(), y, (int)storeRect.right(), y);
 
-	p.setPen(QPen(QColor(45, 55, 100, 150), 2));
-	for (const Edge& e : m_graph->getEdges()) {
-		if (e.getFirst().getIndex() > e.getSecond().getIndex())
-			continue;
-		p.drawLine(QPoint(e.getFirst().getX(), e.getFirst().getY()),
-			QPoint(e.getSecond().getX(), e.getSecond().getY()));
-	}
+	RenderSettings settings;
+	settings.nodeRadius = NODE_R;
+	settings.edgeWidth = 2;
+	settings.showEdgeCosts = false;
 
-	if (!m_finalPath.empty()) {
-		p.setPen(QPen(QColor(99, 102, 241), 5, Qt::SolidLine, Qt::RoundCap,
-			Qt::RoundJoin));
-		for (size_t i = 0; i + 1 < m_finalPath.size(); ++i) {
-			QPoint p1, p2;
-			for (const Node& n : m_graph->getNodes()) {
-				if (n.getIndex() == m_finalPath[i])
-					p1 = QPoint(n.getX(), n.getY());
-				if (n.getIndex() == m_finalPath[i + 1])
-					p2 = QPoint(n.getX(), n.getY());
+	// Draw graph edges
+	if (m_graph) {
+		for (const auto& e : m_graph->getEdges()) {
+			// Skip one direction for visual clarity if they are symmetric
+			if (e.getFirst().getIndex() < e.getSecond().getIndex()) {
+				GraphRenderer::drawEdge(p, e, settings);
 			}
-			p.drawLine(p1, p2);
 		}
 	}
 
-	for (const Node& n : m_graph->getNodes()) {
-		int idx = n.getIndex();
-		bool isStart = (idx == m_startIdx);
-		bool isEnd = (idx == m_endIdx);
-		bool inPath = false;
-		for (int pi : m_finalPath)
-			if (pi == idx) {
-				inPath = true;
-				break;
+	// Draw path if found
+	if (!m_finalPath.empty()) {
+		settings.highlightColor = QColor(99, 102, 241); // Indigo
+		GraphRenderer::drawPath(p, *m_graph, m_finalPath, settings);
+	} else {
+		// Draw nodes
+		for (const auto& node : m_graph->getNodes()) {
+			bool isSpecial = (node.getIndex() == m_startIdx || node.getIndex() == m_endIdx);
+			RenderSettings s = settings;
+			if (isSpecial) {
+				s.highlightColor = (node.getIndex() == m_startIdx) ? QColor(34, 197, 94) : QColor(239, 68, 68);
+				GraphRenderer::drawNode(p, node, s, true);
+			} else {
+				GraphRenderer::drawNode(p, node, s);
 			}
-
-		QColor fill = isStart ? QColor(34, 197, 94)
-			: isEnd ? QColor(239, 68, 68)
-			: inPath ? QColor(99, 102, 241)
-			: QColor(30, 41, 59);
-
-		QRect r(n.getX() - NODE_R, n.getY() - NODE_R, NODE_R * 2, NODE_R * 2);
-		p.setBrush(fill);
-		p.setPen(QPen(Qt::white, inPath ? 3 : 1));
-		p.drawEllipse(r);
-
-		p.setPen(Qt::white);
-		p.setFont(QFont("Segoe UI", 8, QFont::Bold));
-		QString initials = m_nodeNames[idx].split(" ").last().left(2).toUpper();
-		p.drawText(r, Qt::AlignCenter, initials);
-
-		p.setPen(QColor(140, 148, 190));
-		p.setFont(QFont("Segoe UI", 9));
-		p.drawText(QRect(n.getX() - 50, n.getY() + NODE_R + 10, 100, 20),
-			Qt::AlignCenter, m_nodeNames[idx]);
+		}
 	}
 	p.restore();
 }

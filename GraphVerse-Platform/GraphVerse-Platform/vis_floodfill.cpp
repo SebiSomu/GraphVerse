@@ -1,4 +1,5 @@
 #include "vis_floodfill.h"
+#include "algorithms/flood_fill_solver.h"
 #include <QPainter>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -104,38 +105,25 @@ void VisFloodFill::mousePressEvent(QMouseEvent* event) {
 }
 
 void VisFloodFill::startFloodFill(int startR, int startC) {
-    m_fillOrder.clear();
     m_animating = true;
     m_animStep = 0;
 
-    for (auto& row : m_grid) {
-        for (auto& cell : row) {
-            cell.visited = false;
-            if (cell.type == 2) cell.type = 0;
+    std::vector<std::vector<int>> gridData(ROWS, std::vector<int>(COLS));
+    for (int r = 0; r < ROWS; ++r) {
+        for (int c = 0; c < COLS; ++c) {
+            gridData[r][c] = m_grid[r][c].type;
+            m_grid[r][c].visited = false;
+            if (m_grid[r][c].type == 2) {
+                m_grid[r][c].type = 0;
+                gridData[r][c] = 0;
+            }
         }
     }
 
-    std::queue<std::pair<int, int>> q;
-    q.push({startR, startC});
-    m_grid[startR][startC].visited = true;
-
-    int dr[] = {-1, 1, 0, 0};
-    int dc[] = {0, 0, -1, 1};
-
-    while (!q.empty()) {
-        auto [r, c] = q.front();
-        q.pop();
-        m_fillOrder.push_back({r, c});
-
-        for (int i = 0; i < 4; ++i) {
-            int nr = r + dr[i];
-            int nc = c + dc[i];
-            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS &&
-                m_grid[nr][nc].type == 0 && !m_grid[nr][nc].visited) {
-                m_grid[nr][nc].visited = true;
-                q.push({nr, nc});
-            }
-        }
+    auto fillPoints = FloodFillSolver::solve(gridData, startR, startC, 0, 2);
+    m_fillOrder.clear();
+    for (const auto& p : fillPoints) {
+        m_fillOrder.push_back({p.r, p.c});
     }
 
     m_statusLabel->setText("Filling area...");

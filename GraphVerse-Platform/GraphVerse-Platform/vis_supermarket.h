@@ -43,7 +43,6 @@ private:
 	void updateGraphEdges();
 
 	std::unique_ptr<DirectedGraph> m_graph;
-	std::unordered_map<int, QString> m_nodeNames;
 
 	int m_startIdx;
 	int m_endIdx;

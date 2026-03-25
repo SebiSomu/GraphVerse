@@ -9,10 +9,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <QString>
+#include "undirectedgraph.h"
+#include "algorithms/bfs_traversal.h"
 
 
 struct Suggestion {
-  std::string name;
+  QString name;
   int distance;
   int mutualCount;
   bool operator==(const Suggestion &o) const { return distance == o.distance && mutualCount == o.mutualCount && name == o.name; }
@@ -30,12 +33,13 @@ private slots:
 private:
   void setupUi();
   void buildNetwork();
-  void addFriendship(const std::string &a, const std::string &b);
-  std::vector<Suggestion> getSuggestions(const std::string &rootUser) const;
-  int countMutual(const std::string &a, const std::string &b) const;
+  void addFriendship(Node &a, Node &b);
+  std::vector<Suggestion> getSuggestions(int rootNodeIdx) const;
+  int countMutual(int nodeIdxA, int nodeIdxB) const;
 
   // Data
-  std::unordered_map<std::string, std::vector<std::string>> m_adj;
+  UndirectedGraph m_graph;
+  std::unordered_map<QString, int> m_nameToIndex;
 
   // UI Elements
   QLineEdit *m_searchInput;

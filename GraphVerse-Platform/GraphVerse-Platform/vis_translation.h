@@ -9,9 +9,12 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <QString>
+#include "undirectedgraph.h"
+#include "algorithms/kruskal_solver.h"
 
 struct TranslationEdge {
-  std::string u, v;
+  QString u, v;
   int cost;
   bool operator<(const TranslationEdge &o) const { return cost < o.cost; }
   bool operator==(const TranslationEdge &o) const { return cost == o.cost && u == o.u && v == o.v; }
@@ -29,37 +32,12 @@ private slots:
 private:
   void setupUi();
   void buildNetwork();
-  void addPair(const std::string &a, const std::string &b, int cost);
+  void addPair(const QString &a, const QString &b, int cost);
   std::vector<TranslationEdge> kruskalMST() const;
 
-  // Disjoint Set utility for Kruskal
-  struct DSU {
-    std::unordered_map<std::string, std::string> parent;
-    std::unordered_map<std::string, int> rank;
-    void makeSet(const std::string &s) {
-      parent[s] = s;
-      rank[s] = 0;
-    }
-    std::string findSet(const std::string &s) {
-      if (parent[s] == s)
-        return s;
-      return parent[s] = findSet(parent[s]);
-    }
-    void unionSet(const std::string &a, const std::string &b) {
-      std::string pa = findSet(a), pb = findSet(b);
-      if (pa != pb) {
-        if (rank[pa] < rank[pb])
-          std::swap(pa, pb);
-        parent[pb] = pa;
-        if (rank[pa] == rank[pb])
-          rank[pa]++;
-      }
-    }
-  };
-
   // Data
-  std::vector<TranslationEdge> m_edges;
-  std::vector<std::string> m_allLanguages;
+  UndirectedGraph m_graph;
+  std::unordered_map<QString, int> m_nameToIndex;
 
   // UI Elements
   QLineEdit *m_searchInput;

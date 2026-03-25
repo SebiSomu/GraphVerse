@@ -10,6 +10,7 @@
 #include "vis_shortest.h"
 #include "vis_supermarket.h"
 #include "vis_translation.h"
+#include "vis_tsp.h"
 #include <QtCore/QEasingCurve>
 #include <QtCore/QParallelAnimationGroup>
 #include <QtCore/QPropertyAnimation>
@@ -190,4 +191,7 @@ private:
   // Theoretical Widgets & Wrappers
   VisFloodFill *m_visFloodFill = nullptr;
   QWidget *m_floodFillWrapper = nullptr;
+
+  VisTSP *m_visTSP = nullptr;
+  QWidget *m_tspWrapper = nullptr;
 };

@@ -3,30 +3,34 @@
 #include <queue>
 #include <unordered_set>
 
-std::vector<int> BFSTraversal::solve(const Graph& graph, int startIndex, int stopAt,
-                                      std::function<void(int)> onVisit,
-                                      std::function<void(int, int)> onEdge) const
+std::vector<TraversalStep> BFSTraversal::solve(const IGraph& graph, int startIndex, int stopAt) const
 {
-    auto adj = GraphUtils::buildSimpleAdjList(graph);
-    std::unordered_set<int> visited;
-    std::vector<int> order;
+    bool isDirected = graph.getGraphType() == "directed";
+    auto adj = GraphUtils::buildSimpleAdjList(graph, isDirected);
+    
+    std::unordered_map<int, int> visitedDist; // nodeIndex -> distance
+    std::unordered_map<int, int> parents;    // nodeIndex -> parentIndex
+    std::vector<TraversalStep> steps;
     std::queue<int> q;
 
-    visited.insert(startIndex);
+    visitedDist[startIndex] = 0;
+    parents[startIndex] = -1;
     q.push(startIndex);
 
     while (!q.empty()) {
         int cur = q.front(); q.pop();
-        order.push_back(cur);
-        if (onVisit) onVisit(cur);
+        int dist = visitedDist[cur];
+        
+        steps.push_back({cur, parents[cur], dist});
         if (cur == stopAt) break;
+
         for (int nb : adj[cur]) {
-            if (!visited.count(nb)) {
-                visited.insert(nb);
-                if (onEdge) onEdge(cur, nb);
+            if (visitedDist.find(nb) == visitedDist.end()) {
+                visitedDist[nb] = dist + 1;
+                parents[nb] = cur;
                 q.push(nb);
             }
         }
     }
-    return order;
+    return steps;
 }
