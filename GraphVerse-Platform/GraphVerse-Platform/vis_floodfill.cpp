@@ -174,3 +174,8 @@ void VisFloodFill::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     m_toolbar->setFixedWidth(width());
 }
+
+void VisFloodFill::hideEvent(QHideEvent* event) {
+    onResetClicked();
+    QWidget::hideEvent(event);
+}

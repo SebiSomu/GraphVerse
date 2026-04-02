@@ -2,6 +2,8 @@
 #define VIS_MAZE_H
 #include <QWidget>
 #include <QTimer>
+#include <QEvent>
+#include <QHideEvent>
 #include <QPushButton>
 #include <QLabel>
 #include <QSlider>
@@ -21,6 +23,7 @@ public:
 protected:
     void paintEvent(QPaintEvent*) override;
     void resizeEvent(QResizeEvent*) override;
+    void hideEvent(QHideEvent* event) override;
 private slots:
     void onBfsClicked();
     void onDfsClicked();

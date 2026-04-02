@@ -92,6 +92,11 @@ void VisMaze::resizeEvent(QResizeEvent* e) {
         m_toolbar->setGeometry(0, 0, width(), 52);
 }
 
+void VisMaze::hideEvent(QHideEvent* event) {
+    onResetClicked();
+    QWidget::hideEvent(event);
+}
+
 void VisMaze::generateMaze()
 {
     m_timer->stop();

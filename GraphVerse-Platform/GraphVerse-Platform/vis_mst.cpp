@@ -83,6 +83,11 @@ void VisMST::resizeEvent(QResizeEvent* e) {
         m_toolbar->setGeometry(0, 0, width(), 50);
 }
 
+void VisMST::hideEvent(QHideEvent* event) {
+    onResetClicked();
+    QWidget::hideEvent(event);
+}
+
 void VisMST::buildGraph() {
     m_timer->stop(); m_graph = std::make_unique<UndirectedGraph>();
     m_steps.clear(); m_accepted.clear(); m_rejected.clear();

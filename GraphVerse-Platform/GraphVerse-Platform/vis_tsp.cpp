@@ -74,7 +74,14 @@ void VisTSP::setupUi() {
 
 void VisTSP::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    m_toolbar->setFixedWidth(width());
+    if(m_toolbar) {
+        m_toolbar->setGeometry(0, 0, width(), 60);
+    }
+}
+
+void VisTSP::hideEvent(QHideEvent* event) {
+    onReset();
+    QWidget::hideEvent(event);
 }
 
 bool VisTSP::loadFromFile(const QString& filename) {

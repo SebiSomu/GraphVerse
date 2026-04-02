@@ -76,6 +76,16 @@ VisTranslation::VisTranslation(QWidget* parent) : QWidget(parent) {
 
 VisTranslation::~VisTranslation() = default;
 
+void VisTranslation::hideEvent(QHideEvent* event) {
+  m_searchInput->clear();
+  QLayoutItem *child;
+  while ((child = m_resultsLayout->takeAt(0)) != nullptr) {
+      delete child->widget();
+      delete child;
+  }
+  QWidget::hideEvent(event);
+}
+
 void VisTranslation::setupUi() {
 	auto* mainLay = new QVBoxLayout(this);
 	mainLay->setContentsMargins(48, 24, 48, 48);

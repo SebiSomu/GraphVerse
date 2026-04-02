@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QElapsedTimer>
+#include <QHideEvent>
 #include <unordered_map>
 #include "algorithms/graph_algorithm_types.h"
 #include "directedgraph.h"
@@ -19,6 +20,7 @@ protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void resizeEvent(QResizeEvent*) override;
+    void hideEvent(QHideEvent* event) override;
 private slots:
     void onDijkstraClicked();
     void onAStarClicked();

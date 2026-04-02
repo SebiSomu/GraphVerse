@@ -218,6 +218,11 @@ int VisShortest::currentInterval() const {
     return minMs + (slow * slow * range) / 10000;
 }
 
+void VisShortest::hideEvent(QHideEvent* event) {
+    onResetClicked();
+    QWidget::hideEvent(event);
+}
+
 void VisShortest::onDijkstraClicked()     { startAnimation(AlgoType::Dijkstra); }
 void VisShortest::onAStarClicked()        { startAnimation(AlgoType::AStar); }
 void VisShortest::onBellmanFordClicked()  { startAnimation(AlgoType::BellmanFord); }

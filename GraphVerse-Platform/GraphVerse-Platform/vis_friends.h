@@ -10,10 +10,12 @@
 #include <unordered_map>
 #include <vector>
 #include <QString>
+#include <QHideEvent>
 #include "undirectedgraph.h"
 #include "algorithms/bfs_traversal.h"
 
 
+#include <QHideEvent>
 struct Suggestion {
   QString name;
   int distance;
@@ -26,7 +28,8 @@ class VisFriends : public QWidget {
 public:
   explicit VisFriends(QWidget *parent = nullptr);
   ~VisFriends();
-
+protected:
+  void hideEvent(QHideEvent* event) override;
 private slots:
   void onSearchClicked();
 

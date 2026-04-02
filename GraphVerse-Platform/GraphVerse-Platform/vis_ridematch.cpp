@@ -91,6 +91,11 @@ void VisRideMatch::resizeEvent(QResizeEvent* e) {
 		m_toolbar->setGeometry(0, 0, width(), 50);
 }
 
+void VisRideMatch::hideEvent(QHideEvent* event) {
+    onClear();
+    QWidget::hideEvent(event);
+}
+
 QRect VisRideMatch::canvasRect() const { return QRect(0, 56, width(), height() - 56); }
 
 void VisRideMatch::mousePressEvent(QMouseEvent* event) {

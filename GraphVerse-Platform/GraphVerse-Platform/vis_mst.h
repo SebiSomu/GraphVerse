@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QElapsedTimer>
+#include <QHideEvent>
 #include "algorithms/graph_algorithm_types.h"
 #include "undirectedgraph.h"
 #include <memory>
@@ -15,9 +16,9 @@ class VisMST : public QWidget {
 public:
     explicit VisMST(QWidget* parent = nullptr);
     ~VisMST();
-protected:
     void paintEvent(QPaintEvent*) override;
     void resizeEvent(QResizeEvent*) override;
+    void hideEvent(QHideEvent* event) override;
 private slots:
     void onKruskalClicked();
     void onPrimClicked();

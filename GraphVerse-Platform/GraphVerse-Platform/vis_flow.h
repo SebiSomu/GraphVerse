@@ -5,6 +5,7 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QLabel>
+#include <QHideEvent>
 #include "flownetwork.h"
 
 class NetworkWidget;
@@ -14,6 +15,8 @@ class VisFlow : public QWidget {
 public:
     explicit VisFlow(QWidget* parent = nullptr);
     ~VisFlow();
+protected:
+    void hideEvent(QHideEvent* event) override;
 private slots:
     void onModeChanged(int id);
     void onStartAlgorithm();

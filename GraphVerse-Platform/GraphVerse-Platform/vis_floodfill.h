@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QEvent>
+#include <QHideEvent>
 #include <QPushButton>
 #include <QLabel>
 #include <QSlider>
@@ -19,6 +21,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 
 private slots:
     void onResetClicked();

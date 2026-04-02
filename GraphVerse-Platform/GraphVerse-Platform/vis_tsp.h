@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <vector>
+#include <QHideEvent>
 #include <QString>
 #include <QPointF>
 #include <unordered_map>
@@ -26,6 +27,7 @@ public:
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 
 private slots:
     void onLoadGraph();

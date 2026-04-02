@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <QHideEvent>
 #include <QString>
 #include "undirectedgraph.h"
 #include "algorithms/kruskal_solver.h"
@@ -25,6 +26,9 @@ class VisTranslation : public QWidget {
 public:
   explicit VisTranslation(QWidget *parent = nullptr);
   ~VisTranslation();
+
+protected:
+  void hideEvent(QHideEvent* event) override;
 
 private slots:
   void onBuildTreeClicked();

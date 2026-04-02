@@ -18,6 +18,7 @@ protected:
 	void paintEvent(QPaintEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
 	void resizeEvent(QResizeEvent* event) override;
+	void hideEvent(QHideEvent* event) override;
 
 private slots:
 	void onModePassenger();

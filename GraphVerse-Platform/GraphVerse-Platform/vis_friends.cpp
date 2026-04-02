@@ -54,6 +54,16 @@ VisFriends::VisFriends(QWidget *parent) : QWidget(parent) {
 
 VisFriends::~VisFriends() = default;
 
+void VisFriends::hideEvent(QHideEvent* event) {
+    m_searchInput->clear();
+    QLayoutItem *child;
+    while ((child = m_resultsLayout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
+    QWidget::hideEvent(event);
+}
+
 void VisFriends::setupUi() {
   auto *mainLay = new QVBoxLayout(this);
   mainLay->setContentsMargins(48, 24, 48, 48);

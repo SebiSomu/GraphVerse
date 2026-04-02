@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QHideEvent>
 #include "graph.h"
 #include <memory>
 
@@ -17,6 +18,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
+    void hideEvent(QHideEvent* event) override;
 private slots:
     void onCheckBoxStateChanged(int state);
     void onFindComponents();

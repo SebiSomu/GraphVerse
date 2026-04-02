@@ -49,6 +49,23 @@ void VisComponents::onCheckBoxStateChanged(int state) {
     updateButtonText(); update();
 }
 
+void VisComponents::hideEvent(QHideEvent* event) {
+    if (m_graph) {
+        m_graph->getNodes().clear();
+        m_graph->getEdges().clear();
+        m_compResult.nodeToComponent.clear();
+        m_compResult.numComponents = 0;
+        m_condensedResult.isShowing = false;
+        m_btnToggleCondensed->setEnabled(false);
+        m_btnToggleCondensed->setText("Show condensed graph");
+        m_firstNode = nullptr;
+        m_draggedNode = nullptr;
+        m_dragging = false;
+        m_hasMoved = false;
+    }
+    QWidget::hideEvent(event);
+}
+
 void VisComponents::onFindComponents() {
     if(!m_graph) return;
     m_compResult.nodeToComponent.clear();

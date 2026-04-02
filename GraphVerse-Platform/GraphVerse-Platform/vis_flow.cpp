@@ -17,6 +17,11 @@ VisFlow::VisFlow(QWidget* parent) : QWidget(parent),
 }
 VisFlow::~VisFlow() { delete m_network; }
 
+void VisFlow::hideEvent(QHideEvent* event) {
+    onClear();
+    QWidget::hideEvent(event);
+}
+
 void VisFlow::setupUI() {
     auto* mainLayout = new QVBoxLayout(this);
     auto* controls = new QHBoxLayout();
