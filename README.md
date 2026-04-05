@@ -84,15 +84,35 @@ GraphVerse translates abstract math into concrete logic for modern systems.
 
 ---
 
+## 📚 Theoretical Applications
+
+Classical problems demonstrating complex graph traversals and optimization.
+
+### 1. Flood Fill Algorithm
+- **Logic**: Uses a queue-based **BFS** to identify and traverse contiguous regions of the same "color" or state.
+- **Visualisation**: Shows the "wave" expansion from the seed point across the grid.
+
+![Flood Fill](representative-images/graphverse-img21.png)
+
+### 2. Traveling Salesman Problem (TSP) - Romania
+- **Algorithms**: Floyd-Warshall + Kruskal's MST + DFS Approximation.
+- **Logic**: Finds a near-optimal Hamiltonian circuit for a 15-city map of Romania.
+- **Path**: First computes all-pairs shortest paths, generates a complete graph ($K_n$), finds the MST, and then performs a **Preorder DFS** traversal to generate the final circuit.
+
+![TSP Romania](representative-images/graphverse-img22.png)
+
+---
+
 ## 🖥️ User Interface & Experience
 
 The platform features a modern, dashboard-driven design:
 - **Main Dashboard**: Quick access to all modules with animated node-edge backgrounds.
 - **Responsive Controls**: Speed sliders for animations, pause/resume functionality, and live status labels.
 
-![Main Dashboard](representative-images/graphverse-img1.png)
+![Main Dashboard](representative-images/graphverse-img20.png)
 ![Visualizers Menu](representative-images/graphverse-img2.png)
 ![Applications Menu](representative-images/graphverse-img3.png)
+![Theoretical Menu](representative-images/graphverse-img23.png)
 
 ---
 
