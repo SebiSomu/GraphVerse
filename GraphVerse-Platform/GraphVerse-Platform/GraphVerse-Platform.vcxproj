@@ -147,6 +147,11 @@
     <ClCompile Include="rendering\undirected_graph_renderer.cpp" />
     <ClCompile Include="rendering\graph_renderer_factory.cpp" />
     <ClCompile Include="rendering\component_colorizer.cpp" />
+    <ClCompile Include="ui\page_builder_base.cpp" />
+    <ClCompile Include="ui\visualisers_page_builder.cpp" />
+    <ClCompile Include="ui\apps_page_builder.cpp" />
+    <ClCompile Include="ui\theoretical_page_builder.cpp" />
+    <ClCompile Include="style_manager.cpp" />
 
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +189,12 @@
     <ClInclude Include="rendering\undirected_graph_renderer.h" />
     <ClInclude Include="rendering\graph_renderer_factory.h" />
     <ClInclude Include="rendering\component_colorizer.h" />
+    <ClInclude Include="ui\page_builder_base.h" />
+    <ClInclude Include="ui\visualisers_page_builder.h" />
+    <ClInclude Include="ui\apps_page_builder.h" />
+    <ClInclude Include="ui\theoretical_page_builder.h" />
+    <ClInclude Include="style_manager.h" />
+    <ClInclude Include="graph_interfaces_isp.h" />
 
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,4 +1,8 @@
 #include "GraphVersePlatform.h"
+#include "style_manager.h"
+#include "ui/visualisers_page_builder.h"
+#include "ui/apps_page_builder.h"
+#include "ui/theoretical_page_builder.h"
 #include <QPropertyAnimation>
 #include <QtCore/QTimer>
 #include <QtCore/QTimerEvent>
@@ -546,161 +550,70 @@ static QWidget *buildPageHeader(const QString &title, const QString &icon,
 // PAGE 1: ALGORITHM VISUALISERS
 // ─────────────────────────────────────────────────────────────
 QWidget *GraphVersePlatform::buildVisualisersView() {
-  auto *page = new QWidget;
-  auto *vlay = new QVBoxLayout(page);
-  vlay->setContentsMargins(0, 0, 0, 0);
-  vlay->setSpacing(0);
-
-  vlay->addWidget(buildPageHeader("Algorithm Visualisers", "⚡",
-                                  Palette::ACCENT_VIS, m_stack));
-
-  auto *listArea = new QWidget;
-  auto *llay = new QVBoxLayout(listArea);
-  llay->setContentsMargins(48, 16, 48, 60);
-  llay->setSpacing(18);
-
-  struct AlgoEntry {
-    QString label;
-    int stackIndex;
+  auto headerFn = [this](const QString& title, const QString& icon,
+                         const QColor& accent) -> QWidget* {
+    return buildPageHeader(title, icon, accent, m_stack);
   };
-  const std::vector<AlgoEntry> algos = {
-      {"🌀 Maze Explorer — BFS & DFS", 4},
-      {"🔗 Connected & Strongly Connected Components", 5},
-      {"🌲 Spanning Trees — Kruskal · Prim · Borůvka", 6},
-      {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall", 7},
-      {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles", 8}};
 
-  for (int i = 0; i < algos.size(); ++i) {
-    const auto &entry = algos[i];
-    auto *btn = new AnimatedButton(entry.label);
-    btn->setGlowColor(Palette::ACCENT_VIS);
-    btn->setMinimumHeight(64);
-    btn->setMaximumHeight(64);
-    btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
-    llay->addWidget(btn);
+  std::vector<VisualisersPageBuilder::AlgoEntry> entries = {
+    {"🌀 Maze Explorer — BFS & DFS",
+     [this](){ if(m_mazeWrapper) m_stack->setCurrentWidget(m_mazeWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
+    {"🔗 Connected & Strongly Connected Components",
+     [this](){ if(m_componentsWrapper) m_stack->setCurrentWidget(m_componentsWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
+    {"🌲 Spanning Trees — Kruskal · Prim · Borůvka",
+     [this](){ if(m_mstWrapper) m_stack->setCurrentWidget(m_mstWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
+    {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall · Bidirectional Dijkstra",
+     [this](){ if(m_shortestWrapper) m_stack->setCurrentWidget(m_shortestWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
+    {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles",
+     [this](){ if(m_flowWrapper) m_stack->setCurrentWidget(m_flowWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }}
+  };
 
-    connect(btn, &QPushButton::clicked, this, [this, i]() {
-      QWidget *target = nullptr;
-      if (i == 0) target = m_mazeWrapper;
-      else if (i == 1) target = m_componentsWrapper;
-      else if (i == 2) target = m_mstWrapper;
-      else if (i == 3) target = m_shortestWrapper;
-      else if (i == 4) target = m_flowWrapper;
-
-      if (target)
-        m_stack->setCurrentWidget(target);
-      else
-        navigateToPlaceholder("Algorithm", m_visualisersView);
-    });
-  }
-  llay->addStretch();
-
-  auto *scroll = new QScrollArea;
-  scroll->setWidgetResizable(true);
-  scroll->setWidget(listArea);
-  vlay->addWidget(scroll);
-
-  return page;
+  VisualisersPageBuilder builder(m_stack, headerFn, entries, Palette::ACCENT_VIS);
+  return builder.build();
 }
 
 // ─────────────────────────────────────────────────────────────
 // PAGE 2: REAL-WORLD APPS
 // ─────────────────────────────────────────────────────────────
 QWidget *GraphVersePlatform::buildAppsView() {
-  auto *page = new QWidget;
-  auto *vlay = new QVBoxLayout(page);
-  vlay->setContentsMargins(0, 0, 0, 0);
-  vlay->setSpacing(0);
+  auto headerFn = [this](const QString& title, const QString& icon,
+                         const QColor& accent) -> QWidget* {
+    return buildPageHeader(title, icon, accent, m_stack);
+  };
 
-  vlay->addWidget(buildPageHeader("Real-World Applications", "🌐",
-                                  Palette::ACCENT_APP, m_stack));
+  std::vector<AppsPageBuilder::AppEntry> entries = {
+    {"👥 Friend Suggestion System",
+     [this](){ if(m_friendsWrapper) m_stack->setCurrentWidget(m_friendsWrapper); else navigateToPlaceholder("Friend Suggestion", m_appsView); }},
+    {"🌍 Translation Network",
+     [this](){ if(m_translationWrapper) m_stack->setCurrentWidget(m_translationWrapper); else navigateToPlaceholder("Translation", m_appsView); }},
+    {"🛒 Supermarket Navigator",
+     [this](){ if(m_supermarketWrapper) m_stack->setCurrentWidget(m_supermarketWrapper); else navigateToPlaceholder("Supermarket", m_appsView); }},
+    {"🚕 RideMatch — Passenger ↔ Driver Max-Flow",
+     [this](){ if(m_rideMatchWrapper) m_stack->setCurrentWidget(m_rideMatchWrapper); else navigateToPlaceholder("RideMatch", m_appsView); }}
+  };
 
-  auto *listArea = new QWidget;
-  auto *llay = new QVBoxLayout(listArea);
-  llay->setContentsMargins(48, 16, 48, 60);
-  llay->setSpacing(18);
-
-  const QStringList apps = {
-      "👥 Friend Suggestion System", "🌍 Translation Network",
-      "🛒 Supermarket Navigator", "🚕 RideMatch — Passenger ↔ Driver Max-Flow"};
-
-  for (int i = 0; i < apps.size(); ++i) {
-    const auto &str = apps[i];
-    auto *btn = new AnimatedButton(str);
-    btn->setGlowColor(Palette::ACCENT_APP);
-    btn->setMinimumHeight(64);
-    btn->setMaximumHeight(64);
-    btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
-    llay->addWidget(btn);
-
-    connect(btn, &QPushButton::clicked, this, [this, i, str]() {
-      QWidget *target = nullptr;
-      if (i == 0) target = m_friendsWrapper;
-      else if (i == 1) target = m_translationWrapper;
-      else if (i == 2) target = m_supermarketWrapper;
-      else if (i == 3) target = m_rideMatchWrapper;
-
-      if (target)
-        m_stack->setCurrentWidget(target);
-      else
-        navigateToPlaceholder(str, m_appsView);
-    });
-  }
-  llay->addStretch();
-
-  auto *scroll = new QScrollArea;
-  scroll->setWidgetResizable(true);
-  scroll->setWidget(listArea);
-  vlay->addWidget(scroll);
-
-  return page;
+  AppsPageBuilder builder(m_stack, headerFn, entries, Palette::ACCENT_APP);
+  return builder.build();
 }
 
 // ─────────────────────────────────────────────────────────────
 // PAGE 13: THEORETICAL APPS
 // ─────────────────────────────────────────────────────────────
 QWidget *GraphVersePlatform::buildTheoreticalView() {
-  auto *page = new QWidget;
-  auto *vlay = new QVBoxLayout(page);
-  vlay->setContentsMargins(0, 0, 0, 0);
-  vlay->setSpacing(0);
+  auto headerFn = [this](const QString& title, const QString& icon,
+                         const QColor& accent) -> QWidget* {
+    return buildPageHeader(title, icon, accent, m_stack);
+  };
 
-  vlay->addWidget(buildPageHeader("Theoretical Applications", "📚",
-                                  QColor(245, 158, 11), m_stack));
+  std::vector<TheoreticalPageBuilder::TheoreticalEntry> entries = {
+    {"💧 Flood Fill Algorithm",
+     [this](){ m_stack->setCurrentWidget(m_floodFillWrapper); }},
+    {"🇷🇴 Traveling Salesman (Romania)",
+     [this](){ m_stack->setCurrentWidget(m_tspWrapper); }}
+  };
 
-  auto *listArea = new QWidget;
-  auto *llay = new QVBoxLayout(listArea);
-  llay->setContentsMargins(48, 16, 48, 60);
-  llay->setSpacing(18);
-
-  const QStringList theoreticals = {"💧 Flood Fill Algorithm", "🇷🇴 Traveling Salesman (Romania)"};
-
-  for (int i = 0; i < theoreticals.size(); ++i) {
-    const auto &str = theoreticals[i];
-    auto *btn = new AnimatedButton(str);
-    btn->setGlowColor(QColor(245, 158, 11));
-    btn->setMinimumHeight(64);
-    btn->setMaximumHeight(64);
-    btn->setFont(QFont("Segoe UI", 11, QFont::Medium));
-    llay->addWidget(btn);
-
-    connect(btn, &QPushButton::clicked, this, [this, i]() {
-      if (i == 0)
-        m_stack->setCurrentWidget(m_floodFillWrapper);
-      else if (i == 1)
-        m_stack->setCurrentWidget(m_tspWrapper);
-      else
-        m_stack->setCurrentWidget(m_placeholderPage);
-    });
-  }
-  llay->addStretch();
-
-  auto *scroll = new QScrollArea;
-  scroll->setWidgetResizable(true);
-  scroll->setWidget(listArea);
-  vlay->addWidget(scroll);
-
-  return page;
+  TheoreticalPageBuilder builder(m_stack, headerFn, entries, QColor(245, 158, 11));
+  return builder.build();
 }
 
 // ─────────────────────────────────────────────────────────────
