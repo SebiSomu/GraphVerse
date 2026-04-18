@@ -132,6 +132,7 @@
     <ClCompile Include="algorithms\bellman_ford_solver.cpp" />
     <ClCompile Include="algorithms\flood_fill_solver.cpp" />
     <ClCompile Include="algorithms\floyd_warshall_solver.cpp" />
+    <ClCompile Include="algorithms\bidirectional_dijkstra_solver.cpp" />
     <ClCompile Include="algorithms\bfs_traversal.cpp" />
     <ClCompile Include="algorithms\dfs_traversal.cpp" />
     <ClCompile Include="algorithms\kruskal_solver.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="algorithms\bellman_ford_solver.h" />
     <ClInclude Include="algorithms\flood_fill_solver.h" />
     <ClInclude Include="algorithms\floyd_warshall_solver.h" />
+    <ClInclude Include="algorithms\bidirectional_dijkstra_solver.h" />
     <ClInclude Include="algorithms\bfs_traversal.h" />
     <ClInclude Include="algorithms\dfs_traversal.h" />
     <ClInclude Include="algorithms\kruskal_solver.h" />

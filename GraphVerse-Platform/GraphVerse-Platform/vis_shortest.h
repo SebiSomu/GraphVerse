@@ -26,6 +26,7 @@ private slots:
     void onAStarClicked();
     void onBellmanFordClicked();
     void onFloydWarshallClicked();
+    void onBiDijkstraClicked();
     void onResetClicked();
     void onAnimationTick();
     void onPauseClicked();
@@ -34,7 +35,7 @@ private:
     static constexpr int COLS=20, ROWS=9, SPACING=65, NODE_R=8;
     constexpr int offsetX() const { return 60; }
     constexpr int offsetY() const { return 70; }
-    enum class AlgoType { None, Dijkstra, AStar, BellmanFord, FloydWarshall };
+    enum class AlgoType { None, Dijkstra, AStar, BellmanFord, FloydWarshall, BiDijkstra };
     std::unique_ptr<DirectedGraph> m_graph;
     QTimer* m_timer;
     QLabel* m_statusLabel;

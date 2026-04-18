@@ -3,6 +3,7 @@
 #include "algorithms/astar_solver.h"
 #include "algorithms/bellman_ford_solver.h"
 #include "algorithms/floyd_warshall_solver.h"
+#include "algorithms/bidirectional_dijkstra_solver.h"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QHBoxLayout>
@@ -27,6 +28,7 @@ VisShortest::VisShortest(QWidget* parent)
     auto* btnA = new QPushButton("A*", this);
     auto* btnBF= new QPushButton("Bellman-Ford", this);
     auto* btnFW= new QPushButton("Floyd-Warshall", this);
+    auto* btnBiD = new QPushButton("Bi-Dijkstra", this);
     auto* btnR = new QPushButton("Reset", this);
     m_pauseBtn->setEnabled(false);
     m_speedSlider->setRange(1, 100);
@@ -35,12 +37,13 @@ VisShortest::VisShortest(QWidget* parent)
     m_paused = false;
     m_elapsedMs = 0;
     btnD->setFixedSize(110,34); btnA->setFixedSize(80,34); btnBF->setFixedSize(130,34);
-    btnFW->setFixedSize(150,34); btnR->setFixedSize(90,34); m_pauseBtn->setFixedSize(90,34);
+    btnFW->setFixedSize(150,34); btnBiD->setFixedSize(110,34); btnR->setFixedSize(90,34); m_pauseBtn->setFixedSize(90,34);
     QString base = "QPushButton{border-radius:6px;font-weight:bold;font-size:12px;}";
     btnD->setStyleSheet(base+"QPushButton{background:#1e90ff;color:white;}QPushButton:hover{background:#1070d0;}");
     btnA->setStyleSheet(base+"QPushButton{background:#27ae60;color:white;}QPushButton:hover{background:#1e8449;}");
     btnBF->setStyleSheet(base+"QPushButton{background:#e67e22;color:white;}QPushButton:hover{background:#ca6f1e;}");
     btnFW->setStyleSheet(base+"QPushButton{background:#9b59b6;color:white;}QPushButton:hover{background:#7d3c98;}");
+    btnBiD->setStyleSheet(base+"QPushButton{background:#e84393;color:white;}QPushButton:hover{background:#d63031;}");
     btnR->setStyleSheet(base+"QPushButton{background:#e74c3c;color:white;}QPushButton:hover{background:#c0392b;}");
     m_pauseBtn->setStyleSheet(base+"QPushButton{background:#6b7280;color:white;}QPushButton:hover{background:#4b5563;}");
     m_speedLabel->setStyleSheet("color:#cbd5e1;font-size:11px;");
@@ -50,7 +53,7 @@ VisShortest::VisShortest(QWidget* parent)
 
     m_statusLabel->setStyleSheet("color: white; font-size: 13px; font-weight: bold;");
     m_statusLabel->setAlignment(Qt::AlignCenter);
-    m_statusLabel->setMinimumWidth(360);
+    m_statusLabel->setMinimumWidth(280);
     m_timerLabel->setStyleSheet("color:#facc15;font-size:12px;font-weight:bold;");
     m_timerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     updateTimerLabel();
@@ -59,14 +62,14 @@ VisShortest::VisShortest(QWidget* parent)
     lbl->setStyleSheet("color:#aaaaaa;font-size:11px;");
     m_toolbar = new QWidget(this);
     auto* hbox = new QHBoxLayout(m_toolbar);
-    hbox->addWidget(btnD); hbox->addWidget(btnA); hbox->addWidget(btnBF); hbox->addWidget(btnFW);
+    hbox->addWidget(btnD); hbox->addWidget(btnA); hbox->addWidget(btnBF); hbox->addWidget(btnFW); hbox->addWidget(btnBiD);
     hbox->addSpacing(10); hbox->addWidget(btnR); hbox->addWidget(m_pauseBtn);
     hbox->addSpacing(8); hbox->addWidget(m_speedLabel); hbox->addWidget(m_speedSlider);
     hbox->addStretch(1);
     hbox->addWidget(m_statusLabel, 3);
     hbox->addStretch(1);
     hbox->addWidget(m_timerLabel);
-    hbox->addSpacing(12);
+    hbox->addSpacing(8);
     hbox->addWidget(lbl);
     hbox->setContentsMargins(8,6,8,4);
     m_toolbar->setGeometry(0,0,width(),50);
@@ -74,6 +77,7 @@ VisShortest::VisShortest(QWidget* parent)
     connect(btnA, &QPushButton::clicked, this, &VisShortest::onAStarClicked);
     connect(btnBF,&QPushButton::clicked, this, &VisShortest::onBellmanFordClicked);
     connect(btnFW,&QPushButton::clicked, this, &VisShortest::onFloydWarshallClicked);
+    connect(btnBiD,&QPushButton::clicked, this, &VisShortest::onBiDijkstraClicked);
     connect(btnR, &QPushButton::clicked, this, &VisShortest::onResetClicked);
     connect(m_pauseBtn, &QPushButton::clicked, this, &VisShortest::onPauseClicked);
     connect(m_speedSlider, &QSlider::valueChanged, this, &VisShortest::onSpeedChanged);
@@ -155,7 +159,8 @@ void VisShortest::startAnimation(AlgoType algo) {
     if(algo==AlgoType::Dijkstra)         m_steps = DijkstraSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
     else if(algo==AlgoType::AStar)       m_steps = AStarSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
     else if(algo==AlgoType::BellmanFord) m_steps = BellmanFordSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
-    else                                 m_steps = FloydWarshallSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
+    else if(algo==AlgoType::FloydWarshall) m_steps = FloydWarshallSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
+    else                                 m_steps = BidirectionalDijkstraSolver{}.solve(*m_graph, m_startIdx, m_endIdx, path);
     m_finalPath = path; m_timer->start(currentInterval());
 }
 
@@ -193,6 +198,7 @@ void VisShortest::updateLabel() {
     else if(m_currentAlgo==AlgoType::AStar)       {algoName="A*"; algoCol=QColor(46,204,113);}
     else if(m_currentAlgo==AlgoType::BellmanFord) {algoName="Bellman-Ford"; algoCol=QColor(230,126,34);}
     else if(m_currentAlgo==AlgoType::FloydWarshall){algoName="Floyd-Warshall"; algoCol=QColor(175,122,197);}
+    else if(m_currentAlgo==AlgoType::BiDijkstra)  {algoName="Bi-Dijkstra"; algoCol=QColor(232,67,147);}
 
     int pathCost=0; if(!m_finalPath.empty() && m_bestCost.count(m_endIdx)) pathCost=m_bestCost[m_endIdx];
     QString status = m_animDone ? QString("%1: Done! Final Cost: %2").arg(algoName).arg(pathCost)
@@ -227,6 +233,7 @@ void VisShortest::onDijkstraClicked()     { startAnimation(AlgoType::Dijkstra); 
 void VisShortest::onAStarClicked()        { startAnimation(AlgoType::AStar); }
 void VisShortest::onBellmanFordClicked()  { startAnimation(AlgoType::BellmanFord); }
 void VisShortest::onFloydWarshallClicked(){ startAnimation(AlgoType::FloydWarshall); }
+void VisShortest::onBiDijkstraClicked()   { startAnimation(AlgoType::BiDijkstra); }
 void VisShortest::onResetClicked()        { buildGraph(); }
 void VisShortest::onSpeedChanged(int) {
     if (m_timer->isActive())
