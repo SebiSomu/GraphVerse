@@ -111,6 +111,7 @@
     <ClCompile Include="vis_ridematch.cpp" />
     <ClCompile Include="vis_floodfill.cpp" />
     <ClCompile Include="vis_tsp.cpp" />
+    <ClCompile Include="vis_topological.cpp" />
     <QtRcc Include="GraphVersePlatform.qrc" />
     <QtUic Include="GraphVersePlatform.ui" />
     <QtMoc Include="GraphVersePlatform.h" />
@@ -125,6 +126,7 @@
     <QtMoc Include="vis_ridematch.h" />
     <QtMoc Include="vis_floodfill.h" />
     <QtMoc Include="vis_tsp.h" />
+    <QtMoc Include="vis_topological.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="algorithms\dijkstra_solver.cpp" />
@@ -142,6 +144,7 @@
     <ClCompile Include="algorithms\kosaraju_solver.cpp" />
     <ClCompile Include="algorithms\connected_components_solver.cpp" />
     <ClCompile Include="algorithms\condensed_graph_solver.cpp" />
+    <ClCompile Include="algorithms\topological_sort_solver.cpp" />
     <ClCompile Include="GraphRenderer.cpp" />
     <ClCompile Include="rendering\directed_graph_renderer.cpp" />
     <ClCompile Include="rendering\undirected_graph_renderer.cpp" />

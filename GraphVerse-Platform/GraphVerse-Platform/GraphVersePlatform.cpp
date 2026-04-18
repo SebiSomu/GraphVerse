@@ -3,6 +3,7 @@
 #include "ui/visualisers_page_builder.h"
 #include "ui/apps_page_builder.h"
 #include "ui/theoretical_page_builder.h"
+#include "vis_topological.h"
 #include <QPropertyAnimation>
 #include <QtCore/QTimer>
 #include <QtCore/QTimerEvent>
@@ -565,7 +566,9 @@ QWidget *GraphVersePlatform::buildVisualisersView() {
     {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall · Bidirectional Dijkstra",
      [this](){ if(m_shortestWrapper) m_stack->setCurrentWidget(m_shortestWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
     {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles",
-     [this](){ if(m_flowWrapper) m_stack->setCurrentWidget(m_flowWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }}
+     [this](){ if(m_flowWrapper) m_stack->setCurrentWidget(m_flowWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
+    {"📊 Topological Sort — Task Scheduling",
+     [this](){ if(m_topologicalWrapper) m_stack->setCurrentWidget(m_topologicalWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }}
   };
 
   VisualisersPageBuilder builder(m_stack, headerFn, entries, Palette::ACCENT_VIS);
@@ -761,6 +764,11 @@ void GraphVersePlatform::setupUi() {
 
   m_flowWrapper = addVisPage(m_visFlow);
   m_stack->addWidget(m_flowWrapper);
+
+  // Topological Sort visualizer
+  m_visTopological = new VisTopologicalSort(this);
+  m_topologicalWrapper = addVisPage(m_visTopological);
+  m_stack->addWidget(m_topologicalWrapper);
 
   // ─── Real World Apps pages with Back navigation ───
   auto addAppPage = [&](QWidget *appWidget) {

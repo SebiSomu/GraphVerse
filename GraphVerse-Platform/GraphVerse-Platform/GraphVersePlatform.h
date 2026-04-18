@@ -11,6 +11,7 @@
 #include "vis_supermarket.h"
 #include "vis_translation.h"
 #include "vis_tsp.h"
+#include "vis_topological.h"
 #include <QtCore/QEasingCurve>
 #include <QtCore/QParallelAnimationGroup>
 #include <QtCore/QPropertyAnimation>
@@ -174,6 +175,9 @@ private:
 
   VisFlow *m_visFlow = nullptr;
   QWidget *m_flowWrapper = nullptr;
+
+  VisTopologicalSort *m_visTopological = nullptr;
+  QWidget *m_topologicalWrapper = nullptr;
 
   // Real-World App Widgets & Wrappers
   VisFriends *m_visFriends = nullptr;
