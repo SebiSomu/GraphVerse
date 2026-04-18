@@ -3,7 +3,7 @@
 #include <stack>
 #include <unordered_set>
 
-std::vector<TraversalStep> DFSTraversal::solve(const IGraph& graph, int startIndex, int stopAt) const
+std::vector<TraversalStep> DFSTraversal::solve(const IGraphComplete& graph, int startIndex, int stopAt) const
 {
     bool isDirected = graph.getGraphType() == "directed";
     auto adj = GraphUtils::buildSimpleAdjList(graph, isDirected);

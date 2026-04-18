@@ -2,7 +2,7 @@
 #include "graph_utils.h"
 #include <unordered_map>
 
-std::vector<PathStep> FloydWarshallSolver::solve(const Graph& graph, int startIdx, int endIdx,
+std::vector<PathStep> FloydWarshallSolver::solve(const IGraphData& graph, int startIdx, int endIdx,
                                                   std::vector<int>& outPath) const
 {
     std::vector<PathStep> steps;

@@ -1,14 +1,16 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 #include "edge.h"
-#include "graph_interfaces.h"
+#include "graph_interfaces_isp.h"  // ISP-compliant interfaces
 #include <vector>
 #include <list>
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
 
-class Graph : public IGraph
+// Graph now inherits from IGraphComplete (ISP-compliant)
+// This provides backward compatibility while enabling interface segregation
+class Graph : public IGraphComplete
 {
 protected:
     std::list<Node> m_nodes;

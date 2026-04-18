@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-MaxFlowResult MaxFlowSolver::solve(const IGraph& graph, int sourceIdx, int sinkIdx) {
+MaxFlowResult MaxFlowSolver::solve(const IGraphData& graph, int source, int sink) const {
     const auto& nodes = graph.getNodes();
     const auto& edges = graph.getEdges();
 
@@ -17,12 +17,12 @@ MaxFlowResult MaxFlowSolver::solve(const IGraph& graph, int sourceIdx, int sinkI
         n++;
     }
 
-    if (!idToInternal.contains(sourceIdx) || !idToInternal.contains(sinkIdx)) {
+    if (idToInternal.find(source) == idToInternal.end() || idToInternal.find(sink) == idToInternal.end()) {
         return { 0, {} };
     }
 
-    int s = idToInternal[sourceIdx];
-    int t = idToInternal[sinkIdx];
+    int s = idToInternal[source];
+    int t = idToInternal[sink];
 
     std::vector<std::vector<int>> capacity(n, std::vector<int>(n, 0));
     for (const auto& edge : edges) {

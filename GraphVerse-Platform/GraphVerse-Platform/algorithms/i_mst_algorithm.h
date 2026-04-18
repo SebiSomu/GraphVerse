@@ -2,14 +2,16 @@
 #define I_MST_ALGORITHM_H
 
 #include "graph_algorithm_types.h"
-#include "../graph.h"
+#include "../graph_interfaces_isp.h"  // ISP-compliant interfaces
 #include <vector>
 #include <string>
 
+// MST algorithm interface using ISP-compliant IGraphData
+// Algorithms only need read access to graph nodes and edges
 class IMSTAlgorithm {
 public:
     virtual ~IMSTAlgorithm() = default;
-    virtual std::vector<MSTStep> solve(const Graph& graph) const = 0;
+    virtual std::vector<MSTStep> solve(const IGraphData& graph) const = 0;
     virtual std::string name() const = 0;
 };
 

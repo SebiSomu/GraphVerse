@@ -25,19 +25,6 @@ public:
     virtual std::string_view getGraphType() const = 0;
 };
 
-struct ComponentResult {
-    int numComponents = 0;
-    std::unordered_map<int, int> nodeToComponent;
-};
-
-struct CondensedGraph {
-    std::list<Node> nodes;
-    std::vector<Edge> edges;
-};
-
-struct CondensedResult {
-    bool isShowing = false;
-    CondensedGraph graph;
-};
+// Note: ComponentResult, CondensedGraph, CondensedResult are defined in graph_interfaces_isp.h
 
 #endif // GRAPH_INTERFACES_H

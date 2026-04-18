@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-std::vector<MSTStep> BoruvkaSolver::solve(const Graph& graph) const
+std::vector<MSTStep> BoruvkaSolver::solve(const IGraphData& graph) const
 {
     std::vector<MSTStep> steps;
     if (graph.getNodes().empty()) return steps;

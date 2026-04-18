@@ -38,7 +38,6 @@ private slots:
     void onReset();
 
 private:
-private:
 
     enum class DisplayMode {
         InitialGraph,

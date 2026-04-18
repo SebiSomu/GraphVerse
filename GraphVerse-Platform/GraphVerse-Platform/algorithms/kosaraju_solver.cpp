@@ -1,6 +1,6 @@
 #include "kosaraju_solver.h"
 
-std::unordered_map<int, std::vector<int>> KosarajuSolver::buildDirectedAdjList(const IGraph& graph) const
+std::unordered_map<int, std::vector<int>> KosarajuSolver::buildDirectedAdjList(const IGraphData& graph) const
 
 {
     std::unordered_map<int, std::vector<int>> adj;
@@ -13,7 +13,7 @@ std::unordered_map<int, std::vector<int>> KosarajuSolver::buildDirectedAdjList(c
     return adj;
 }
 
-std::unordered_map<int, std::vector<int>> KosarajuSolver::getTranspose(const IGraph& graph) const
+std::unordered_map<int, std::vector<int>> KosarajuSolver::getTranspose(const IGraphData& graph) const
 
 {
     std::unordered_map<int, std::vector<int>> transposeAdj;
@@ -77,10 +77,8 @@ void KosarajuSolver::DFSUtil(int nodeIndex, std::unordered_set<int>& visited,
     }
 }
 
-int KosarajuSolver::solve(const IGraph& graph,
-                           std::unordered_map<int, int>& outComponentColors) const
-
-{
+int KosarajuSolver::solve(const IGraphData& graph,
+                           std::unordered_map<int, int>& outComponentColors) const {
     outComponentColors.clear();
     if (graph.getNodes().empty()) return 0;
 

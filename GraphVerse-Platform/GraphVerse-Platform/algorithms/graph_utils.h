@@ -2,7 +2,7 @@
 #define GRAPH_UTILS_H
 
 #include "graph_algorithm_types.h"
-#include "../graph_interfaces.h"
+#include "../graph_interfaces_isp.h"  // ISP-compliant interfaces
 
 #include <unordered_map>
 #include <vector>
@@ -10,8 +10,8 @@
 
 namespace GraphUtils {
 
-// Build unweighted adjacency list
-inline std::unordered_map<int, std::vector<int>> buildSimpleAdjList(const IGraph& graph, bool directed = true) {
+// Build unweighted adjacency list (ISP-compliant - uses IGraphData)
+inline std::unordered_map<int, std::vector<int>> buildSimpleAdjList(const IGraphData& graph, bool directed = true) {
 
     std::unordered_map<int, std::vector<int>> adj;
     for (const auto& n : graph.getNodes()) adj[n.getIndex()] = {};
@@ -24,8 +24,8 @@ inline std::unordered_map<int, std::vector<int>> buildSimpleAdjList(const IGraph
     return adj;
 }
 
-// Build weighted adjacency list (directed: one-way edges only)
-inline std::unordered_map<int, std::vector<std::pair<int, int>>> buildWeightedAdjList(const IGraph& graph) {
+// Build weighted adjacency list (directed: one-way edges only) (ISP-compliant)
+inline std::unordered_map<int, std::vector<std::pair<int, int>>> buildWeightedAdjList(const IGraphData& graph) {
 
     std::unordered_map<int, std::vector<std::pair<int, int>>> adj;
     for (const auto& n : graph.getNodes()) adj[n.getIndex()] = {};

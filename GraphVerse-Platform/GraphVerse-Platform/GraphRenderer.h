@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QColor>
 #include <vector>
-#include "graph_interfaces.h"
+#include "graph_interfaces_isp.h"  // ISP-compliant interfaces
 #include "algorithms/graph_algorithm_types.h"
 
 struct RenderSettings {
@@ -20,15 +20,15 @@ struct RenderSettings {
 
 class GraphRenderer {
 public:
-    static void drawGraph(QPainter& painter, const IGraph& graph, const RenderSettings& settings = RenderSettings());
+    static void drawGraph(QPainter& painter, const IGraphComplete& graph, const RenderSettings& settings = RenderSettings());
     
     static void drawNode(QPainter& painter, const Node& node, const RenderSettings& settings, bool highlighted = false);
     
     static void drawEdge(QPainter& painter, const Edge& edge, const RenderSettings& settings, bool highlighted = false, bool directed = false);
 
-    static void drawMST(QPainter& painter, const IGraph& graph, const std::vector<MSTStep>& mst, const RenderSettings& settings = RenderSettings());
+    static void drawMST(QPainter& painter, const IGraphData& graph, const std::vector<MSTStep>& mst, const RenderSettings& settings = RenderSettings());
     
-    static void drawPath(QPainter& painter, const IGraph& graph, const std::vector<int>& path, const RenderSettings& settings = RenderSettings());
+    static void drawPath(QPainter& painter, const IGraphData& graph, const std::vector<int>& path, const RenderSettings& settings = RenderSettings());
 };
 
 #endif // GRAPH_RENDERER_H

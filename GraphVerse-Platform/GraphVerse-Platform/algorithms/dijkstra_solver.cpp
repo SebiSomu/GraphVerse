@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-std::vector<PathStep> DijkstraSolver::solve(const Graph& graph, int startIdx, int endIdx,
+std::vector<PathStep> DijkstraSolver::solve(const IGraphData& graph, int startIdx, int endIdx,
                                              std::vector<int>& outPath) const
 {
     auto adj = GraphUtils::buildWeightedAdjList(graph);

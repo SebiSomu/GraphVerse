@@ -3,13 +3,12 @@
 #include <stack>
 #include <unordered_set>
 
-int ConnectedComponentsSolver::solve(const IGraph& graph, std::unordered_map<int, int>& outComponentMap) const {
-    outComponentMap.clear();
-    if (graph.getNodes().empty()) return 0;
+ComponentResult ConnectedComponentsSolver::solve(const IGraphData& graph) const {
+    ComponentResult result;
+    if (graph.getNodes().empty()) return result;
 
     auto adj = GraphUtils::buildSimpleAdjList(graph, false); // false for undirected (bi-directional)
     std::unordered_set<int> visited;
-    int numComponents = 0;
 
     for (const auto& node : graph.getNodes()) {
         int startNode = node.getIndex();
@@ -18,20 +17,20 @@ int ConnectedComponentsSolver::solve(const IGraph& graph, std::unordered_map<int
             std::stack<int> s;
             s.push(startNode);
             visited.insert(startNode);
-            outComponentMap[startNode] = numComponents;
+            result.nodeToComponent[startNode] = result.numComponents;
 
             while (!s.empty()) {
                 int u = s.top(); s.pop();
                 for (int v : adj[u]) {
                     if (visited.find(v) == visited.end()) {
                         visited.insert(v);
-                        outComponentMap[v] = numComponents;
+                        result.nodeToComponent[v] = result.numComponents;
                         s.push(v);
                     }
                 }
             }
-            numComponents++;
+            result.numComponents++;
         }
     }
-    return numComponents;
+    return result;
 }

@@ -201,7 +201,7 @@ void VisShortest::updateLabel() {
     else if(m_currentAlgo==AlgoType::BiDijkstra)  {algoName="Bi-Dijkstra"; algoCol=QColor(232,67,147);}
 
     int pathCost=0; if(!m_finalPath.empty() && m_bestCost.count(m_endIdx)) pathCost=m_bestCost[m_endIdx];
-    QString status = m_animDone ? QString("%1: Done! Final Cost: %2").arg(algoName).arg(pathCost)
+    QString status = m_animDone ? QString("%1: Done!<br>Final Cost: %2").arg(algoName).arg(pathCost)
                                 : QString("%1: Searching...").arg(algoName);
     m_statusLabel->setText(status);
     m_statusLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: bold;").arg(algoCol.name()));

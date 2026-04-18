@@ -2,7 +2,7 @@
 #include <QFontMetrics>
 #include <cmath>
 
-void GraphRenderer::drawGraph(QPainter& painter, const IGraph& graph, const RenderSettings& settings) {
+void GraphRenderer::drawGraph(QPainter& painter, const IGraphComplete& graph, const RenderSettings& settings) {
     bool isDirected = graph.getGraphType() == "directed";
     
     // Draw edges first so they are behind nodes
@@ -90,7 +90,7 @@ void GraphRenderer::drawEdge(QPainter& painter, const Edge& edge, const RenderSe
     }
 }
 
-void GraphRenderer::drawMST(QPainter& painter, const IGraph& graph, const std::vector<MSTStep>& mst, const RenderSettings& settings) {
+void GraphRenderer::drawMST(QPainter& painter, const IGraphData& graph, const std::vector<MSTStep>& mst, const RenderSettings& settings) {
     auto nodes = graph.getNodes();
     auto getPos = [&](int id) {
         for (const auto& n : nodes) if (n.getIndex() == id) return n.getCoord();
@@ -112,7 +112,7 @@ void GraphRenderer::drawMST(QPainter& painter, const IGraph& graph, const std::v
     for (const auto& node : nodes) drawNode(painter, node, settings);
 }
 
-void GraphRenderer::drawPath(QPainter& painter, const IGraph& graph, const std::vector<int>& path, const RenderSettings& settings) {
+void GraphRenderer::drawPath(QPainter& painter, const IGraphData& graph, const std::vector<int>& path, const RenderSettings& settings) {
     if (path.size() < 2) return;
     
     auto nodes = graph.getNodes();

@@ -5,7 +5,7 @@
 
 class PrimSolver : public IMSTAlgorithm {
 public:
-    std::vector<MSTStep> solve(const Graph& graph) const override;
+    std::vector<MSTStep> solve(const IGraphData& graph) const override;
     std::string name() const override { return "Prim"; }
 };
 

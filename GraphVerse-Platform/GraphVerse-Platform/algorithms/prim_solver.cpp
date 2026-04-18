@@ -5,7 +5,7 @@
 #include <queue>
 #include <tuple>
 
-std::vector<MSTStep> PrimSolver::solve(const Graph& graph) const
+std::vector<MSTStep> PrimSolver::solve(const IGraphData& graph) const
 {
     std::vector<MSTStep> steps;
     if (graph.getNodes().empty()) return steps;

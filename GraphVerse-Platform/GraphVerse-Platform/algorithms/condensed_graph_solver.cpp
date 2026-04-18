@@ -2,7 +2,7 @@
 #include <unordered_set>
 #include <string>
 
-CondensedGraph CondensedGraphSolver::solve(const Graph& graph, int numComponents, const std::unordered_map<int, int>& nodeToComponent) const {
+CondensedGraph CondensedGraphSolver::solve(const IGraphData& graph, int numComponents, const std::unordered_map<int, int>& nodeToComponent) const {
     CondensedGraph condensed;
     if (numComponents <= 0) return condensed;
 

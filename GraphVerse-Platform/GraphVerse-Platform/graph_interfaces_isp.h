@@ -8,10 +8,11 @@
 #include <vector>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <QtCore/QPoint>
 
-class Node;
-class Edge;
+#include "Node.h"
+#include "edge.h"
 
 // IGraphData - Read-only data access (ISP)
 class IGraphData {
@@ -47,13 +48,19 @@ public:
 };
 
 // IGraphComplete - Combines all interfaces for backward compatibility
-// Existing code can continue using this, new code can use specific interfaces
+// Inherits from IGraphData for const access and defines non-const overloads directly
 class IGraphComplete : public IGraphData,
-                       public IGraphDataMutable,
                        public IGraphOperations,
                        public IGraphMetadata {
 public:
     virtual ~IGraphComplete() = default;
+    
+    // Non-const overloads for mutable access (ISP - IGraphDataMutable functionality)
+    // Note: const versions are inherited from IGraphData
+    using IGraphData::getNodes;
+    using IGraphData::getEdges;
+    virtual std::list<Node>& getNodes() = 0;
+    virtual std::vector<Edge>& getEdges() = 0;
 };
 
 // Helper structs for algorithms

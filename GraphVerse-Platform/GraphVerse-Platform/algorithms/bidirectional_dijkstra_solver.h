@@ -5,7 +5,7 @@
 
 class BidirectionalDijkstraSolver : public IShortestPathAlgorithm {
 public:
-    std::vector<PathStep> solve(const Graph& graph, int startIdx, int endIdx,
+    std::vector<PathStep> solve(const IGraphData& graph, int startIdx, int endIdx,
                                 std::vector<int>& outPath) const override;
     std::string name() const override { return "Bidirectional Dijkstra"; }
 };

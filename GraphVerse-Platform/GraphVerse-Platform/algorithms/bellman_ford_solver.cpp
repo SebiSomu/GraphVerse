@@ -2,7 +2,7 @@
 #include "graph_utils.h"
 #include <unordered_map>
 
-std::vector<PathStep> BellmanFordSolver::solve(const Graph& graph, int startIdx, int endIdx,
+std::vector<PathStep> BellmanFordSolver::solve(const IGraphData& graph, int startIdx, int endIdx,
                                                 std::vector<int>& outPath) const
 {
     std::unordered_map<int, int> dist, parent;

@@ -68,11 +68,10 @@ void VisComponents::hideEvent(QHideEvent* event) {
 
 void VisComponents::onFindComponents() {
     if(!m_graph) return;
-    m_compResult.nodeToComponent.clear();
     int count = 0;
     if(auto* ug = dynamic_cast<UndirectedGraph*>(m_graph.get())) {
-        count = ConnectedComponentsSolver{}.solve(*m_graph, m_compResult.nodeToComponent);
-        m_compResult.numComponents = count;
+        m_compResult = ConnectedComponentsSolver{}.solve(*m_graph);
+        count = m_compResult.numComponents;
         QMessageBox::information(this, "Connected Components",
             QString("The graph has %1 connected components!").arg(count));
         m_btnToggleCondensed->setEnabled(false);
@@ -81,7 +80,7 @@ void VisComponents::onFindComponents() {
         m_compResult.numComponents = count;
         QMessageBox::information(this, "Strongly Connected Components",
             QString("The graph has %1 strongly connected components!").arg(count));
-        
+
         m_condensedResult.graph = CondensedGraphSolver{}.solve(*dg, count, m_compResult.nodeToComponent);
         m_btnToggleCondensed->setEnabled(true);
         m_btnToggleCondensed->setText("Show condensed graph");

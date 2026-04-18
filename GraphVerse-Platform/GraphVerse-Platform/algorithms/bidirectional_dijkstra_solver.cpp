@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <algorithm>
 
-std::vector<PathStep> BidirectionalDijkstraSolver::solve(const Graph& graph, int startIdx, int endIdx,
+std::vector<PathStep> BidirectionalDijkstraSolver::solve(const IGraphData& graph, int startIdx, int endIdx,
                                                          std::vector<int>& outPath) const
 {
     std::unordered_map<int, std::vector<std::pair<int, int>>> adjF, adjB;
@@ -110,6 +110,8 @@ std::vector<PathStep> BidirectionalDijkstraSolver::solve(const Graph& graph, int
 
         outPath = pathF;
         outPath.insert(outPath.end(), pathB.begin(), pathB.end());
+        
+        steps.push_back({endIdx, parentF.count(endIdx) ? parentF[endIdx] : -1, mu, true});
     } else {
         outPath = {};
     }

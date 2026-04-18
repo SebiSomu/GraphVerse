@@ -7,7 +7,7 @@
 #include <limits>
 #include <QLineF>
 
-std::vector<PathStep> AStarSolver::solve(const Graph& graph, int startIdx, int endIdx,
+std::vector<PathStep> AStarSolver::solve(const IGraphData& graph, int startIdx, int endIdx,
                                           std::vector<int>& outPath) const
 {
     auto adj = GraphUtils::buildWeightedAdjList(graph);

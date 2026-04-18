@@ -1,7 +1,7 @@
 #ifndef KOSARAJU_SOLVER_H
 #define KOSARAJU_SOLVER_H
 
-#include "../graph_interfaces.h"
+#include "../graph_interfaces_isp.h"  // ISP-compliant interfaces
 
 #include <unordered_map>
 #include <unordered_set>
@@ -11,7 +11,7 @@
 class KosarajuSolver {
 public:
     // Returns number of components; fills componentsColors with node→component mapping
-    int solve(const IGraph& graph,
+    int solve(const IGraphData& graph,
               std::unordered_map<int, int>& outComponentColors) const;
 
 
@@ -27,8 +27,8 @@ private:
                  int component,
                  std::unordered_map<int, int>& outComponentColors) const;
 
-    std::unordered_map<int, std::vector<int>> getTranspose(const IGraph& graph) const;
-    std::unordered_map<int, std::vector<int>> buildDirectedAdjList(const IGraph& graph) const;
+    std::unordered_map<int, std::vector<int>> getTranspose(const IGraphData& graph) const;
+    std::unordered_map<int, std::vector<int>> buildDirectedAdjList(const IGraphData& graph) const;
 
 };
 

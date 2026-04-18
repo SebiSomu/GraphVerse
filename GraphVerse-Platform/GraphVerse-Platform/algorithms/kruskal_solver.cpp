@@ -3,7 +3,7 @@
 #include "../edge.h"
 #include <algorithm>
 
-std::vector<MSTStep> KruskalSolver::solve(const Graph& graph) const
+std::vector<MSTStep> KruskalSolver::solve(const IGraphData& graph) const
 {
     std::vector<MSTStep> steps;
     if (graph.getNodes().empty()) return steps;
