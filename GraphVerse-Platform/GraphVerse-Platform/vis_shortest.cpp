@@ -307,8 +307,15 @@ void VisShortest::paintEvent(QPaintEvent*) {
         p.setBrush(fill); p.setPen(QPen(border, isStart||isEnd?2:1)); p.drawEllipse(r);
         p.setPen(Qt::white);
         QFont f=p.font();
-        if(explored && !isStart && !isEnd) { f.setPointSize(5); f.setBold(true); p.setFont(f); p.drawText(r,Qt::AlignCenter,QString::number(m_bestCost[idx])); }
-        else { f.setPointSize(6); f.setBold(false); p.setFont(f); p.drawText(r,Qt::AlignCenter,QString::number(idx)); }
+        f.setPointSize(6); f.setBold(isStart || isEnd); p.setFont(f);
+        p.drawText(r, Qt::AlignCenter, QString::number(idx));
+
+        if(explored && !isStart && !isEnd) {
+            f.setPointSize(5); f.setBold(false); p.setFont(f);
+            p.setPen(QColor(180,180,180));
+            p.drawText(QRect(n.getX()-R, n.getY()-R-11, R*2, 10), Qt::AlignCenter, QString::number(m_bestCost[idx]));
+        }
+
     }
     /* Manual draw removed - using m_statusLabel */
 }
