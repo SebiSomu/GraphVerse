@@ -2,6 +2,163 @@
 
 GraphVerse is a high-performance algorithmic suite built with **C++**, **Visual Studio 2026**, and **Qt**. It provides an interactive, detailed environment for visualizing graph theories and solving complex real-world optimization problems through a premium dark-themed interface.
 
+## System Architecture & UML Class Diagram
+
+GraphVerse utilizes a modular architecture that separates data structures, algorithmic logic, and UI rendering. The following UML diagram illustrates the primary class hierarchy and their inter-dependencies.
+
+```mermaid
+classDiagram
+    direction TB
+
+    %% Interfaces (ISP)
+    namespace Interfaces {
+        class IGraphData {
+            <<interface>>
+            +getNodes() const*
+            +getEdges() const*
+        }
+        class IGraphOperations {
+            <<interface>>
+            +addNode(QPoint)*
+            +removeNode(int)*
+            +addEdge(Node, Node, int)*
+            +clear()*
+        }
+        class IGraphMetadata {
+            <<interface>>
+            +getGraphType() const*
+        }
+        class IGraphComplete {
+            <<interface>>
+        }
+    }
+    IGraphComplete --|> IGraphData
+    IGraphComplete --|> IGraphOperations
+    IGraphComplete --|> IGraphMetadata
+
+    %% Core Engine
+    namespace CoreEngine {
+        class Node {
+            -int m_index
+            -QPoint m_coord
+            -QString m_name
+            +getIndex() int
+            +getPos() QPoint
+            +setProperty(key, value)
+        }
+        class Edge {
+            -Node* m_first
+            -Node* m_second
+            -int m_cost
+            +getCost() int
+        }
+        class Graph {
+            <<abstract>>
+            #list~Node~ m_nodes
+            #vector~Edge~ m_edges
+        }
+        class DirectedGraph
+        class UndirectedGraph
+        class FlowNetwork {
+            -vector~vector~int~~ capacity
+            -vector~IterationState~ iterations
+            +runFullAlgorithm()
+        }
+    }
+    Graph ..|> IGraphComplete
+    DirectedGraph --|> Graph
+    UndirectedGraph --|> Graph
+    Graph "1" *-- "*" Node
+    Graph "1" *-- "*" Edge
+    Edge "1" o-- "2" Node
+    FlowNetwork "1" *-- "*" IterationState
+
+    %% Algorithm Framework
+    namespace Algorithms {
+        class IShortestPathAlgorithm {
+            <<interface>>
+            +solve(IGraphData, start, end)*
+        }
+        class IMSTAlgorithm {
+            <<interface>>
+            +solve(IGraphData)*
+        }
+        class DijkstraSolver
+        class AStarSolver
+        class KruskalSolver
+        class PrimSolver
+        class MaxFlowSolver
+    }
+    DijkstraSolver ..|> IShortestPathAlgorithm
+    AStarSolver ..|> IShortestPathAlgorithm
+    KruskalSolver ..|> IMSTAlgorithm
+    PrimSolver ..|> IMSTAlgorithm
+
+    %% UI and Visualizers
+    namespace UIComponents {
+        class GraphVersePlatform {
+            -QStackedWidget* m_stack
+            -GraphCanvas* m_canvas
+            +setupUi()
+        }
+        class GraphCanvas {
+            -vector~Node~ m_nodes
+            +paintEvent()
+        }
+        class VisShortest
+        class VisMST
+        class VisFlow
+        class VisMaze
+        class VisTopologicalSort
+        class VisFriends
+        class VisTranslation
+        class VisSupermarket
+        class VisRideMatch
+        class VisFloodFill
+        class VisTSP
+        class GraphRenderer {
+            +drawGraph(painter, graph, settings)
+            +drawMST(painter, graph, mst)
+        }
+        class StyleManager {
+            +applyDarkStyle(widget)
+            +getAccentColor(index)
+        }
+    }
+
+    GraphVersePlatform "1" *-- "1" GraphCanvas
+    GraphVersePlatform "1" *-- "*" VisShortest
+    GraphVersePlatform "1" *-- "*" VisMST
+    GraphVersePlatform "1" *-- "*" VisFlow
+    GraphVersePlatform ..> StyleManager : uses
+
+    VisShortest --|> QWidget
+    VisMST --|> QWidget
+    VisFlow --|> QWidget
+    VisMaze --|> QWidget
+    VisTopologicalSort --|> QWidget
+    VisFriends --|> QWidget
+    VisTranslation --|> QWidget
+    VisSupermarket --|> QWidget
+    VisRideMatch --|> QWidget
+    VisFloodFill --|> QWidget
+    VisTSP --|> QWidget
+
+    VisShortest ..> IShortestPathAlgorithm : uses
+    VisMST ..> IMSTAlgorithm : uses
+    VisFlow ..> FlowNetwork : uses
+    VisTopologicalSort ..> IGraphComplete : operates on
+    
+    VisShortest ..> GraphRenderer : delegates rendering
+    VisMST ..> GraphRenderer : delegates rendering
+    
+    %% Dependencies on Data
+    VisShortest ..> IGraphComplete : operates on
+    VisMST ..> IGraphComplete : operates on
+```
+
+---
+
 ## Technical Architecture (SOLID Design)
 
 GraphVerse is engineered with a strict emphasis on **SOLID principles**, transforming a complex algorithmic suite into a highly maintainable and professional modular system.
@@ -30,6 +187,9 @@ Clients should not be forced to depend on methods they do not use.
 High-level modules should not depend on low-level modules; both should depend on abstractions.
 *   **In Practice:** The algorithm logic depends entirely on the `IGraphData` interface rather than concrete graph implementations. Similarly, the system uses abstraction layers to pass animation steps, ensuring the data engine remains agnostic of the specific rendering technology (`QPainter`).
 
+---
+
+
 ## Algorithm Visualizers (Detailed Implementation)
 
 Each visualizer provides a step-by-step trace of the logic, with real-time performance metrics and state tracking.
@@ -48,7 +208,7 @@ The engine implements these through a weighted adjacency list structure.
 - **Floyd-Warshall**: An all-pairs shortest path algorithm using a **Dynamic Programming** approach with a 2D distance matrix and a successor matrix for path reconstruction.
 - **Bidirectional Dijkstra**: Periodically executes two simultaneous searches—one forward from the source and one backward from the target. The process terminates when both frontiers meet, significantly reducing the total search space.
 
-![Shortest Path Visualization](representative-images/Screenshot 2026-04-18 171506.png)
+![Shortest Path Visualization](representative-images/graphverse-img10.png)
 
 ### 3. Spanning Trees (MST)
 MST visualizers show the process of connecting all nodes with minimum total edge weight.
@@ -81,7 +241,7 @@ MST visualizers show the process of connecting all nodes with minimum total edge
 - **Algorithm**: Kahn's Algorithm (Iterative In-degree Reduction).
 - **Implementation**: Specifically restricted to **Directed Acyclic Graphs (DAGs)**. It manages a queue of nodes with zero in-degree, progressively removing them and updating neighbors until a linear ordering is achieved or a cycle is detected.
 
-![Topological Sort](representative-images/Screenshot 2026-04-18 172604.png)
+![Topological Sort](representative-images/graphverse-img24.png)
 
 ---
 
