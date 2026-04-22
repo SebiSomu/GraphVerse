@@ -663,7 +663,9 @@ QWidget *GraphVersePlatform::buildTheoreticalView() {
       {"💧 Flood Fill Algorithm",
        [this]() { m_stack->setCurrentWidget(m_floodFillWrapper); }},
       {"🇷🇴 Traveling Salesman (Romania)",
-       [this]() { m_stack->setCurrentWidget(m_tspWrapper); }}};
+       [this]() { m_stack->setCurrentWidget(m_tspWrapper); }},
+      {"🌉 Articulation Points & Bridges",
+       [this]() { m_stack->setCurrentWidget(m_artBridgeWrapper); }}};
 
   TheoreticalPageBuilder builder(m_stack, headerFn, entries,
                                  QColor(245, 158, 11));
@@ -902,6 +904,10 @@ void GraphVersePlatform::setupUi() {
   m_visTSP = new VisTSP();
   m_tspWrapper = addTheoreticalPage(m_visTSP);
   m_stack->addWidget(m_tspWrapper);
+
+  m_visArtBridge = new VisArtBridge();
+  m_artBridgeWrapper = addTheoreticalPage(m_visArtBridge);
+  m_stack->addWidget(m_artBridgeWrapper);
 
   m_stack->setCurrentWidget(m_homeView);
 

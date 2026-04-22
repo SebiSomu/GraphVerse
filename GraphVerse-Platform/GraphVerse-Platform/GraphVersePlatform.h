@@ -13,6 +13,7 @@
 #include "vis_tsp.h"
 #include "vis_topological.h"
 #include "vis_binary_cc.h"
+#include "vis_artbridge.h"
 #include <QtCore/QEasingCurve>
 #include <QtCore/QParallelAnimationGroup>
 #include <QtCore/QPropertyAnimation>
@@ -202,4 +203,7 @@ private:
 
   VisBinaryCC *m_visBinaryCC = nullptr;
   QWidget *m_binaryCCWrapper = nullptr;
+
+  VisArtBridge *m_visArtBridge = nullptr;
+  QWidget *m_artBridgeWrapper = nullptr;
 };
