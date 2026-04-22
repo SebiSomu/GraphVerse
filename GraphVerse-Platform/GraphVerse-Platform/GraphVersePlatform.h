@@ -12,6 +12,7 @@
 #include "vis_translation.h"
 #include "vis_tsp.h"
 #include "vis_topological.h"
+#include "vis_binary_cc.h"
 #include <QtCore/QEasingCurve>
 #include <QtCore/QParallelAnimationGroup>
 #include <QtCore/QPropertyAnimation>
@@ -198,4 +199,7 @@ private:
 
   VisTSP *m_visTSP = nullptr;
   QWidget *m_tspWrapper = nullptr;
+
+  VisBinaryCC *m_visBinaryCC = nullptr;
+  QWidget *m_binaryCCWrapper = nullptr;
 };

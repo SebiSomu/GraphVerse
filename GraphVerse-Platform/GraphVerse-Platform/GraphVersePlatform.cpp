@@ -1,8 +1,8 @@
 #include "GraphVersePlatform.h"
 #include "style_manager.h"
-#include "ui/visualisers_page_builder.h"
 #include "ui/apps_page_builder.h"
 #include "ui/theoretical_page_builder.h"
+#include "ui/visualisers_page_builder.h"
 #include "vis_topological.h"
 #include <QPropertyAnimation>
 #include <QtCore/QTimer>
@@ -16,6 +16,7 @@
 #include <QtWidgets/QSpacerItem>
 #include <cmath>
 #include <cstdlib>
+
 
 // ─────────────────────────────────────────────────────────────
 //  Colour palette
@@ -551,27 +552,57 @@ static QWidget *buildPageHeader(const QString &title, const QString &icon,
 // PAGE 1: ALGORITHM VISUALISERS
 // ─────────────────────────────────────────────────────────────
 QWidget *GraphVersePlatform::buildVisualisersView() {
-  auto headerFn = [this](const QString& title, const QString& icon,
-                         const QColor& accent) -> QWidget* {
+  auto headerFn = [this](const QString &title, const QString &icon,
+                         const QColor &accent) -> QWidget * {
     return buildPageHeader(title, icon, accent, m_stack);
   };
 
   std::vector<VisualisersPageBuilder::AlgoEntry> entries = {
-    {"🌀 Maze Explorer — BFS & DFS",
-     [this](){ if(m_mazeWrapper) m_stack->setCurrentWidget(m_mazeWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
-    {"🔗 Connected & Strongly Connected Components",
-     [this](){ if(m_componentsWrapper) m_stack->setCurrentWidget(m_componentsWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
-    {"🌲 Spanning Trees — Kruskal · Prim · Borůvka",
-     [this](){ if(m_mstWrapper) m_stack->setCurrentWidget(m_mstWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
-    {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall · Bidirectional Dijkstra",
-     [this](){ if(m_shortestWrapper) m_stack->setCurrentWidget(m_shortestWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
-    {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles",
-     [this](){ if(m_flowWrapper) m_stack->setCurrentWidget(m_flowWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }},
-    {"📊 Topological Sort — Task Scheduling",
-     [this](){ if(m_topologicalWrapper) m_stack->setCurrentWidget(m_topologicalWrapper); else navigateToPlaceholder("Algorithm", m_visualisersView); }}
-  };
+      {"🌀 Maze Explorer — BFS & DFS",
+       [this]() {
+         if (m_mazeWrapper)
+           m_stack->setCurrentWidget(m_mazeWrapper);
+         else
+           navigateToPlaceholder("Algorithm", m_visualisersView);
+       }},
+      {"🔗 Connected & Strongly Connected Components",
+       [this]() {
+         if (m_componentsWrapper)
+           m_stack->setCurrentWidget(m_componentsWrapper);
+         else
+           navigateToPlaceholder("Algorithm", m_visualisersView);
+       }},
+      {"🌲 Spanning Trees — Kruskal · Prim · Borůvka",
+       [this]() {
+         if (m_mstWrapper)
+           m_stack->setCurrentWidget(m_mstWrapper);
+         else
+           navigateToPlaceholder("Algorithm", m_visualisersView);
+       }},
+      {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall · "
+       "Bidirectional Dijkstra",
+       [this]() {
+         if (m_shortestWrapper)
+           m_stack->setCurrentWidget(m_shortestWrapper);
+         else
+           navigateToPlaceholder("Algorithm", m_visualisersView);
+       }},
+      {"🌊 Flow Networks — Ford-Fulkerson & Negative Cycles",
+       [this]() {
+         if (m_flowWrapper)
+           m_stack->setCurrentWidget(m_flowWrapper);
+         else
+           navigateToPlaceholder("Algorithm", m_visualisersView);
+       }},
+      {"📊 Topological Sort — Task Scheduling", [this]() {
+         if (m_topologicalWrapper)
+           m_stack->setCurrentWidget(m_topologicalWrapper);
+         else
+           navigateToPlaceholder("Algorithm", m_visualisersView);
+       }}};
 
-  VisualisersPageBuilder builder(m_stack, headerFn, entries, Palette::ACCENT_VIS);
+  VisualisersPageBuilder builder(m_stack, headerFn, entries,
+                                 Palette::ACCENT_VIS);
   return builder.build();
 }
 
@@ -579,21 +610,41 @@ QWidget *GraphVersePlatform::buildVisualisersView() {
 // PAGE 2: REAL-WORLD APPS
 // ─────────────────────────────────────────────────────────────
 QWidget *GraphVersePlatform::buildAppsView() {
-  auto headerFn = [this](const QString& title, const QString& icon,
-                         const QColor& accent) -> QWidget* {
+  auto headerFn = [this](const QString &title, const QString &icon,
+                         const QColor &accent) -> QWidget * {
     return buildPageHeader(title, icon, accent, m_stack);
   };
 
   std::vector<AppsPageBuilder::AppEntry> entries = {
-    {"👥 Friend Suggestion System",
-     [this](){ if(m_friendsWrapper) m_stack->setCurrentWidget(m_friendsWrapper); else navigateToPlaceholder("Friend Suggestion", m_appsView); }},
-    {"🌍 Translation Network",
-     [this](){ if(m_translationWrapper) m_stack->setCurrentWidget(m_translationWrapper); else navigateToPlaceholder("Translation", m_appsView); }},
-    {"🛒 Supermarket Navigator",
-     [this](){ if(m_supermarketWrapper) m_stack->setCurrentWidget(m_supermarketWrapper); else navigateToPlaceholder("Supermarket", m_appsView); }},
-    {"🚕 RideMatch — Passenger ↔ Driver Max-Flow",
-     [this](){ if(m_rideMatchWrapper) m_stack->setCurrentWidget(m_rideMatchWrapper); else navigateToPlaceholder("RideMatch", m_appsView); }}
-  };
+      {"👥 Friend Suggestion System",
+       [this]() {
+         if (m_friendsWrapper)
+           m_stack->setCurrentWidget(m_friendsWrapper);
+         else
+           navigateToPlaceholder("Friend Suggestion", m_appsView);
+       }},
+      {"🔬 Binary Image Connected Components",
+       [this]() { m_stack->setCurrentWidget(m_binaryCCWrapper); }},
+      {"🌍 Translation Network",
+       [this]() {
+         if (m_translationWrapper)
+           m_stack->setCurrentWidget(m_translationWrapper);
+         else
+           navigateToPlaceholder("Translation", m_appsView);
+       }},
+      {"🛒 Supermarket Navigator",
+       [this]() {
+         if (m_supermarketWrapper)
+           m_stack->setCurrentWidget(m_supermarketWrapper);
+         else
+           navigateToPlaceholder("Supermarket", m_appsView);
+       }},
+      {"🚕 RideMatch — Passenger ↔ Driver Max-Flow", [this]() {
+         if (m_rideMatchWrapper)
+           m_stack->setCurrentWidget(m_rideMatchWrapper);
+         else
+           navigateToPlaceholder("RideMatch", m_appsView);
+       }}};
 
   AppsPageBuilder builder(m_stack, headerFn, entries, Palette::ACCENT_APP);
   return builder.build();
@@ -603,19 +654,19 @@ QWidget *GraphVersePlatform::buildAppsView() {
 // PAGE 13: THEORETICAL APPS
 // ─────────────────────────────────────────────────────────────
 QWidget *GraphVersePlatform::buildTheoreticalView() {
-  auto headerFn = [this](const QString& title, const QString& icon,
-                         const QColor& accent) -> QWidget* {
+  auto headerFn = [this](const QString &title, const QString &icon,
+                         const QColor &accent) -> QWidget * {
     return buildPageHeader(title, icon, accent, m_stack);
   };
 
   std::vector<TheoreticalPageBuilder::TheoreticalEntry> entries = {
-    {"💧 Flood Fill Algorithm",
-     [this](){ m_stack->setCurrentWidget(m_floodFillWrapper); }},
-    {"🇷🇴 Traveling Salesman (Romania)",
-     [this](){ m_stack->setCurrentWidget(m_tspWrapper); }}
-  };
+      {"💧 Flood Fill Algorithm",
+       [this]() { m_stack->setCurrentWidget(m_floodFillWrapper); }},
+      {"🇷🇴 Traveling Salesman (Romania)",
+       [this]() { m_stack->setCurrentWidget(m_tspWrapper); }}};
 
-  TheoreticalPageBuilder builder(m_stack, headerFn, entries, QColor(245, 158, 11));
+  TheoreticalPageBuilder builder(m_stack, headerFn, entries,
+                                 QColor(245, 158, 11));
   return builder.build();
 }
 
@@ -683,9 +734,9 @@ void GraphVersePlatform::navigateToPlaceholder(const QString &title,
   }
   if (m_placeholderBackBtn) {
     disconnect(m_placeholderBackBtn, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_placeholderBackBtn, &QPushButton::clicked, this, [this, returnWidget]() {
-      m_stack->setCurrentWidget(returnWidget);
-    });
+    connect(
+        m_placeholderBackBtn, &QPushButton::clicked, this,
+        [this, returnWidget]() { m_stack->setCurrentWidget(returnWidget); });
   }
   m_stack->setCurrentWidget(m_placeholderPage);
 }
@@ -739,8 +790,9 @@ void GraphVersePlatform::setupUi() {
     tbLay->addStretch();
     wlay->addWidget(topBar);
     wlay->addWidget(vis, 1);
-    QObject::connect(backBtn, &QPushButton::clicked, m_stack,
-                     [this]() { m_stack->setCurrentWidget(m_visualisersView); });
+    QObject::connect(backBtn, &QPushButton::clicked, m_stack, [this]() {
+      m_stack->setCurrentWidget(m_visualisersView);
+    });
     return wrapper;
   };
 
@@ -801,6 +853,10 @@ void GraphVersePlatform::setupUi() {
 
   m_friendsWrapper = addAppPage(m_visFriends);
   m_stack->addWidget(m_friendsWrapper);
+
+  m_visBinaryCC = new VisBinaryCC();
+  m_binaryCCWrapper = addAppPage(m_visBinaryCC);
+  m_stack->addWidget(m_binaryCCWrapper);
 
   m_translationWrapper = addAppPage(m_visTranslation);
   m_stack->addWidget(m_translationWrapper);
