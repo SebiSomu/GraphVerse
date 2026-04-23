@@ -156,6 +156,10 @@
     <ClCompile Include="rendering\undirected_graph_renderer.cpp" />
     <ClCompile Include="rendering\graph_renderer_factory.cpp" />
     <ClCompile Include="rendering\component_colorizer.cpp" />
+    <ClCompile Include="rendering\mutable_graph_renderer.cpp" />
+    <ClCompile Include="rendering\mutable_renderer_factory.cpp" />
+    <ClCompile Include="rendering\component_graph_renderer.cpp" />
+    <ClCompile Include="rendering\component_color_provider.cpp" />
     <ClCompile Include="ui\page_builder_base.cpp" />
     <ClCompile Include="ui\visualisers_page_builder.cpp" />
     <ClCompile Include="ui\apps_page_builder.cpp" />
@@ -193,6 +197,7 @@
     <ClInclude Include="algorithms\kosaraju_solver.h" />
     <ClInclude Include="algorithms\connected_components_solver.h" />
     <ClInclude Include="algorithms\condensed_graph_solver.h" />
+    <ClInclude Include="algorithms\topological_sort_solver.h" />
     <ClInclude Include="algorithms\binary_image_cc_solver.h" />
     <ClInclude Include="algorithms\articulation_bridge_solver.h" />
     <ClInclude Include="rendering\graph_renderer.h" />
@@ -200,6 +205,11 @@
     <ClInclude Include="rendering\undirected_graph_renderer.h" />
     <ClInclude Include="rendering\graph_renderer_factory.h" />
     <ClInclude Include="rendering\component_colorizer.h" />
+    <ClInclude Include="rendering\mutable_graph_renderer.h" />
+    <ClInclude Include="rendering\mutable_renderer_factory.h" />
+    <ClInclude Include="rendering\icomponent_colorable.h" />
+    <ClInclude Include="rendering\component_graph_renderer.h" />
+    <ClInclude Include="rendering\component_color_provider.h" />
     <ClInclude Include="ui\page_builder_base.h" />
     <ClInclude Include="ui\visualisers_page_builder.h" />
     <ClInclude Include="ui\apps_page_builder.h" />

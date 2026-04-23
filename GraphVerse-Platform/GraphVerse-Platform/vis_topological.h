@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QHideEvent>
 #include "directedgraph.h"
+#include "rendering/mutable_graph_renderer.h"
 #include <memory>
 #include <vector>
 
@@ -37,6 +38,11 @@ private:
     
     // Result data
     std::vector<int> m_sortedOrder;
+    
+    // Renderer for mutable graphs
+    std::unique_ptr<MutableGraphRenderer> m_renderer;
+    MutableRenderSettings m_renderSettings;
+    AnimationState m_animState;
 };
 
 #endif // VIS_TOPOLOGICAL_H

@@ -1,5 +1,6 @@
 #include "vis_topological.h"
 #include "algorithms/topological_sort_solver.h"
+#include "rendering/mutable_renderer_factory.h"
 #include <QCursor>
 #include <QHBoxLayout>
 #include <QMouseEvent>
@@ -49,6 +50,9 @@ VisTopologicalSort::VisTopologicalSort(QWidget *parent)
           &VisTopologicalSort::onClearClicked);
 
   m_graph = std::make_unique<DirectedGraph>();
+  m_renderer = MutableRendererFactory::createRenderer(true); // directed
+  m_renderSettings.directed = true;
+  m_renderSettings.showGlowEffects = true;
   setLayout(layout);
   setMinimumSize(800, 600);
 }
@@ -56,6 +60,14 @@ VisTopologicalSort::VisTopologicalSort(QWidget *parent)
 VisTopologicalSort::~VisTopologicalSort() {}
 
 void VisTopologicalSort::hideEvent(QHideEvent *event) {
+  m_graph->clear();
+  m_firstNode = nullptr;
+  m_draggedNode = nullptr;
+  m_dragging = false;
+  m_hasMoved = false;
+  m_sortedOrder.clear();
+  m_resultLabel->clear();
+  m_animState = AnimationState(); 
   QWidget::hideEvent(event);
 }
 
@@ -165,73 +177,22 @@ void VisTopologicalSort::onClearClicked() {
 }
 
 void VisTopologicalSort::paintEvent(QPaintEvent *) {
-  QPainter p(this);
-  p.setRenderHint(QPainter::Antialiasing);
-
-  if (!m_graph)
+  if (!m_graph || !m_renderer)
     return;
 
-  // Draw edges
-  for (const auto &edge : m_graph->getEdges()) {
-    QPoint from = edge.getFirst().getCoord();
-    QPoint to = edge.getSecond().getCoord();
-
-    // Draw directional arrow
-    double angle = atan2(to.y() - from.y(), to.x() - from.x());
-    int nodeRadius = 22;
-
-    QPoint startPoint(from.x() + (int)(nodeRadius * cos(angle)),
-                      from.y() + (int)(nodeRadius * sin(angle)));
-    QPoint endPoint(to.x() - (int)(nodeRadius * cos(angle)),
-                    to.y() - (int)(nodeRadius * sin(angle)));
-
-    p.setPen(QPen(QColor(140, 148, 190), 2));
-    p.drawLine(startPoint, endPoint);
-
-    // Draw arrowhead at the boundary
-    int arrowSize = 10;
-    QPoint arrowLeft(endPoint.x() - (int)(arrowSize * cos(angle - 0.5)),
-                     endPoint.y() - (int)(arrowSize * sin(angle - 0.5)));
-    QPoint arrowRight(endPoint.x() - (int)(arrowSize * cos(angle + 0.5)),
-                      endPoint.y() - (int)(arrowSize * sin(angle + 0.5)));
-
-    p.drawLine(endPoint, arrowLeft);
-    p.drawLine(endPoint, arrowRight);
-  }
-
-  // Draw pending edge
+  QPainter p(this);
+  
+  // Use MutableGraphRenderer with selected node highlighted
+  int selectedNodeId = (m_firstNode) ? m_firstNode->getIndex() : -1;
+  m_renderer->renderWithState(p, *m_graph, m_animState, m_renderSettings, selectedNodeId);
+  
+  // Draw pending edge (if creating an edge)
   if (m_firstNode) {
-    p.setPen(QPen(Qt::yellow, 2, Qt::DashLine));
-    p.drawLine(m_firstNode->getCoord(), QCursor::pos() -
-                                            mapToGlobal(QPoint(0, 0)) +
-                                            m_firstNode->getCoord());
+    m_renderer->drawPendingEdge(p, m_firstNode->getCoord(), 
+                                QCursor::pos() - mapToGlobal(QPoint(0, 0)) + m_firstNode->getCoord());
   }
-
-  // Draw nodes (simple, no coloring)
-  for (auto &node : m_graph->getNodes()) {
-    QPoint pos = node.getCoord();
-    int idx = node.getIndex();
-
-    // Highlight first selected node
-    QColor borderColor =
-        (&node == m_firstNode) ? Qt::yellow : QColor(45, 212, 191);
-    int penWidth = (&node == m_firstNode) ? 4 : 2;
-
-    p.setBrush(QColor(20, 184, 166)); // Teal default
-    p.setPen(QPen(borderColor, penWidth));
-    p.drawEllipse(pos, 22, 22);
-
-    // Draw index
-    p.setPen(Qt::white);
-    QFont f = p.font();
-    f.setPointSize(10);
-    f.setBold(true);
-    p.setFont(f);
-    p.drawText(QRect(pos.x() - 22, pos.y() - 22, 44, 44), Qt::AlignCenter,
-               QString::number(idx));
-  }
-
-  // Draw "Drag to move" hint at bottom
+  
+  // Draw hint at bottom
   p.setPen(QColor(170, 170, 170));
   QFont hintFont = p.font();
   hintFont.setPointSize(9);

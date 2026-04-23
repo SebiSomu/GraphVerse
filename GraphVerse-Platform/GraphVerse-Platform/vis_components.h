@@ -5,6 +5,7 @@
 #include <QCheckBox>
 #include <QHideEvent>
 #include "graph.h"
+#include "rendering/component_graph_renderer.h"
 #include <memory>
 
 class VisComponents : public QWidget
@@ -37,5 +38,8 @@ private:
     void updateButtonText();
     ComponentResult m_compResult;
     CondensedResult m_condensedResult;
+    
+    // Renderer for component coloring (ISP: separated concern)
+    std::unique_ptr<ComponentGraphRenderer> m_renderer;
 };
 #endif

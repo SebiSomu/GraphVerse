@@ -11,6 +11,7 @@
 #include <memory>
 #include "graph.h"
 #include "algorithms/articulation_bridge_solver.h"
+#include "rendering/mutable_graph_renderer.h"
 
 // ─────────────────────────────────────────────────────────────
 //  VisArtBridge
@@ -53,16 +54,13 @@ private:
 	std::vector<ArtBridgeAnimStep> m_steps;
 	size_t                       m_animStep = 0;
 	bool                         m_animating = false;
-	bool                         m_showResult = false;
 
-	// Live DFS state (built during animation)
-	std::unordered_map<int, int>  m_liveDisc;
-	std::unordered_map<int, int>  m_liveLow;
-	std::unordered_set<int>      m_liveVisited;
-	std::unordered_set<int>      m_liveAPs;
-	std::vector<std::pair<int, int>> m_liveBridges;
-	int                          m_activeNode = -1;  // currently explored node
-	int                          m_activeNode2 = -1;  // secondary (edge target)
+	// Animation state for rendering
+	AnimationState               m_animState;
+
+	// Renderer
+	std::unique_ptr<MutableGraphRenderer> m_renderer;
+	MutableRenderSettings        m_renderSettings;
 
 	QTimer* m_timer;
 	int           m_tickInterval = 350; // ms per step — slow enough to follow
@@ -75,7 +73,6 @@ private:
 	QLabel* m_stepLabel;
 
 	// Pulse animation for APs
-	float m_pulse = 0.f;
 	int   m_pulseTimer = 0;
 	void  timerEvent(QTimerEvent*) override;
 };

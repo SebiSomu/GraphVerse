@@ -9,13 +9,10 @@
 #include <QCheckBox>
 #include <QHideEvent>
 #include <vector>
+#include <memory>
 #include "algorithms/binary_image_cc_solver.h"
+#include "rendering/icomponent_colorable.h"
 
-// ─────────────────────────────────────────────────────────────
-//  VisBinaryCC
-//  Visualizer: Binary Image Connected Components
-//  with Morphological Pre-processing
-// ─────────────────────────────────────────────────────────────
 class VisBinaryCC : public QWidget {
     Q_OBJECT
 
@@ -41,7 +38,6 @@ private slots:
     void onAnimTick();
 
 private:
-    // Grid dimensions
     static constexpr int ROWS = 30;
     static constexpr int COLS = 50;
     static constexpr int CELL = 18;
@@ -74,8 +70,7 @@ private:
     int offsetX() const;
     int offsetY() const;
 
-    // Color palette for components (max 24 distinct colors)
-    static QColor componentColor(int id);
+    std::unique_ptr<IComponentColorProvider> m_colorProvider;
 
     // UI elements
     QWidget*     m_toolbar;

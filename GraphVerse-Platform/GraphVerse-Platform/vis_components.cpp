@@ -4,7 +4,7 @@
 #include "algorithms/connected_components_solver.h"
 #include "algorithms/kosaraju_solver.h"
 #include "algorithms/condensed_graph_solver.h"
-#include "rendering/graph_renderer_factory.h"
+#include "rendering/component_graph_renderer.h"
 #include "rendering/component_colorizer.h"
 #include <QPainter>
 #include <QMouseEvent>
@@ -19,6 +19,7 @@ VisComponents::VisComponents(QWidget* parent)
 {
     setMinimumSize(800, 600);
     m_graph = std::make_unique<UndirectedGraph>();
+    m_renderer = std::make_unique<ComponentGraphRenderer>();
 
     m_checkBox = new QCheckBox("Directed", this);
     m_checkBox->setStyleSheet("color: white; font-size: 12px;");
@@ -91,6 +92,7 @@ void VisComponents::onFindComponents() {
 void VisComponents::onToggleCondensedView() {
     if(m_compResult.numComponents > 0) {
         m_condensedResult.isShowing = !m_condensedResult.isShowing;
+        m_renderer->setCondensedViewActive(m_condensedResult.isShowing);
         m_btnToggleCondensed->setText(m_condensedResult.isShowing ? "Show normal graph" : "Show condensed graph");
         update();
     }
@@ -125,6 +127,10 @@ void VisComponents::recreateGraph(bool directed) {
     } else {
         m_graph = std::make_unique<UndirectedGraph>();
     }
+    
+    // Recreate renderer for new graph type
+    m_renderer = std::make_unique<ComponentGraphRenderer>();
+    m_renderer->settings().directed = directed;
     
     for (const auto& info : nodeInfos) {
         m_graph->addNode(info.first);
@@ -200,7 +206,13 @@ void VisComponents::mouseMoveEvent(QMouseEvent* m) {
 }
 
 void VisComponents::paintEvent(QPaintEvent*) {
-    if(!m_graph) return;
-    QPainter p(this); p.fillRect(rect(), Qt::black);
-    GraphRendererFactory::createRenderer(*m_graph)->render(p, *m_graph, &m_compResult, &m_condensedResult);
+    if(!m_graph || !m_renderer) return;
+    
+    QPainter p(this);
+    
+    int selectedNodeId = (m_firstNode) ? m_firstNode->getIndex() : -1;
+    m_renderer->setSelectedNodeId(selectedNodeId);
+    
+    // Use IGraphRenderer interface with component results
+    m_renderer->render(p, *m_graph, &m_compResult, &m_condensedResult);
 }

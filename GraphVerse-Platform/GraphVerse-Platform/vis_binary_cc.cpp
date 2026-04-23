@@ -1,4 +1,5 @@
 #include "vis_binary_cc.h"
+#include "rendering/component_color_provider.h"
 #include <QPainter>
 #include <QPainterPath>
 #include <QHBoxLayout>
@@ -8,45 +9,10 @@
 #include <cmath>
 
 // ─────────────────────────────────────────────────────────────
-//  Component color palette — 24 vivid, distinct hues
-// ─────────────────────────────────────────────────────────────
-QColor VisBinaryCC::componentColor(int id) {
-    static const QColor palette[] = {
-        {99,  102, 241}, // indigo
-        {16,  185, 129}, // emerald
-        {245, 158, 11},  // amber
-        {239, 68,  68},  // red
-        {6,   182, 212}, // cyan
-        {168, 85,  247}, // violet
-        {34,  197, 94},  // green
-        {249, 115, 22},  // orange
-        {236, 72,  153}, // pink
-        {20,  184, 166}, // teal
-        {250, 204, 21},  // yellow
-        {59,  130, 246}, // blue
-        {132, 204, 22},  // lime
-        {251, 113, 133}, // rose
-        {45,  212, 191}, // turquoise
-        {192, 132, 252}, // purple
-        {253, 186, 116}, // peach
-        {110, 231, 183}, // mint
-        {147, 197, 253}, // sky
-        {252, 165, 165}, // salmon
-        {167, 243, 208}, // seafoam
-        {216, 180, 254}, // lavender
-        {254, 240, 138}, // cream
-        {186, 230, 253}, // ice
-    };
-    constexpr int N = sizeof(palette) / sizeof(palette[0]);
-    if (id <= 0) return QColor(8, 10, 20);
-    return palette[(id - 1) % N];
-}
-
-// ─────────────────────────────────────────────────────────────
 //  Constructor / Destructor
 // ─────────────────────────────────────────────────────────────
 VisBinaryCC::VisBinaryCC(QWidget* parent)
-    : QWidget(parent), m_timer(new QTimer(this))
+    : QWidget(parent), m_timer(new QTimer(this)), m_colorProvider(std::make_unique<ComponentColorProvider>())
 {
     m_grid.assign(ROWS, std::vector<int>(COLS, 0));
     m_animLabel.assign(ROWS, std::vector<int>(COLS, 0));
@@ -511,12 +477,12 @@ void VisBinaryCC::paintEvent(QPaintEvent*) {
             if (m_showResult) {
                 // Final labeled result
                 int lbl = m_labeledImage.label[r][c];
-                fill = (lbl > 0) ? componentColor(lbl) : QColor(18, 24, 40);
+                fill = (lbl > 0) ? m_colorProvider->getColorForComponent(lbl - 1) : QColor(18, 24, 40);
             } else if (m_animating || m_animStep > 0) {
                 // During animation — show progressive labeling
                 int lbl = m_animLabel[r][c];
                 if (lbl > 0) {
-                    fill = componentColor(lbl);
+                    fill = m_colorProvider->getColorForComponent(lbl - 1);
                 } else if (m_grid[r][c] == 1) {
                     fill = QColor(55, 65, 81); // unlabeled foreground
                 } else {
