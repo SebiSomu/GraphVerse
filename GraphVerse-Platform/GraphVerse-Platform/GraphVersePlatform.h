@@ -14,6 +14,7 @@
 #include "vis_topological.h"
 #include "vis_binary_cc.h"
 #include "vis_artbridge.h"
+#include "vis_spanning_tree.h"
 #include <QtCore/QEasingCurve>
 #include <QtCore/QParallelAnimationGroup>
 #include <QtCore/QPropertyAnimation>
@@ -171,6 +172,9 @@ private:
 
   VisMST *m_visMST = nullptr;
   QWidget *m_mstWrapper = nullptr;
+
+  VisSpanningTree *m_visSpanningTree = nullptr;
+  QWidget *m_spanningTreeWrapper = nullptr;
 
   VisShortest *m_visShortest = nullptr;
   QWidget *m_shortestWrapper = nullptr;

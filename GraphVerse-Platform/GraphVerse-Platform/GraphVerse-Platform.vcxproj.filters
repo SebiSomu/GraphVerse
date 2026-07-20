@@ -44,6 +44,9 @@
     <QtMoc Include="vis_ridematch.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="vis_spanning_tree.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="vis_floodfill.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -57,6 +60,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vis_ridematch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vis_spanning_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithms\dfs_spanning_tree_solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithms\bfs_spanning_tree_solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vis_floodfill.cpp">
@@ -88,6 +100,15 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="style_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithms\i_spanning_tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithms\dfs_spanning_tree_solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithms\bfs_spanning_tree_solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="graph_interfaces_isp.h">

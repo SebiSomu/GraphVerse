@@ -114,6 +114,7 @@
     <ClCompile Include="vis_topological.cpp" />
     <ClCompile Include="vis_binary_cc.cpp" />
     <ClCompile Include="vis_artbridge.cpp" />
+    <ClCompile Include="vis_spanning_tree.cpp" />
     <QtRcc Include="GraphVersePlatform.qrc" />
     <QtUic Include="GraphVersePlatform.ui" />
     <QtMoc Include="GraphVersePlatform.h" />
@@ -131,6 +132,7 @@
     <QtMoc Include="vis_topological.h" />
     <QtMoc Include="vis_binary_cc.h" />
     <QtMoc Include="vis_artbridge.h" />
+    <QtMoc Include="vis_spanning_tree.h" />
     <ClCompile Include="GraphVersePlatform.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="algorithms\dijkstra_solver.cpp" />
@@ -143,6 +145,8 @@
     <ClCompile Include="algorithms\dfs_traversal.cpp" />
     <ClCompile Include="algorithms\kruskal_solver.cpp" />
     <ClCompile Include="algorithms\max_flow_solver.cpp" />
+    <ClCompile Include="algorithms\dfs_spanning_tree_solver.cpp" />
+    <ClCompile Include="algorithms\bfs_spanning_tree_solver.cpp" />
     <ClCompile Include="algorithms\prim_solver.cpp" />
     <ClCompile Include="algorithms\boruvka_solver.cpp" />
     <ClCompile Include="algorithms\kosaraju_solver.cpp" />
@@ -182,6 +186,7 @@
     <ClInclude Include="algorithms\i_shortest_path.h" />
     <ClInclude Include="algorithms\i_mst_algorithm.h" />
     <ClInclude Include="algorithms\i_traversal.h" />
+    <ClInclude Include="algorithms\i_spanning_tree.h" />
     <ClInclude Include="algorithms\dijkstra_solver.h" />
     <ClInclude Include="algorithms\astar_solver.h" />
     <ClInclude Include="algorithms\bellman_ford_solver.h" />
@@ -192,6 +197,8 @@
     <ClInclude Include="algorithms\dfs_traversal.h" />
     <ClInclude Include="algorithms\kruskal_solver.h" />
     <ClInclude Include="algorithms\max_flow_solver.h" />
+    <ClInclude Include="algorithms\dfs_spanning_tree_solver.h" />
+    <ClInclude Include="algorithms\bfs_spanning_tree_solver.h" />
     <ClInclude Include="algorithms\prim_solver.h" />
     <ClInclude Include="algorithms\boruvka_solver.h" />
     <ClInclude Include="algorithms\kosaraju_solver.h" />

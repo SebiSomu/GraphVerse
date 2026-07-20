@@ -579,6 +579,13 @@ QWidget *GraphVersePlatform::buildVisualisersView() {
          else
            navigateToPlaceholder("Algorithm", m_visualisersView);
        }},
+      {"🌳 Spanning Tree — DFS & BFS Tree Construction",
+       [this]() {
+         if (m_spanningTreeWrapper)
+           m_stack->setCurrentWidget(m_spanningTreeWrapper);
+         else
+           navigateToPlaceholder("Spanning Tree", m_visualisersView);
+       }},
       {"🛤️ Shortest Paths — Dijkstra · A* · Bellman-Ford · Floyd-Warshall · "
        "Bidirectional Dijkstra",
        [this]() {
@@ -801,6 +808,7 @@ void GraphVersePlatform::setupUi() {
   m_visMaze = new VisMaze();
   m_visComponents = new VisComponents();
   m_visMST = new VisMST();
+  m_visSpanningTree = new VisSpanningTree();
   m_visShortest = new VisShortest();
   m_visFlow = new VisFlow();
 
@@ -812,6 +820,9 @@ void GraphVersePlatform::setupUi() {
 
   m_mstWrapper = addVisPage(m_visMST);
   m_stack->addWidget(m_mstWrapper);
+
+  m_spanningTreeWrapper = addVisPage(m_visSpanningTree);
+  m_stack->addWidget(m_spanningTreeWrapper);
 
   m_shortestWrapper = addVisPage(m_visShortest);
   m_stack->addWidget(m_shortestWrapper);
